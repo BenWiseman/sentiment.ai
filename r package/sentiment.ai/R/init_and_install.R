@@ -131,10 +131,9 @@ sentiment.ai.init <- function(model = "multi",
         model <- "https://tfhub.dev/google/universal-sentence-encoder-large/5"
     }
 
-    # Make global
+    # Make global (saves a lot of time downstream)
     sentiment.ai.embed <<- load_language_model(model)
 
-    #sentiment.ai.embed  <<- tfhub::hub_load(model)
 }
 
 sentiment.ai.init(model = "en")
