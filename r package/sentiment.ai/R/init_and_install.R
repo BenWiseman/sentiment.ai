@@ -5,12 +5,12 @@
 #' If not, it creates an environment and installs dependencies
 #'
 .onLoad <- function() {
-    require(roperators)
-    require(data.table)
+    require(roperators, quietly = TRUE)
+    require(data.table, quietly = TRUE)
+    require(tensorflow, quietly = TRUE)
+    require(tfhub,      quietly = TRUE)
 
     message("Loading sentiment.ai")
-
-    activate_env("r-sentiment-ai", silent = TRUE)
 }
 
 #' Activate sentiment.ai environment in reticulate
@@ -113,10 +113,21 @@ sentiment.ai.install <- function(envname = "r-sentiment-ai",
 
 #' Creates model object, speed up sessions and such
 #' @param model path to tensorflow hub embedding model defaults to USE multilingual
-sentiment.ai.init <- function(model   = "multilingual"){
+sentiment.ai.init <- function(model = "multi",
+                              envname = "r-sentiment-ai"){
 
+    activate_env(envname, silent = FALSE)
     message("Preparing Model")
-    eval(reticulate::source_python("Python/get_embedder.py"), envir = -1)
+    #eval(reticulate::source_python("Python/get_embedder.py"), envir = -1)
     # Make global
-    sentiment.ai.embed <<- load_language_model(model)
+    #sentiment.ai.embed <<- load_language_model(model='multi')
+
+    if(tolower(model) %in% c("multilingual", "multi")){
+        model <- "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3"
+    } else if(tolower(model) %in% c("english", "en")){
+        model <- "https://tfhub.dev/google/universal-sentence-encoder-large/5"
+    }
+
+    sentiment.ai.embed  <<- tfhub::hub_load(model)
 }
+
