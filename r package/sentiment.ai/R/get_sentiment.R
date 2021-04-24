@@ -10,8 +10,9 @@ sentiment_plus <- function(text = NULL,
                            data = NULL,
                            idcol = NULL,
                            lexicon = NULL,
-                           envname = "r-sentiment-ai",
-                           model   = "multilingual"){
+                           model   = "multi",
+                           envname = "r-sentiment-ai"
+                           ){
 
     # Step 1 - Activate environment
     activate_env(envname)
@@ -84,8 +85,9 @@ sentiment_plus <- function(text = NULL,
 sentiment_easy <- function(text = NULL,
                            positive = "good",
                            negative = "bad",
-                           envname  = "r-sentiment-ai",
-                           model    = "multilingual"){
+                           model    = "multi",
+                           envname  = "r-sentiment-ai"
+                           ){
 
     # Step 1&2 - Activate env and Create embeder object
     if(!exists("sentiment.ai.embed")){

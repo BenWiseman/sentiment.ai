@@ -14,7 +14,7 @@
 }
 
 #' Activate sentiment.ai environment in reticulate
-activate_env <- function(envname = "r-sentiment-ai", silent=FALSE){
+activate_env <- function(envname = "r-sentiment-ai", silent=FALSE, r_envir = -1){
     #TODO: add method argument
     # I think virtualenv may be easier to make within a package
     venv_list  <- reticulate::virtualenv_list()
@@ -27,10 +27,10 @@ activate_env <- function(envname = "r-sentiment-ai", silent=FALSE){
     } else{
         # Activate environment
         if(envname %in% venv_list) {
-            eval(reticulate::use_virtualenv(envname), envir = -1)
+            eval(reticulate::use_virtualenv(envname), envir = r_envir)
             if(!silent) message("Activated virtualenv: ", envname)
         } else {
-            eval(reticulate::use_condaenv(envname), envir = -1)
+            eval(reticulate::use_condaenv(envname), envir = r_envir)
             if(!silent) message("Activated condaenv:", envname)
         }
     }
@@ -116,11 +116,14 @@ sentiment.ai.install <- function(envname = "r-sentiment-ai",
 sentiment.ai.init <- function(model = "multi",
                               envname = "r-sentiment-ai"){
 
-    activate_env(envname, silent = FALSE)
+    require(roperators, quietly = TRUE)
+    require(data.table, quietly = TRUE)
+    require(tensorflow, quietly = TRUE)
+    require(tfhub,      quietly = TRUE)
+
+    activate_env(envname, silent = FALSE, r_envir = -2)
     message("Preparing Model")
-    #eval(reticulate::source_python("Python/get_embedder.py"), envir = -1)
-    # Make global
-    #sentiment.ai.embed <<- load_language_model(model='multi')
+    eval(reticulate::source_python("Python/get_embedder.py"), envir = -1)
 
     if(tolower(model) %in% c("multilingual", "multi")){
         model <- "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3"
@@ -128,6 +131,10 @@ sentiment.ai.init <- function(model = "multi",
         model <- "https://tfhub.dev/google/universal-sentence-encoder-large/5"
     }
 
-    sentiment.ai.embed  <<- tfhub::hub_load(model)
+    # Make global
+    sentiment.ai.embed <<- load_language_model(model)
+
+    #sentiment.ai.embed  <<- tfhub::hub_load(model)
 }
 
+sentiment.ai.init(model = "en")
