@@ -1,5 +1,6 @@
 ﻿positive,negative
-Good,Evil
+good,bad
+not bad,not good
 doing good,doing bad
 feel good,feel bad
 smell good,smell bad
@@ -10,4 +11,25 @@ happy,unhappy
 fair,unfair
 correct,incorrect
 pleasant,unpleasant
-save life,end life
+happy end,sad end
+act good,act bad
+helpful,unhelpful
+harmless,harmful
+wasteless,wasteful
+like,don't like
+loving,loveless
+safe,unsafe
+joyful,joyless
+information,misinformation
+intelligent,unintelligent
+sustainable,unsustainable
+fearless,fearful
+positive,negative
+exciting,unexciting
+useful,useless
+non violent,violent
+respected,disrespected
+unbiased,biased
+honest,dishonest
+merciful,merciless
+justice,injustice

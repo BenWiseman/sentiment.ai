@@ -110,3 +110,13 @@ sentiment.ai.install <- function(envname = "r-sentiment-ai",
 
     invisible(NULL)
 }
+
+#' Creates model object, speed up sessions and such
+#' @param model path to tensorflow hub embedding model defaults to USE multilingual
+sentiment.ai.init <- function(model   = "multilingual"){
+
+    message("Preparing Model")
+    eval(reticulate::source_python("Python/get_embedder.py"), envir = -1)
+    # Make global
+    sentiment.ai.embed <<- load_language_model(model)
+}

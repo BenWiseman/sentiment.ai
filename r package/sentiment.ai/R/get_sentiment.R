@@ -3,7 +3,6 @@
 #' @param text EITHER a plain text vector or column name if data supplied
 #' @param data OPTIONAL dataframe or data.table with text
 #' @param idcol OPTIONAL IF data supplied, use idcol to do shit
-#' @param vector.out Logical, return simple score vector OR dataframe with more details
 #' @param lexicon data.frame or data.table of words: sentiment (default is XXX)
 #' @param envname specify virtual environment for Reticulate
 #' @param model embedding from tensorflow-hub
@@ -12,46 +11,28 @@ sentiment_plus <- function(text = NULL,
                            idcol = NULL,
                            lexicon = NULL,
                            envname = "r-sentiment-ai",
-                           model   = "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3"){
-
-    # DEBUUG
-    text = c("The holocaust",
-             "Bad taste in music",
-             "The resturant smelled bad",
-             "The aardvark ate a scone",
-             "The resturant served human flesh",
-             "Good taste in music",
-             "And they lived happily ever after",
-             "not good",
-             "not bad",
-             "Thanos won",
-             "David Bowie and Bob Ross",
-             "Good",
-             "Evil",
-             "Hitler",
-             "Yeah nah not bad I reckon!",
-             "My favorite show got cancelled after two seasons!",
-             "Fox News",
-             "War in iraq",
-             "Fall of the Berlin Wall",
-             "Dogs",
-             "Terrorism"
-             )
+                           model   = "multilingual"){
 
     # Step 1 - Activate environment
     activate_env(envname)
 
     # Step 2 - Create embeder object
-    message("Preparing Model")
-    reticulate::source_python("Python/get_embedder.py")
-    embed = load_language_model(model)
+    if(!exists("sentiment.ai.embed")){
+        message("Preparing Model")
+        reticulate::source_python("Python/get_embedder.py")
+        sentiment.ai.embed <- load_language_model(model)
+    } else{
+        message("sentiment.ai.embed found in environment.")
+
+    }
+
 
     # Step 3 - Make lookup table of reference embeddings
     reference_table <- make_lookup_table(lexicon)
 
     # Step 4 - Generate reference embeddings
     message("Applying Model")
-    reference_embeddings <- as.matrix(embed(reference_table$word))
+    reference_embeddings <- as.matrix(sentiment.ai.embed(reference_table$word))
     row.names(reference_embeddings) <- reference_table$word
 
     # Step 5 - parse text
@@ -61,7 +42,7 @@ sentiment_plus <- function(text = NULL,
     }
 
     # Step 6 - text embeddings
-    text_embeddings <- as.matrix(embed(text))
+    text_embeddings <- as.matrix(sentiment.ai.embed(text))
     row.names(text_embeddings) <- text
 
 
@@ -93,40 +74,18 @@ sentiment_plus <- function(text = NULL,
 }
 
 
-#' Simpler sentiment - give score ranging from good to evil
+#' Simpler sentiment - give score ranging from good to bad
+#' This returns a single vector, and will run a little faster
 #' @param text EITHER a plain text vector or column name if data supplied
-#' @param data OPTIONAL dataframe or data.table with text
+#' @param positive Custom positive word or term to compare against. e.g. "happy", "high quality"
+#' @param negative Custom Negative word or term to compare against. e.g. "unhappy", "low quality"
 #' @param envname specify virtual environment for Reticulate
 #' @param model embedding from tensorflow-hub
-sentiment <- function(text = NULL,
-                      data = NULL,
-                      envname = "r-sentiment-ai",
-                      model   = "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3"){
-
-    # DEBUUG
-    text = c("The holocaust",
-             "Bad taste in music",
-             "The resturant smelled bad",
-             "The aardvark ate a scone",
-             "The resturant served human flesh",
-             "Good taste in music",
-             "And they lived happily ever after",
-             "not good",
-             "not bad",
-             "Thanos won",
-             "David Bowie and Bob Ross",
-             "Good",
-             "Evil",
-             "Hitler",
-             "Yeah nah not bad I reckon!",
-             "My favorite show got cancelled after two seasons!",
-             "Fox News",
-             "War in iraq",
-             "Fall of the Berlin Wall",
-             "Dogs",
-             "Terrorism"
-    )
-
+sentiment_easy <- function(text = NULL,
+                           positive = "good",
+                           negative = "bad",
+                           envname  = "r-sentiment-ai",
+                           model    = "multilingual"){
     # Step 1 - Activate environment
     activate_env(envname)
 
@@ -136,7 +95,7 @@ sentiment <- function(text = NULL,
     embed = load_language_model(model)
 
     # Step 3 - Make lookup table of reference embeddings
-    reference_table <- data.table(word = c("Good", "Evil"),
+    reference_table <- data.table(word = c(positive, negative),
                                   sentiment = c("positive", "negative"),
                                   key = "word")
 
@@ -145,19 +104,15 @@ sentiment <- function(text = NULL,
     reference_embeddings <- as.matrix(embed(reference_table$word))
     row.names(reference_embeddings) <- reference_table$word
 
-    # Step 5 - parse text
-    # TODO
-    if(!is.null(data)){
 
-    }
-
-    # Step 6 - text embeddings
+    # Step 5 - text embeddings
     text_embeddings <- as.matrix(embed(text))
     row.names(text_embeddings) <- text
 
 
-    # Vector similarity
+    # Step 6 - Vector similarity
     message("Comparing Text with Lexicon")
+    # funcs to compare vector similarity
     cosine <- function(x, y) return(crossprod(x, y)/sqrt(crossprod(x) * crossprod(y)))
     cosine_lookup  <- function(i) apply(reference_embeddings, 1, function(j) cosine(i, j))
 
@@ -178,7 +133,8 @@ sentiment <- function(text = NULL,
     sims[!grepl("positive", sentiment), value := -value]
 
     # RETURN
-    # TODO make sure return order matcher input order!!!
-    return(sims$value)
+    # Force order to be same as input!
+    setkeyv(sims, "text")
+    return(sims[text, value])
 
 }

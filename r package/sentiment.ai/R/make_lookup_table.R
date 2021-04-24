@@ -6,11 +6,10 @@ make_lookup_table <- function(lexicon){
     # OR
     # tidytext::sentiments
 
-    pos_words <- c("Good", "Bob Ross")
-    neg_words <- c("Evil", "Ben Shapiro")
-    sentiment <- c(rep("positive", length(pos_words)),
-                   rep("negative", length(neg_words)))
 
-    data.table(word = c(pos_words, neg_words),
-               sentiment = sentiment)
+    dt <- fread("default_short.csv")
+    reference_table <- rbind(data.table(word = dt$positive, sentiment = "positive"),
+                             data.table(word = dt$negative, sentiment = "negative"))
+
 }
+
