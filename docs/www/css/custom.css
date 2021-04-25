@@ -16,31 +16,56 @@
 
 }
 
+
+// FLOATING HEADER
+#header {
+  position: fixed;
+}
+
+#content {
+  margin-top: 100px;
+}
+
+.tocify-subheader > .tocify-item {
+  text-indent: initial;
+  padding-left: 2em;
+}
+
+
+
 /* Things with bg gradient */
 h1.title {
     font-size: 58px;
+    font-weight: 600;
     background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
     -webkit-background-clip: text!important;
     -webkit-text-fill-color: transparent!important;
 }
 
 
-h3.subtitle {
-    font-size: 28px;
-    background-image: -webkit-linear-gradient(45deg, var(--colDark)  0%, var(--colMed) 75%)!important;
+h1.subtitle {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--colDarkest);
+    /*background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
     -webkit-background-clip: text!important;
-    -webkit-text-fill-color: transparent!important;
+    -webkit-text-fill-color: transparent!important; */
 }
 
 
 .subtitle {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--colDarkest);
+    /*
     font-size: 42px;
     background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
     -webkit-background-clip: text!important;
-    -webkit-text-fill-color: transparent!important;
+    -webkit-text-fill-color: transparent!important;*/
 }
 
 h2 {
+    font-weight: 600;
     background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
     -webkit-background-clip: text!important;
     -webkit-text-fill-color: transparent!important;
@@ -114,6 +139,16 @@ button.btn.btn-default.btn-xs.code-folding-btn.pull-right{
 
 
 /* FONT */
+
+h1.title .rainbow-text{
+     color: transparent;
+     background: rgb(190,80,255);
+     background: linear-gradient(to right, #895f3e , #89813e, #49893e, #3e897b, #6a518c);
+     -webkit-background-clip: text!important;
+     -webkit-text-fill-color: transparent!important;
+
+  }
+
 
 @font-face {
  font-family: 'Gothamy';

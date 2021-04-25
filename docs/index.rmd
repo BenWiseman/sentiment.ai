@@ -1,10 +1,11 @@
 ---
-title: "sentiment.ai"
 image: "media/nnet_big.svg"
 output:
   html_document:
     toc: yes
-    toc_float: yes
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
     theme: flatly
     highlight: espresso
     css: www/css/custom.css
@@ -12,20 +13,37 @@ output:
       in_header: header.html
   word_document:
     toc: yes
-subtitle: Open Source AI-Powered Sentiment Analysis
 editor_options:
   chunk_output_type: console
 always_allow_html: true
 ---
+```{css, echo=FALSE}
+ #TOC::before {
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center; 
+  content: "sentiment.ai";
+  display: block;
+  width: 200px;
+  height: 80px;
+  line-height: 80px;
+  margin: 10px 10px 10px 20px;
+  //background-image: url("media/nnetsmall.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+#TOC{
+    border:none;
+}
 
-
+```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 require(reticulate)
-reticulate::use_condaenv("r-sentiment-ai")
+use_condaenv("r-sentiment-ai", required = TRUE)
 assign("depthtrigger", 4, data.table:::.global)
 ```
-
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 require(knitr)
 require(kableExtra)
@@ -39,19 +57,18 @@ colMed   <- "#2b8cbe"
 colDark  <- "#4158CD"
 colDarkest <- "#09001c"
 ```
+<h1 class="title toc-ignore">
+sentiment<span class="rainbow-text">.ai</span>
+</h1>
+<h1 class="subtitle toc-ignore rainbow-text"> Open Source AI-Based Sentiment Analysis</h1>
+<br>
 
 
 ## Overview
 
-### Who is this package for?
-
 We made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
 use open source deep learning models to improve their sentiment analyses. We've wrapped a lot of the 
-underlying hassle up to make the process as simple as possible. 
-
-### What are the Benefits?
-
-In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
+underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
 
 1) It is **case-insensitive**, can **handle spelling mitsakes**, and can be applied to **16 languages**! 
 
@@ -60,12 +77,13 @@ In addition to just being cool, this approach solves several problems with tradi
 3) You can **choose the context** for what negative and positive mean. For example, you could set `positive` to mean `"high quality"` and negative to mean `"low quality"` when looking at product reviews.
 
 
-4) **Power**
+4) **Power** Because it draws from models trained on billions of texts, news articles, and wikipedia entries, it is able to detect things such as *"I learned so much on my trip to Hiroshima museum last year!"* is associated with something positive and that *"What happeded to the people of Hiroshima in 1945"* is associated with something negative. 
 
 5) **Speed** 
+On large datasets, `sentimenmt.ai` can harness the power of a GPU to achieve a significant speedup compared to traditional sentiment analysis methods. 
 
 
-## Simple Example
+### Simple Example
 
 <input onclick="change()" type="button" class="collapsible" value="Open Code"></input>
 <div class="content">
@@ -100,6 +118,9 @@ text <- c(
     "the resturant was my absolute favourite until they gave me food poisoning",
     "The app freezes all the time!",
     "The app is a life saver!",
+    "I learned so much on my trip to Hiroshima museum last year!",
+    "What happened to the people of Hiroshima in 1945",
+    "I drank tap water in Chernobyl",
     "The psychopath has a lot of fun on the battlefield",
     "I love watching horror movies",
     "This package offers so much more nuance to sentiment analysis!",
@@ -118,20 +139,19 @@ sentimentr.score <- sentiment_by(get_sentences(text), 1:length(text))$ave_sentim
 
 
 example <- data.table(target = text, 
-                      sentiment.ai.score,
-                      sentimentAnalysis.score,
-                      sentimentr.score)
+                      sentiment.ai = sentiment.ai.score,
+                      sentimentAnalysis = sentimentAnalysis.score,
+                      sentimentr = sentimentr.score)
 ```
 </div>
 
 
-```{r draw_kable, echo = FALSE, message=FALSE}
-`:=` <- data.table::`:=`
+```{r draw_kable, echo = FALSE, eval=TRUE, message=FALSE}
 ex_draw <- copy(example)
 
-ex_draw$sentiment.ai.score %<>% round(2)
-ex_draw$sentimentAnalysis.score %<>% round(2)
-ex_draw$sentimentr.score %<>% round(2)
+ex_draw$sentiment.ai %<>% round(2)
+ex_draw$sentimentAnalysis %<>% round(2)
+ex_draw$sentimentr %<>% round(2)
 
 
 color_func <- function(x, col_high = colLight, col_low = colDarkest ){
@@ -142,11 +162,11 @@ color_func <- function(x, col_high = colLight, col_low = colDarkest ){
                          cell_spec(x, color = "#808080", bold = FALSE)))
 }
 
-ex_draw[, sentiment.ai.score := color_func(sentiment.ai.score)]
+ex_draw[, sentiment.ai := color_func(sentiment.ai)]
 
-ex_draw[, sentimentr.score := color_func(sentimentr.score)]
+ex_draw[, sentimentr := color_func(sentimentr)]
 
-ex_draw[, sentimentAnalysis.score := color_func(sentimentAnalysis.score)]
+ex_draw[, sentimentAnalysis := color_func(sentimentAnalysis)]
 
 
 ex_draw  %>%
@@ -159,9 +179,15 @@ ex_draw  %>%
 ## Benchmarks
 
 ### Power
+```{r benchmark_power, message=FALSE, warning=FALSE}
+
+```
  
 ### Speed
 
+```{r benchmark_speed, message=FALSE, warning=FALSE}
+
+```
 
 
 ## Installation

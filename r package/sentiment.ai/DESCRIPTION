@@ -15,11 +15,13 @@ VignetteBuilder: knitr
 Depends:
     R (>= 4.0.0),
     data.table (>= 1.14.0),
+    reticulate (>= 1.18),
     roperators (>= 1.1.0),
     tensorflow (>= 2.4.0),
     tfhub (>= 0.8.0)
 Imports:
     data.table (>= 1.14.0),
+    reticulate (>= 1.18),
     roperators (>= 1.1.0),
     tensorflow (>= 2.4.0),
     tfhub (>= 0.8.0)
@@ -28,3 +30,4 @@ Collate:
     'get_sentiment.R'
     'make_lookup_table.R'
     'default_data.R'
+    'matrix_helpers.R'

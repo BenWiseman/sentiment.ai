@@ -1,9 +1,7 @@
 
 
 #' Activate sentiment.ai environment in reticulate
-#' @export
-#' @rdname setup
-activate_env <- function(envname = "r-sentiment-ai", silent=FALSE, r_envir = -1){
+.activate_env <- function(envname = "r-sentiment-ai", silent=FALSE, r_envir = -1){
     #TODO: add method argument
     # I think virtualenv may be easier to make within a package
     venv_list  <- reticulate::virtualenv_list()
@@ -15,12 +13,12 @@ activate_env <- function(envname = "r-sentiment-ai", silent=FALSE, r_envir = -1)
                 Run: sentiment.ai.install() to configure the underlying python stuff\n")
     } else{
         # Activate environment
-        if(envname %in% venv_list) {
-            eval(reticulate::use_virtualenv(envname), envir = r_envir)
-            if(!silent) message("Activated virtualenv: ", envname)
-        } else {
+        if(envname %in% conda_list) {
             eval(reticulate::use_condaenv(envname), envir = r_envir)
-            if(!silent) message("Activated condaenv:", envname)
+            if(!silent) message("Activated condaenv: ", envname)
+        } else {
+            eval(reticulate::use_virtualenv(envname), envir = r_envir)
+            if(!silent) message("Activated virtualenv:", envname)
         }
     }
 }
@@ -50,7 +48,7 @@ activate_env <- function(envname = "r-sentiment-ai", silent=FALSE, r_envir = -1)
 #'
 #' @export
 #' @rdname setup
-sentiment.ai.install <- function(envname = "r-sentiment-ai",
+install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  method  = c("auto", "virtualenv", "conda"),
                                  gpu     = FALSE,
                                  conda   = "auto",
@@ -113,7 +111,7 @@ sentiment.ai.init <- function(model = "multi",
     require(tensorflow, quietly = TRUE)
     require(tfhub,      quietly = TRUE)
 
-    activate_env(envname, silent = FALSE, r_envir = -2)
+    .activate_env(envname, silent = FALSE, r_envir = -2)
     message("Preparing Model")
     reticulate:::source_python(system.file("get_embedder.py", package = "sentiment.ai"))
 

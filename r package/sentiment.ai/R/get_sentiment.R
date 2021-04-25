@@ -51,8 +51,7 @@ sentiment_plus <- function(text = NULL,
 
     # Vector similarity
     message("Comparing Text with Lexicon")
-    cosine <- function(x, y) return(crossprod(x, y)/sqrt(crossprod(x) * crossprod(y)))
-    cosine_lookup  <- function(i) apply(reference_embeddings, 1, function(j) cosine(i, j))
+
 
     # this could be quite large, so overwrite variable to free memory
     sims <- data.table(t(apply(text_embeddings, 1, cosine_lookup)),
@@ -89,16 +88,21 @@ sentiment_plus <- function(text = NULL,
 sentiment_easy <- function(text = NULL,
                            positive = default$positive,
                            negative = default$negative,
-                           model    = "multi",
+                           model    = "en",
                            envname  = "r-sentiment-ai"
                            ){
 
+    if(is.null(text)) return(NULL)
+    if(any(is.na(text))){
+        warning("NA in text detected. Be sure to filter these from your results!")
+        text[is.na(text)] <- "NA"
+    }
+
+
     # Step 1&2 - Activate env and Create embeder object
     if(!exists("sentiment.ai.embed")){
-        message("Preparing Model")
-        activate_env(envname)
-        reticulate::py_run_file(system.file("Python/get_embedder.py", package = "sentiment.ai"))
-        sentiment.ai.embed <- load_language_model(model)
+        message("Preparing Model (this may take a while)\n Considder running sentiment.ai.init()")
+        sentiment.ai.init(model = model, envname = envname)
     } else{
         message("sentiment.ai.embed found in environment.\n To change model call sentiment.ai.init again")
 
@@ -112,78 +116,34 @@ sentiment_easy <- function(text = NULL,
                                   key = "word")
 
     # Step 4 - Generate reference embeddings
-    message("Applying Model")
     reference_embeddings <- as.matrix(sentiment.ai.embed(reference_table$word))
     row.names(reference_embeddings) <- reference_table$word
 
-
     # Step 5 - text embeddings
-    text_embeddings <- as.matrix(sentiment.ai.embed(text))
+    # BANDAID: tensorflow or reticulate is being a shit when text is length 1
+    bandaid <- function(x) if(length(x)==1) reticulate::r_to_py(list(x)) else x
+    text_embeddings <- as.matrix(sentiment.ai.embed(bandaid(text)))
     row.names(text_embeddings) <- text
 
-
     # Step 6 - Vector similarity
-    message("Comparing Text with Lexicon")
-    # funcs to compare vector similarity
-    cosine <- function(x, y) return(crossprod(x, y)/sqrt(crossprod(x) * crossprod(y)))
-    cosine_lookup  <- function(i) apply(reference_embeddings, 1, function(j) cosine(i, j))
+    match <- .cosine_match(target    = text_embeddings,
+                           reference = reference_embeddings)
 
-    # this could be quite large, so overwrite variable to free memory
-    sims <- data.table(t(apply(text_embeddings, 1, cosine_lookup)),
-                       keep.rownames = TRUE)
+    # filter to top match
+    match <- match[rank == 1, .(text = rn, word, value)]
 
-    # Make long, then rank matchec by text input (rn)
-    sims <- data.table::melt(sims, id.vars=("rn"), variable.name = "word")
-    sims[, rank := data.table::frank(-value), by = .(rn)]
+    # join to sentiment table (add word:sentiment)
+    match <- reference_table[match, on="word", mult="first"]
 
-
-    # shouldn't be ties...
-    sims <- sims[rank == 1, .(text = rn, word, value)]
-
-    # join to sentiment table
-    sims <- reference_table[sims, on="word", mult="first"]
-    # Now invert value for negative!
-    sims[!grepl("positive", sentiment), value := -value]
+    # Now invert value for negative! (positive for positive, negative for negative)
+    # Do slightly fuzzy match in case user screws up
+    match[!grepl("positive", sentiment, ignore.case = TRUE), value := -value]
 
     # RETURN
     # Force order to be same as input!
-    setkeyv(sims, "text")
-    return(sims[text, value])
+    # Set key as text column and then return indexed by original text
+    setkeyv(match, "text")
+    return(match[text, value])
 
 }
 
-# require(readr)
-# require(data.table)
-
-#
-# tests <- c(
-#     "Steve Irwin",
-#     "Bob Ross",
-#     "Rosa Parks",
-#     "Mother Teresa",
-#     "Mister Rodgers",
-#     "Adolf Hitler",
-#     "Donald Trump",
-#     "That was such a cute dog omg I'm literally crying it was so cute!",
-#     "u-g-l-y- you ain't got no aliby",
-#     "the resturant served human flesh",
-#     "the resturant served endangered species",
-#     "you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!",
-#     "the resturant is my favourite!",
-#     "the redturanr is my faborite!",
-#     "the resturant was my absolute favourite until they gave me food poisoning",
-#     "The app freezes all the time!",
-#     "The app is a life saver!",
-#     "The psychopath has a lot of fun on the battlefield",
-#     "I love watching horror movies",
-#     "This package offers so much more nuance to sentiment analysis!",
-#     "Famous pundit Ben Shapiro's opinions",
-#     "Reading Rainbow",
-#     "It can snag things that aren't even in the dictionary, unlike traditional sentiment packages"
-# )
-#
-# s <- sentiment_easy(text = tests,
-#                     positive = "society", #default_large$positive,
-#                     negative = "environment",#default_large$negative
-#                     )
-# data.frame(tests, s)
