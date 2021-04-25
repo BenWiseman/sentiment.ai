@@ -1,0 +1,18 @@
+\documentclass{article}
+\usepackage[paperheight=3.3cm,paperwidth=14cm, left=0cm,right=0cm,
+  top=0cm,bottom=0cm]{geometry}
+\begin{document}
+<<theme1, echo=FALSE>>=
+knit_theme$set(knit_theme$get('acid'))
+@
+<<code1, eval=FALSE>>=
+acid    ; 'R sample'; "string2" # comment.    # examples from Tinn R
+var_a = 1:100  ; var.b <- 1: 4.6  # Numbers, Identifier
+1 + 1 - 1 * 1 / 1 ^ 1 < 6 & !TRUE;  #h$k ?  # Operator, Symbol
+tryCatch(NA); NULL; TRUE; T; FALSE; if(F) 7  # Programming
+mean; as.data.frame(iris) # Function, dataset
+plot(4, col='blue', cex=0.5) # Plotting
+foo = function(dummy=NA) if (TRUE) {  for (i in 1:10) x <- NULL }
+@
+
+\end{document}

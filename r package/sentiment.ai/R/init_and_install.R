@@ -1,19 +1,8 @@
 
-#' Loading the package
-#'
-#' This checks if there is a suitable python environment
-#' If not, it creates an environment and installs dependencies
-#'
-.onLoad <- function() {
-    require(roperators, quietly = TRUE)
-    require(data.table, quietly = TRUE)
-    require(tensorflow, quietly = TRUE)
-    require(tfhub,      quietly = TRUE)
-
-    message("Loading sentiment.ai")
-}
 
 #' Activate sentiment.ai environment in reticulate
+#' @export
+#' @rdname setup
 activate_env <- function(envname = "r-sentiment-ai", silent=FALSE, r_envir = -1){
     #TODO: add method argument
     # I think virtualenv may be easier to make within a package
@@ -59,7 +48,8 @@ activate_env <- function(envname = "r-sentiment-ai", silent=FALSE, r_envir = -1)
 #'
 #' @param gpu logical, should GPU enabled TensorFlow be installed?
 #'
-#'
+#' @export
+#' @rdname setup
 sentiment.ai.install <- function(envname = "r-sentiment-ai",
                                  method  = c("auto", "virtualenv", "conda"),
                                  gpu     = FALSE,
@@ -113,6 +103,8 @@ sentiment.ai.install <- function(envname = "r-sentiment-ai",
 
 #' Creates model object, speed up sessions and such
 #' @param model path to tensorflow hub embedding model defaults to USE multilingual
+#' @export
+#' @rdname setup
 sentiment.ai.init <- function(model = "multi",
                               envname = "r-sentiment-ai"){
 
@@ -123,7 +115,7 @@ sentiment.ai.init <- function(model = "multi",
 
     activate_env(envname, silent = FALSE, r_envir = -2)
     message("Preparing Model")
-    eval(reticulate::source_python("Python/get_embedder.py"), envir = -1)
+    reticulate:::source_python(system.file("get_embedder.py", package = "sentiment.ai"))
 
     if(tolower(model) %in% c("multilingual", "multi")){
         model <- "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3"
@@ -136,4 +128,4 @@ sentiment.ai.init <- function(model = "multi",
 
 }
 
-sentiment.ai.init(model = "en")
+#sentiment.ai.init(model = "en")

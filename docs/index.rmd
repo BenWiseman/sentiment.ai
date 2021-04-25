@@ -1,30 +1,216 @@
 ---
-title: "index"
-author: "Ben Wiseman"
-date: "4/24/2021"
-output: html_document
+title: "sentiment.ai"
+image: "media/nnet_big.svg"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    theme: flatly
+    highlight: espresso
+    css: www/css/custom.css
+    includes:
+      in_header: header.html
+  word_document:
+    toc: yes
+subtitle: Open Source AI-Powered Sentiment Analysis
+editor_options:
+  chunk_output_type: console
+always_allow_html: true
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+require(reticulate)
+reticulate::use_condaenv("r-sentiment-ai")
+assign("depthtrigger", 4, data.table:::.global)
 ```
 
-## R Markdown
+```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
+require(knitr)
+require(kableExtra)
+require(magrittr)
+require(formattable)
+require(data.table)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+colLight <- "#1cb1c4"
+colMed   <- "#2b8cbe"
+colDark  <- "#4158CD"
+colDarkest <- "#09001c"
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+## Overview
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+### Who is this package for?
+
+We made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
+use open source deep learning models to improve their sentiment analyses. We've wrapped a lot of the 
+underlying hassle up to make the process as simple as possible. 
+
+### What are the Benefits?
+
+In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
+
+1) It is **case-insensitive**, can **handle spelling mitsakes**, and can be applied to **16 languages**! 
+
+2) It **doesn't need to match words to a ridged lexicon**, rather it matches to an embedding vector (reduces language to a vector of numbers that capture the information, kind of like a PCA). This means you can get scores for words that are not in the lexicon but are similar to existing words! 
+
+3) You can **choose the context** for what negative and positive mean. For example, you could set `positive` to mean `"high quality"` and negative to mean `"low quality"` when looking at product reviews.
+
+
+4) **Power**
+
+5) **Speed** 
+
+
+## Simple Example
+
+<input onclick="change()" type="button" class="collapsible" value="Open Code"></input>
+<div class="content">
+```{r example1, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+# Load the package
+require(sentiment.ai)
+require(SentimentAnalysis)
+require(sentimentr)
+
+# Only if it's your first ever time
+# sentiment.ai.install()
+
+# Initiate the model
+# This will create the sentiment.ai.embed model in your environment
+sentiment.ai.init(model = "english")
+
+
+text <- c(
+    "Steve Irwin",
+    "Bob Ross",
+    "Rosa Parks",
+    "Mother Teresa",
+    "Mister Rodgers",
+    "Adolf Hitler",
+    "Donald Trump",
+    "That was such a cute dog omg I'm literally crying it was so cute!",
+    "u-g-l-y- you ain't got no aliby",
+    "the resturant served human flesh",
+    "the resturant served endangered species",
+    "the resturant is my favourite!",
+    "the redturanr is my faborite!",
+    "the resturant was my absolute favourite until they gave me food poisoning",
+    "The app freezes all the time!",
+    "The app is a life saver!",
+    "The psychopath has a lot of fun on the battlefield",
+    "I love watching horror movies",
+    "This package offers so much more nuance to sentiment analysis!",
+    "Famous pundit Ben Shapiro's opinions",
+     "you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!"
+)
+
+# sentiment.ai
+sentiment.ai.score <- sentiment_easy(text)
+
+# From Sentiment Analysis
+sentimentAnalysis.score <- analyzeSentiment(text)$SentimentQDAP
+
+# From sentimentr
+sentimentr.score <- sentiment_by(get_sentences(text), 1:length(text))$ave_sentiment
+
+
+example <- data.table(target = text, 
+                      sentiment.ai.score,
+                      sentimentAnalysis.score,
+                      sentimentr.score)
+```
+</div>
+
+
+```{r draw_kable, echo = FALSE, message=FALSE}
+`:=` <- data.table::`:=`
+ex_draw <- copy(example)
+
+ex_draw$sentiment.ai.score %<>% round(2)
+ex_draw$sentimentAnalysis.score %<>% round(2)
+ex_draw$sentimentr.score %<>% round(2)
+
+
+color_func <- function(x, col_high = colLight, col_low = colDarkest ){
+    out <- ifelse(x > 0,
+                  cell_spec(x, color = colLight, bold = TRUE),
+                  ifelse(x < 0,
+                         cell_spec(x, color = colDarkest, bold = TRUE),
+                         cell_spec(x, color = "#808080", bold = FALSE)))
+}
+
+ex_draw[, sentiment.ai.score := color_func(sentiment.ai.score)]
+
+ex_draw[, sentimentr.score := color_func(sentimentr.score)]
+
+ex_draw[, sentimentAnalysis.score := color_func(sentimentAnalysis.score)]
+
+
+ex_draw  %>%
+ kableExtra::kable(escape = F) %>%
+ kableExtra::kable_styling() %>%
+ scroll_box(width = "100%", height = "600px")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Benchmarks
+
+### Power
+ 
+### Speed
+
+
+
+## Installation
+
+After installing `sentiment.ai` from CRAN, you will need to make sure you have a compatible python environment for `tensorflow` and `tensorflow-text`. As this can be a cumbersome experience, we included a 
+convenience function to install that for you:
+
+`sentiment.ai.install()` 
+
+This only needs to be run the first time you install the package. If you're feeling adventurous, you can modify the environment it will create with the following paramaters:
+
+* `envname` - the name of the virtual environment
+
+* `method` - if you specifically want "conda" or "virtualenv" 
+
+* `gpu` - set to TRUE if you want to run tensorflow-gpu
+
+* `python_version` - The python version used in the virtual environment 
+
+* `modules` - a names list of the dependencies and versions
+
+
+
+<input onclick="change()" type="button" class="collapsible" value="Open Example"></input>
+<div class="content">
+```{r echo=TRUE, eval=FALSE}
+
+# Just leave this as default unless you have a good reason to change it. 
+# This is quite dependent on specific versions of python moduules
+sentiment.ai.install()
+
+```
+</div>
+
+## Basic Usage
+
+## Initialising
+
+## Models
+
+## Benchmarks
+
+### sentiment.ai
+
+### tiytext/sentimentAnalysis
+
+### sentimentr
+
+### azure
+
+
+<script src="www/js/collapsible.js"></script>

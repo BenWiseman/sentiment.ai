@@ -6,6 +6,8 @@
 #' @param lexicon data.frame or data.table of words: sentiment (default is XXX)
 #' @param envname specify virtual environment for Reticulate
 #' @param model embedding from tensorflow-hub
+#' @export
+#' @rdname sentiment_plus
 sentiment_plus <- function(text = NULL,
                            data = NULL,
                            idcol = NULL,
@@ -20,7 +22,7 @@ sentiment_plus <- function(text = NULL,
     # Step 2 - Create embeder object
     if(!exists("sentiment.ai.embed")){
         message("Preparing Model")
-        reticulate::source_python("Python/get_embedder.py")
+        reticulate::py_run_file(system.file("Python/get_embedder.py", package = "sentiment.ai"))
         sentiment.ai.embed <- load_language_model(model)
     } else{
         message("sentiment.ai.embed found in environment.")
@@ -82,9 +84,11 @@ sentiment_plus <- function(text = NULL,
 #' @param negative Custom Negative word or term to compare against. e.g. "unhappy", "low quality"
 #' @param envname specify virtual environment for Reticulate
 #' @param model embedding from tensorflow-hub
+#' @export
+#' @rdname sentiment_easy
 sentiment_easy <- function(text = NULL,
-                           positive = "good",
-                           negative = "bad",
+                           positive = default$positive,
+                           negative = default$negative,
                            model    = "multi",
                            envname  = "r-sentiment-ai"
                            ){
@@ -93,10 +97,10 @@ sentiment_easy <- function(text = NULL,
     if(!exists("sentiment.ai.embed")){
         message("Preparing Model")
         activate_env(envname)
-        reticulate::source_python("Python/get_embedder.py")
+        reticulate::py_run_file(system.file("Python/get_embedder.py", package = "sentiment.ai"))
         sentiment.ai.embed <- load_language_model(model)
     } else{
-        message("sentiment.ai.embed found in environment.")
+        message("sentiment.ai.embed found in environment.\n To change model call sentiment.ai.init again")
 
     }
 
@@ -130,7 +134,8 @@ sentiment_easy <- function(text = NULL,
 
     # Make long, then rank matchec by text input (rn)
     sims <- data.table::melt(sims, id.vars=("rn"), variable.name = "word")
-    sims[, rank := rank(-value), by = .(rn)]
+    sims[, rank := data.table::frank(-value), by = .(rn)]
+
 
     # shouldn't be ties...
     sims <- sims[rank == 1, .(text = rn, word, value)]
@@ -147,38 +152,38 @@ sentiment_easy <- function(text = NULL,
 
 }
 
-require(readr)
-require(data.table)
-default_large <- read_csv("default_large.csv")
+# require(readr)
+# require(data.table)
 
-tests <- c(
-    "Steve Irwin",
-    "Bob Ross",
-    "Rosa Parks",
-    "Mother Teresa",
-    "Mister Rodgers",
-    "Adolf Hitler",
-    "Donald Trump",
-    "That was such a cute dog omg I'm literally crying it was so cute!",
-    "u-g-l-y- you ain't got no aliby",
-    "the resturant served human flesh",
-    "the resturant served endangered species",
-    "you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!",
-    "the resturant is my favourite!",
-    "the redturanr is my faborite!",
-    "the resturant was my absolute favourite until they gave me food poisoning",
-    "The app freezes all the time!",
-    "The app is a life saver!",
-    "The psychopath has a lot of fun on the battlefield",
-    "I love watching horror movies",
-    "This package offers so much more nuance to sentiment analysis!",
-    "Famous pundit Ben Shapiro's opinions",
-    "Reading Rainbow",
-    "It can snag things that aren't even in the dictionary, unlike traditional sentiment packages"
-)
-
-s <- sentiment_easy(text = tests,
-                    positive = default_large$positive,
-                    negative = default_large$negative
-                    )
-data.frame(tests, s)
+#
+# tests <- c(
+#     "Steve Irwin",
+#     "Bob Ross",
+#     "Rosa Parks",
+#     "Mother Teresa",
+#     "Mister Rodgers",
+#     "Adolf Hitler",
+#     "Donald Trump",
+#     "That was such a cute dog omg I'm literally crying it was so cute!",
+#     "u-g-l-y- you ain't got no aliby",
+#     "the resturant served human flesh",
+#     "the resturant served endangered species",
+#     "you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!",
+#     "the resturant is my favourite!",
+#     "the redturanr is my faborite!",
+#     "the resturant was my absolute favourite until they gave me food poisoning",
+#     "The app freezes all the time!",
+#     "The app is a life saver!",
+#     "The psychopath has a lot of fun on the battlefield",
+#     "I love watching horror movies",
+#     "This package offers so much more nuance to sentiment analysis!",
+#     "Famous pundit Ben Shapiro's opinions",
+#     "Reading Rainbow",
+#     "It can snag things that aren't even in the dictionary, unlike traditional sentiment packages"
+# )
+#
+# s <- sentiment_easy(text = tests,
+#                     positive = "society", #default_large$positive,
+#                     negative = "environment",#default_large$negative
+#                     )
+# data.frame(tests, s)
