@@ -22,6 +22,8 @@ cosine_lookup  <- function(i, y) apply(y, 1, function(j) cosine(i, j))
 
     sim_dt <- data.table(t(apply(target, 1, cosine_lookup, y=reference)),
                         keep.rownames = TRUE)
+    setnames(sim_dt, old = "rn.V1", new ="rn", skip_absent = TRUE)
+
 
     # Make long, then rank matchec by text input (rn)
     # melt like so
