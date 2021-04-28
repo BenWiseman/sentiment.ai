@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^.*.csv
 save_default_data.R
+^data-raw$
