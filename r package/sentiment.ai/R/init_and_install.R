@@ -100,12 +100,13 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 }
 
 #' Creates model object, speed up sessions and such
-#' @param model path to tensorflow hub embedding model defaults to USE multilingual
+#' @param model path to tensorflow hub embedding model.default are universal sentence encoder  en (default) and multi
 #' @export
 #' @rdname setup
-sentiment.ai.init <- function(model = "multi",
+sentiment.ai.init <- function(model = c("en", "multi"),
                               envname = "r-sentiment-ai"){
 
+    model = model[1]
     require(roperators, quietly = TRUE)
     require(data.table, quietly = TRUE)
     require(tensorflow, quietly = TRUE)
@@ -115,9 +116,9 @@ sentiment.ai.init <- function(model = "multi",
     message("Preparing Model")
     reticulate:::source_python(system.file("get_embedder.py", package = "sentiment.ai"))
 
-    if(tolower(model) %in% c("multilingual", "multi")){
+    if(tolower(model) == "multi"){
         model <- "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3"
-    } else if(tolower(model) %in% c("english", "en")){
+    } else if(tolower(model) == "en"){
         model <- "https://tfhub.dev/google/universal-sentence-encoder-large/5"
     }
 

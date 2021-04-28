@@ -79,9 +79,6 @@ underlying hassle up to make the process as simple as possible. In addition to j
 
 4) **Power** Because it draws from models trained on billions of texts, news articles, and wikipedia entries, it is able to detect things such as *"I learned so much on my trip to Hiroshima museum last year!"* is associated with something positive and that *"What happeded to the people of Hiroshima in 1945"* is associated with something negative. 
 
-5) **Speed** 
-On large datasets, `sentimenmt.ai` can harness the power of a GPU to achieve a significant speedup compared to traditional sentiment analysis methods. 
-
 
 ### Simple Example
 

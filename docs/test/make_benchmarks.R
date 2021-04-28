@@ -5,7 +5,7 @@ Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = TRUE)
 gpus = tf$config$experimental$list_physical_devices('GPU')
 tf$config$experimental$set_memory_growth(gpus[[1]], TRUE)
 
-
+require(microbenchmark)
 require(sentiment.ai)
 require(data.table) # Fast data manipulation
 require(keras)      # Interface to Tensorflow
@@ -15,6 +15,7 @@ require(tm)         # Text mining functions
 require(pbapply)    # Parallel processing
 require(parallel)   # Parallel back-end
 require(SentimentAnalysis)
+require(sentimentr)
 
 
 sentiment.ai.init(model="en")
@@ -51,7 +52,8 @@ train_idx <- caret::createDataPartition(dt$type, p = .7, list = FALSE)
 text <- dt[-train_idx,text] %>% as.matrix() %>% unname()
 y    <- dt[-train_idx, target] %>% as.matrix() %>% unname()
 
-ai_sentiment <- sentiment_easy(text[,1])
+text_vec <- text[,1]
+ai_sentiment <- match[text_vec] # sentiment_easy(text[,1])
 ai_sentiment$y <- y
 
 
@@ -65,3 +67,12 @@ ai_sentiment$yhat <- factor(ai_sentiment$sentiment,
                             labels = c('0', '1'))
 confusionMatrix(ai_sentiment$yhat,
                 ai_sentiment$y)
+
+
+sentimentr_sentiment <- sentiment_by(get_sentences(text_vec), 1:length(text))
+sentimentr_sentiment$y <- text_vec
+saveRDS(sentimentr_sentiment, "../../docs/test/sentimentr_scores.rds")
+
+dict_sentiment <- analyzeSentiment(text_vec)
+dict_sentiment$y <- text_vec
+saveRDS(dict_sentiment, "../../docs/test/dict_scores.rds")
