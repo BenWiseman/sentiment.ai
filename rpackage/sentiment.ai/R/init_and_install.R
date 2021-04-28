@@ -14,10 +14,10 @@
     } else{
         # Activate environment
         if(envname %in% conda_list) {
-            eval(reticulate::use_condaenv(envname), envir = r_envir)
+            eval(reticulate::use_condaenv(envname, required = TRUE), envir = r_envir)
             if(!silent) message("Activated condaenv: ", envname)
         } else {
-            eval(reticulate::use_virtualenv(envname), envir = r_envir)
+            eval(reticulate::use_virtualenv(envname, required = TRUE), envir = r_envir)
             if(!silent) message("Activated virtualenv:", envname)
         }
     }
