@@ -69,7 +69,7 @@ cosine <- function(x, y) {
 
     sim_dt <- data.table::melt(sim_dt, id.vars=("rn"), variable.name = "word")
     # rank matches per target (rnn) with frank() and by reference for speed
-    sim_dt[, rank := data.table::frank(-value), by = .(rn)]
+    sim_dt[, rank := data.table::frank(-value, ties.method = "first"), by = .(rn)]
 
     return(sim_dt)
 }

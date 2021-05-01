@@ -67,7 +67,6 @@
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
@@ -373,7 +372,6 @@ Open Source AI-Based Sentiment Analysis
 <li><p>It <strong>doesn’t need to match words to a ridged lexicon</strong>, rather it matches to an embedding vector (reduces language to a vector of numbers that capture the information, kind of like a PCA). This means you can get scores for words that are not in the lexicon but are similar to existing words!</p></li>
 <li><p>You can <strong>choose the context</strong> for what negative and positive mean. For example, you could set <code>positive</code> to mean <code>&quot;high quality&quot;</code> and negative to mean <code>&quot;low quality&quot;</code> when looking at product reviews.</p></li>
 <li><p><strong>Power</strong> Because it draws from models trained on billions of texts, news articles, and wikipedia entries, it is able to detect things such as <em>“I learned so much on my trip to Hiroshima museum last year!”</em> is associated with something positive and that <em>“What happeded to the people of Hiroshima in 1945”</em> is associated with something negative.</p></li>
-<li><p><strong>Speed</strong> On large datasets, <code>sentimenmt.ai</code> can harness the power of a GPU to achieve a significant speedup compared to traditional sentiment analysis methods.</p></li>
 </ol>
 <div id="simple-example" class="section level3">
 <h3>Simple Example</h3>
@@ -389,7 +387,7 @@ Open Source AI-Based Sentiment Analysis
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Initiate the model</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># This will create the sentiment.ai.embed model in your environment</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sentiment.ai.init</span>(<span class="at">model =</span> <span class="st">&quot;english&quot;</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sentiment.ai.init</span>(<span class="at">model =</span> <span class="st">&quot;en&quot;</span>)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
@@ -420,19 +418,23 @@ Open Source AI-Based Sentiment Analysis
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># sentiment.ai</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>sentiment.ai.score <span class="ot">&lt;-</span> <span class="fu">sentiment_easy</span>(text)</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># From Sentiment Analysis</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>sentimentAnalysis.score <span class="ot">&lt;-</span> <span class="fu">analyzeSentiment</span>(text)<span class="sc">$</span>SentimentQDAP</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># From sentimentr</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>sentimentr.score <span class="ot">&lt;-</span> <span class="fu">sentiment_by</span>(<span class="fu">get_sentences</span>(text), <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(text))<span class="sc">$</span>ave_sentiment</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>example <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">target =</span> text, </span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sentiment.ai =</span> sentiment.ai.score,</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sentimentAnalysis =</span> sentimentAnalysis.score,</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sentimentr =</span> sentimentr.score)</span></code></pre></div>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>sentiment.ai.score <span class="ot">&lt;-</span> <span class="fu">sentiment_easy</span>(text)</span></code></pre></div>
+<pre><code>## Model Running...
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 100%</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From Sentiment Analysis</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sentimentAnalysis.score <span class="ot">&lt;-</span> <span class="fu">analyzeSentiment</span>(text)<span class="sc">$</span>SentimentQDAP</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># From sentimentr</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>sentimentr.score <span class="ot">&lt;-</span> <span class="fu">sentiment_by</span>(<span class="fu">get_sentences</span>(text), <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(text))<span class="sc">$</span>ave_sentiment</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>example <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">target =</span> text, </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sentiment.ai =</span> sentiment.ai.score,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sentimentAnalysis =</span> sentimentAnalysis.score,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sentimentr =</span> sentimentr.score)</span></code></pre></div>
 </div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:600px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
@@ -528,7 +530,7 @@ Mister Rodgers
 Adolf Hitler
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.47</span>
+<span style=" font-weight: bold;    color: #09001c !important;">-0.51</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -542,7 +544,7 @@ Adolf Hitler
 Donald Trump
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.43</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.5</span>
 </td>
 <td style="text-align:left;">
 <span style=" font-weight: bold;    color: #1cb1c4 !important;">0.5</span>
@@ -612,7 +614,7 @@ the resturant served endangered species
 the resturant is my favourite!
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.23</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.37</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -626,7 +628,7 @@ the resturant is my favourite!
 the redturanr is my faborite!
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.11</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.19</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -640,7 +642,7 @@ the redturanr is my faborite!
 the resturant was my absolute favourite until they gave me food poisoning
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.17</span>
+<span style=" font-weight: bold;    color: #09001c !important;">-0.25</span>
 </td>
 <td style="text-align:left;">
 <span style=" font-weight: bold;    color: #09001c !important;">-0.17</span>
@@ -654,7 +656,7 @@ the resturant was my absolute favourite until they gave me food poisoning
 The app freezes all the time!
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.28</span>
+<span style=" font-weight: bold;    color: #09001c !important;">-0.29</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -682,7 +684,7 @@ The app is a life saver!
 I learned so much on my trip to Hiroshima museum last year!
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.16</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.26</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -696,7 +698,7 @@ I learned so much on my trip to Hiroshima museum last year!
 What happened to the people of Hiroshima in 1945
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.12</span>
+<span style=" font-weight: bold;    color: #09001c !important;">-0.19</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -710,7 +712,7 @@ What happened to the people of Hiroshima in 1945
 I drank tap water in Chernobyl
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.13</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.32</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -724,7 +726,7 @@ I drank tap water in Chernobyl
 The psychopath has a lot of fun on the battlefield
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.19</span>
+<span style=" font-weight: bold;    color: #09001c !important;">-0.28</span>
 </td>
 <td style="text-align:left;">
 <span style=" font-weight: bold;    color: #1cb1c4 !important;">0.25</span>
@@ -752,7 +754,7 @@ I love watching horror movies
 This package offers so much more nuance to sentiment analysis!
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.14</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.15</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -766,7 +768,7 @@ This package offers so much more nuance to sentiment analysis!
 Famous pundit Ben Shapiro’s opinions
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #09001c !important;">-0.18</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.2</span>
 </td>
 <td style="text-align:left;">
 <span style="     color: #808080 !important;">0</span>
@@ -780,7 +782,7 @@ Famous pundit Ben Shapiro’s opinions
 you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!
 </td>
 <td style="text-align:left;">
-<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.15</span>
+<span style=" font-weight: bold;    color: #1cb1c4 !important;">0.18</span>
 </td>
 <td style="text-align:left;">
 <span style=" font-weight: bold;    color: #1cb1c4 !important;">0.3</span>
@@ -817,9 +819,9 @@ you remind me of the babe. What babe? The babe with the power! What power? The p
 </ul>
 <input onclick="change()" type="button" class="collapsible" value="Open Example"></input>
 <div class="content">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Just leave this as default unless you have a good reason to change it. </span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This is quite dependent on specific versions of python moduules</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sentiment.ai.install</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Just leave this as default unless you have a good reason to change it. </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This is quite dependent on specific versions of python moduules</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sentiment.ai.install</span>()</span></code></pre></div>
 </div>
 </div>
 <div id="basic-usage" class="section level2">

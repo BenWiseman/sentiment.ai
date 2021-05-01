@@ -41,7 +41,8 @@ always_allow_html: true
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 require(reticulate)
-use_condaenv("r-sentiment-ai", required = TRUE)
+require(sentiment.ai)
+sentiment.ai.init()
 assign("depthtrigger", 4, data.table:::.global)
 ```
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
@@ -95,7 +96,7 @@ require(sentimentr)
 
 # Initiate the model
 # This will create the sentiment.ai.embed model in your environment
-sentiment.ai.init(model = "english")
+sentiment.ai.init(model = "en")
 
 
 text <- c(
@@ -105,7 +106,6 @@ text <- c(
     "Mother Teresa",
     "Mister Rodgers",
     "Adolf Hitler",
-    "Donald Trump",
     "That was such a cute dog omg I'm literally crying it was so cute!",
     "u-g-l-y- you ain't got no aliby",
     "the resturant served human flesh",
@@ -121,7 +121,6 @@ text <- c(
     "The psychopath has a lot of fun on the battlefield",
     "I love watching horror movies",
     "This package offers so much more nuance to sentiment analysis!",
-    "Famous pundit Ben Shapiro's opinions",
      "you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!"
 )
 
@@ -220,6 +219,18 @@ sentiment.ai.install()
 </div>
 
 ## Basic Usage
+
+### `sentiment_easy`
+
+Returns a vector of sentiment scores. The scores are the maximum closeness (cosine simalirity) to a positive or negative example. If the max similarity was to a negative item, the score is returned as a negative value. 
+
+* `model` two defaults are `en` and `multi`. `en` is a shortcut to Universal Sentence Encoder English (large) which has better performance but only works on English, `multi` is the U.S.E Multi-language (large) that has good performance on 16 different languages. 
+
+* 
+
+* `batch_szie` determines how many rows are processed at a time. On CPU this doesn't change much, but can be important if you installed the GPU version. Put simply, small bathes take longer but use less RAM/VRAM, large batches run faster on GPU but could exhaust VRAM if too large. 
+
+* `environment` if you installed into a custom environment, you can specify it here (ignored if you called `sentiment.ai_init()` in the same session.)
 
 ## Initialising
 

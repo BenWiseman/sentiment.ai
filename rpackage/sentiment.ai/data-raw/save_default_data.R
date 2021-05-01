@@ -17,7 +17,7 @@ devtools::load_all()
 cur_dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
 
 # Step 0 LOAD ==================================================================
-default       <- fread(file.path(cur_dir, "default_xlarge.csv"))
+default_xl    <- fread(file.path(cur_dir, "default_xlarge.csv"))
 default_small <- fread(file.path(cur_dir, "default_short.csv"))
 
 # Step 1 Make Embedding Hashes =================================================
@@ -26,6 +26,7 @@ default_small <- fread(file.path(cur_dir, "default_short.csv"))
 
 # install_sentiment.ai()
 sentiment.ai.init(model = "en")
+
 
 # strategy: make mix of random and orthogonal hash keys
 
@@ -48,7 +49,6 @@ hash_embeddings <- matrix(data = rnorm(512 * 32, mean = mu_guess, sd = sd_guess/
 # randomize a little
 test_embed      <- as.matrix(sentiment.ai.embed(list("Calculator")))
 
-
 # simulate range
 range <- numeric(10000)
 for(i in seq_along(range)){
@@ -67,37 +67,28 @@ hist(range, breaks=30)
 
 # Step 2 Make lookup table of reference embeddings =============================
 
-# in case user feeds in vector, rep positive and negative labels
+# Can't have NA or repeated values!
 positive  <- unique(na.omit(default$positive))
 negative  <- unique(na.omit(default$negative))
-pos_table <- data.table(word      = positive,
-                        sentiment = rep("positive", length(positive)),
-                        key       = "word")
-neg_table <- data.table(word      = negative,
-                        sentiment = rep("positive", length(negative)),
-                        key       = "word")
 
 
 # Step 3 Generate reference embeddings =========================================
 
-# silly wrapper function
-assign_embeddings <- function(table){
-  table$word %>%
-  set_rownames(x     = as.matrix(sentiment.ai.embed(.)),
-               value = .)
-}
-
 # english positive and negative
-en_pos_embeddings <- assign_embeddings(pos_table)
-en_neg_embeddings <- assign_embeddings(neg_table)
+en_pos_embeddings <- as.matrix(sentiment.ai.embed(positive))
+rownames(en_pos_embeddings) <- positive
+en_neg_embeddings <- as.matrix(sentiment.ai.embed(negative))
+rownames(en_neg_embeddings) <- negative
 
 # Step 4 Repeat with Multi Embeddings ==========================================
 
 # assumes previous things work
 sentiment.ai.init(model = "multi")
 
-multi_pos_embeddings <- assign_embeddings(pos_table)
-multi_neg_embeddings <- assign_embeddings(neg_table)
+multi_pos_embeddings <- as.matrix(sentiment.ai.embed(positive))
+rownames(multi_pos_embeddings) <- positive
+multi_neg_embeddings <- as.matrix(sentiment.ai.embed(negative))
+rownames(multi_neg_embeddings) <- negative
 
 # Step 5 Combine Everything ====================================================
 
@@ -107,11 +98,11 @@ default_embeddings <- list(en    = list(positive = en_pos_embeddings,
                            multi = list(positive = multi_pos_embeddings,
                                         negative = multi_neg_embeddings))
 
+# Need the unique na omitted vectors!!
+default <- list(positive = positive,
+                negative = negative)
 
 # Step N SAVE ==================================================================
-
-# where is default_xl coming from ???
-default <- default_xl
 
 usethis::use_data(default_embeddings,
                   default,

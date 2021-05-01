@@ -103,7 +103,7 @@ sentiment_easy <- function(x = NULL,
     # Can't handle NAs, so replace with numbers and delete their scores at end
     if(is.null(x)) return(NULL)
     na_index <- is.na(x)
-    x[which(na_index)] <- which(na_index)
+    x[which(na_index)] <- chr(which(na_index))
 
     # Activate env and Create embeder object (if needed)
     if(!exists("sentiment.ai.embed")){

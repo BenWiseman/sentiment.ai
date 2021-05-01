@@ -2,11 +2,13 @@
 # https://stackoverflow.com/questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory
 Sys.setenv("CUDA_VISIBLE_DEVICES" = -1)
 Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = TRUE)
-gpus = tf$config$experimental$list_physical_devices('GPU')
-tf$config$experimental$set_memory_growth(gpus[[1]], TRUE)
+#gpus = tf$config$experimental$list_physical_devices('GPU')
+#tf$config$experimental$set_memory_growth(gpus[[1]], TRUE)
 
 require(microbenchmark)
 require(sentiment.ai)
+sentiment.ai.init(model="en")
+
 require(data.table) # Fast data manipulation
 require(keras)      # Interface to Tensorflow
 require(caret)      # ML suite
@@ -18,7 +20,7 @@ require(SentimentAnalysis)
 require(sentimentr)
 
 
-sentiment.ai.init(model="en")
+
 dt <- fread("../../docs/test/siop_2020_txt_long.csv")
 
 
@@ -53,20 +55,29 @@ text <- dt[-train_idx,text] %>% as.matrix() %>% unname()
 y    <- dt[-train_idx, target] %>% as.matrix() %>% unname()
 
 text_vec <- text[,1]
-ai_sentiment <- match[text_vec] # sentiment_easy(text[,1])
-ai_sentiment$y <- y
+ai_sentiment <- sentiment_easy(text_vec, batch_size = 300)
+
+our_scores <- data.frame(sentiment = ai_sentiment,
+                         y         = as.factor(y))
+our_scores <- na.omit(our_scores)
+our_scores$y_hat <- as.factor(ifelse(our_scores$sentiment > 0, "1", "0"))
+
+summary(our_scores$y)
+summary(our_scores$y_hat)
+
+our_scores       <- droplevels(na.omit(our_scores))
+
+our_scores$y %<>% factor(levels = c("0", "1"))
+our_scores$y_hat %<>% factor(levels = c("0", "1"))
 
 
-saveRDS(ai_sentiment, "../../docs/test/sentiment_ai_scores.rds")
+confusionMatrix(data = our_scores$y_hat, reference = our_scores$y, positive = "1")
 
-ai_sentiment <- readRDS("../../docs/test/sentiment_ai_scores.rds")
-require(caret)
-ai_sentiment$y <- as.factor(ai_sentiment$y)
-ai_sentiment$yhat <- factor(ai_sentiment$sentiment,
-                            levels = c("negative", "positive"),
-                            labels = c('0', '1'))
-confusionMatrix(ai_sentiment$yhat,
-                ai_sentiment$y)
+
+saveRDS(our_scores, "../../docs/test/sentiment_ai_scores.rds")
+
+our_scores <- readRDS("../../docs/test/sentiment_ai_scores.rds")
+
 
 
 sentimentr_sentiment <- sentiment_by(get_sentences(text_vec), 1:length(text))

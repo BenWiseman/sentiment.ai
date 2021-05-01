@@ -21,8 +21,13 @@ doing good,doing bad
 easy,not easy
 easy going,not easy going
 efficient,inefficient
-end dictator,dictator
-end fascism,fascism
+dictator defeated,dictator triumphant
+hero winning,villain winning
+bad person lose,bad person win
+good person not lose,bad person not lose
+good person win,good person lose
+fascism defeated,fascism successful
+fascism not successful,fascism not defeated
 equal,unequal
 exciting,unexciting
 factual content,fake news
@@ -59,8 +64,12 @@ healthy,unhealthy
 help animals,hurt animals
 help human,hurt human
 helpful,unhelpful
+not unhelpful,not helpful
 helping the vulnerable,exploiting the vulnerable
+feel vulnerable,not feel vulnerable
 hero,villain
+good person,not good person
+not villain,not hero
 high quality,low quality
 honest,dishonest
 honor,dishonor
@@ -336,3 +345,134 @@ clear water,unclear water
 good water,bad water
 not bad water,not good water
 good alcohol,bad alcohol
+racial equality,racial inequality
+not far right,far right
+good value for money,bad value for money
+not bad value for money,not good value for money
+fresh and healthy,rotten and sickening
+cure sickness,cause sickness
+vaccines,anti-vaccine
+bad medicine,no access to medicine
+access to medicine,expensive medicine
+affordable medicine,not affordable medicine
+feel secure,feel insecure
+is secure,is not secure
+is a saint,is no saint
+didn't hurt,did hurt
+not corrupt,corrupt
+look beautiful,look ugly
+fucking good,fucking bad
+brilliant,not brilliant
+not stupid,very stupid
+be hydrated,be not hydrated
+be good,be bad
+be not bad,be not good
+powerful helping,powerful conspiring
+philanthropy,misanthropy
+selfless,selfish
+unselfish,greedy
+not selfish,very selfish
+not greedy,not selfless
+good community,bad community
+safe community,not safe community
+angel,devil
+artistic,not artistic
+creative,not creative
+good invention,bad invention
+good investment,bad investment
+sleep good,sleep bad
+sleep soundly,sleep forever
+can sleep,can't sleep
+vaccine shot,gun shot
+prevent murder,murder
+prevent rape,rape
+prevent robbery,robbery
+detect fraud,commit fraud
+criminal stopped,criminal got away
+innocent person free,innocent person arrested
+criminal arrested,criminal not arrested
+vaccine against disease,antivaccine pro disease
+nice greenhouse,greenhouse gasses
+fresh air,air not fresh
+good garden,bad garden
+access to resources,no access to resources
+end world hunger,world hunger
+honest person,not honest person
+honest work,not honest work
+domestic bliss,domestic abuse
+no negatives,no positives
+successful,not successful
+good person successful,bad person successful
+self help,self harm
+stop self harm,need self help
+needs met,needs not met
+environmentally friendly,not environmentally friendly
+healthy person,not healthy person
+healthy animal,not healthy animal
+healthy plant,not healthy plant
+happy drug,unhappy drug
+recover from addiction,become addicted
+recover from sickness,become sick
+recover from injury,become injured
+prevent accidents,cause accidents
+prevent harm,cause harm
+prevent bad thing,cause bad
+cause good,prevent good thing
+good thing,bad thing
+not bad thing,not good thing
+happy I can't get enough,sad I can't get enough
+good discovery,bad discovery
+not bad discovery,not good discovery
+cure cancer,have cancer
+can cure disease,can't cure disease
+good noise,bad noise
+not bad noise,not good noise
+good holiday,bad holiday
+not bad holiday,not good holiday
+happy holiday,not happy holiday
+good drink,bad drink
+not bad drink,not good drink
+good food,not good food
+not bad food,bad food
+end starvation,starvation
+end slavery,slavery
+end oppression,oppression
+stable government,not stable government
+good reaction,bad reaction
+not bad reaction,not good reaction
+good accounting,bad accounting
+not bad accounting,not good accounting
+accomplish good thing,accomplish bad thing
+good impression,bad impression
+not bad impression,not good impression
+good comedy,bad commedy
+not bad commedy,not good comedy
+survived,not survived
+good object,bad object
+not bad object,not good object
+good touch,bad touch
+not bad touch,not good touch
+good game,bad game
+not bad game,not good game
+is happy,is not happy
+is happy,is unhhappy
+not angry not dissapointed,not angry just dissapointed
+happy and satasfied,angry and disappointed
+not angry or disappointed,not happy or satasfied
+not disappointed,disappointed
+good victorious,bad victorious
+answer call for help,call for help no answer
+good answer,not good answer
+not bad answer,bad answer
+good question,not good question
+not bad question,bad question
+interested,not interested
+good interest,bad interest
+not bad interest,not good interest
+doesn't suck,this sucks
+not boring,boring
+good action,bad action
+not bad action,not good action
+good effect,not good effect
+not bad effect,bad effect
+enjoyed,not enjoyed
