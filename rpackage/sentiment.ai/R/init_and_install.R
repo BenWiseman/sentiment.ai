@@ -107,24 +107,60 @@ sentiment.ai.init <- function(model = c("en", "multi"),
                               envname = "r-sentiment-ai"){
 
     model = model[1]
-    require(roperators, quietly = TRUE)
-    require(data.table, quietly = TRUE)
-    require(tensorflow, quietly = TRUE)
-    require(tfhub,      quietly = TRUE)
 
     .activate_env(envname, silent = FALSE, r_envir = -2)
     message("Preparing Model")
     reticulate:::source_python(system.file("get_embedder.py", package = "sentiment.ai"))
 
-    if(tolower(model) == "multi"){
-        model <- "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3"
-    } else if(tolower(model) == "en"){
-        model <- "https://tfhub.dev/google/universal-sentence-encoder-large/5"
+    default_models <- c(en    = "https://tfhub.dev/google/universal-sentence-encoder-large/5",
+                        multi = "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
+
+    # extract defaults
+    if(tolower(model) %in% c(names(default_models), default_models) ) {
+        model = default_models[model]
+    } else{
+        warning("
+                model argument not in c('en', 'multi')
+                Overriding the defaults is allowed, but may or may not work!
+                You're on your own from here on, cowboy! Godspeed!
+                ")
+    }
+
+    #parse cache folder
+    # Need to do this ele it'll save to temp which will throw a fit after you restart.
+    # Causes error OSError: SavedModel file does not exist at:  path/to/temp/dir
+    # b'jesus I hate this kind of fuckery! - hub_load should have a cache_dir argument or a failover!
+
+    # base path for package
+    pkg_path   <- system.file(package = "sentiment.ai")
+
+    # If manually saving each
+    model_dir  <- gsub("^https://[a-z]+\\.[a-z]+/[a-z]+/", "", model)
+    model_name <- gsub("/.*$", "", model_dir)
+    model_ver  <- gsub("^[a-z -]+/", "", model_dir)
+
+    # for setting generic cache folder (hopefuly works!)
+    cache_dir  <- file.path(pkg_path, "tfhub_modules")
+
+    # If model hasn't been downloaded already
+    if(!dir.exists(cache_dir)){
+        dir.create(cache_dir) # for manual DL, need to create each level of name, version
     }
 
     # Make global (saves a lot of time downstream)
-    sentiment.ai.embed <<- load_language_model(model)
+    sentiment.ai.embed <<- load_language_model(model, cache_dir)
 
 }
 
+#' For dealing with shit the assholes at tfhub were too lkazy to do
+#' Namely idiotic idea to cache in temp then have a shitfit if temp folder isn't there
+#' I fucking hate this kind of fucking fuckery
+#' @export
+debug_python_bullshit <- function(){
+
+    pkg_path <- system.file("", package = "sentiment.ai")
+
+    print(pkg_path)
+
+}
 #sentiment.ai.init(model = "en")

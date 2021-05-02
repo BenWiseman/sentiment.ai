@@ -1,6 +1,6 @@
 # TODO GPU hogging occurs!
 # https://stackoverflow.com/questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory
-Sys.setenv("CUDA_VISIBLE_DEVICES" = -1)
+#Sys.setenv("CUDA_VISIBLE_DEVICES" = -1)
 Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = TRUE)
 #gpus = tf$config$experimental$list_physical_devices('GPU')
 #tf$config$experimental$set_memory_growth(gpus[[1]], TRUE)

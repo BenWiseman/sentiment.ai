@@ -151,8 +151,8 @@ sentiment_easy <- function(x = NULL,
 #' @param envname specify virtual environment for Reticulate
 #' @param model embedding from tensorflow-hub
 #' @export
-#' @rdname sentiment_plus
-sentiment_plus <- function(x = NULL,
+#' @rdname sentiment_match
+sentiment_match <- function(x = NULL,
                            data = NULL,
                            idcol = NULL,
                            lexicon = NULL,
@@ -160,6 +160,31 @@ sentiment_plus <- function(x = NULL,
                            envname = "r-sentiment-ai"){
 
     # PLACEHOLDER
+    # run sentiment_easy_scores
+    # match to smaller orthoganal dictionary
     NULL
+
+}
+
+
+#' @param x EITHER a plain text vector or column name if data supplied
+#' @param data OPTIONAL dataframe or data.table with text
+#' @param idcol OPTIONAL IF data supplied, use idcol to do shit
+#' @param lexicon data.frame or data.table of words: sentiment (default is XXX)
+#' @param envname specify virtual environment for Reticulate
+#' @param model embedding from tensorflow-hub
+#' @export
+#' @rdname sentiment_match
+sentiment_model <- function(x = NULL,
+                            data = NULL,
+                            idcol = NULL,
+                            lexicon = NULL,
+                            model   = "multi",
+                            envname = "r-sentiment-ai"){
+
+    # PLACEHOLDER
+    # if x is numeric matrix, don't need to embed text, just model right away
+    # fit custom model on pos, neg
+    # give scores on custom model
 
 }
