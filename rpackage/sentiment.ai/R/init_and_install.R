@@ -151,16 +151,3 @@ sentiment.ai.init <- function(model = c("en", "multi"),
     sentiment.ai.embed <<- load_language_model(model, cache_dir)
 
 }
-
-#' For dealing with shit the assholes at tfhub were too lkazy to do
-#' Namely idiotic idea to cache in temp then have a shitfit if temp folder isn't there
-#' I fucking hate this kind of fucking fuckery
-#' @export
-debug_python_bullshit <- function(){
-
-    pkg_path <- system.file("", package = "sentiment.ai")
-
-    print(pkg_path)
-
-}
-#sentiment.ai.init(model = "en")

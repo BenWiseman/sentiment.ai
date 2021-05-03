@@ -3,7 +3,7 @@
 # BANDAID: tensorflow or reticulate is being a shit when text is length 1
 .bandaid <- function(x) if(length(x)==1) reticulate::r_to_py(list(x)) else x
 
-.text_sentiment <- function(text, batch_size){
+.text_embed <- function(text, batch_size){
 
     # Step 5 in sentiment_() - text embeddings
     # This is a bit messy, banaids and memorty work-arounds
@@ -46,7 +46,7 @@
 }
 
 #' Needs to return a list of embeddings AND the category/sentiment of each row
-.reference_sentiment <- function(positive=NULL, negative=NULL, model){
+.reference_embed <- function(positive=NULL, negative=NULL, model){
 
     # Retrieve defaults
     if(is.null(positive)) pos = rownames(default_embeddings[[model]]$positive) else pos = positive
@@ -80,23 +80,106 @@
                 lookup     = lookup))
 }
 
+#' Apply model to embeddings to get sentiment score
+.sentiment_probs <- function(embeddings, scoring, scoring_version, model){
 
-#' Simpler sentiment - give score ranging from good to bad
+    # Step 1: where is the scoring object located
+    score_dir <- file.path(system.file("scoring", package = "sentiment.ai"), scoring, scoring_version)
+
+    probs <- numeric(512)
+    # Step 2: load & apply
+    if(scoring == "glm"){
+        # glms bve big when serialized (R also saves all the data ~ 500mb), so just saving the weights
+        weights   <- readRDS(file.path(score_dir, paste0(model[1],  ".rds")))
+        # extract glm coefs (i.e intercept and betas!)
+        intercept <- weights[1]
+        coefs     <- weights[2:length(weights)]
+        # apply logistic regression (multiply each row with all coefs)
+        prods <- t(apply(embeddings, 1, function(row) row * coefs))
+        sums  <- rowSums(prods) + intercept
+        odds  <- exp(sums)
+
+        probs <- odds/(1+odds)
+
+    } else if(scoring=="xgb"){
+        require(xgboost)
+        xgb_model <- xgb.load(file.path(score_dir, paste0(model[1],  ".xgb")))
+        probs     <- predict(xgb_model, newdata = embeddings)
+    }
+
+    names(probs) = rownames(embeddings)
+    return(probs)
+}
+
+
+
+#' Simpler Sentiment - give score ranging from -1 (negative) to +1 (positive)
+#' This returns a single vector, and will run a little faster than sentiment_match or sentiment_model
+#' Defaults to English-specific, change model to 'multi' for support of 16 languages from Universal Sentence Encoder Multilingual.
+#' @param x a plain text vector or column name if data supplied
+#' @param model embedding from tensorflow-hub. Shortcuts are en (english-large) and multi (multi-lingual-large)
+#' @param scoring model used to score embedding. Can choose between a glm or xbg.
+#' @param batch_size Compute embeddings in n batches. The higher the faster BUT be careful not to exhaust your system memory!
+#' @param envname specify virtual environment for Reticulate
+#' @param scoring_version Placeholder - future versions may include updates/improvements
+#' @export
+#' @rdname sentiment_easy
+sentiment_easy <- function(x = NULL,
+                           model    = c("en", "multi"),
+                           scoring  = c("xgb", "glm"),
+                           batch_size = 100,
+                           envname  = "r-sentiment-ai",
+                           scoring_version = "1.0"
+                           ){
+    # Setup stuff
+    model   <- model[1] # not arg match to allow manual force override from power user
+    scoring <- match.arg(scoring)
+    scoring_version <- match.arg(scoring_version)
+
+    # Can't handle NAs, so replace with numbers and delete their scores at end
+    if(is.null(x)) return(NULL)
+    na_index <- is.na(x)
+    x[which(na_index)] <- chr(which(na_index))
+
+    # Activate env and Create embeder object (if needed)
+    if(!exists("sentiment.ai.embed")){
+        message("Preparing Model (this may take a while)\n Considder running sentiment.ai.init()")
+        sentiment.ai.init(model = model, envname = envname)
+    } else {
+        message("sentiment.ai.embed found in environment.\n To change model call sentiment.ai.init again")}
+
+
+    # $tep 3 - Text embeddings (needs batch option == messy, wrapped in func)
+    text_embeddings <- .text_embed(x, batch_size)
+
+    # Step 4 - Apply scoring model
+    probs  <- .sentiment_probs(text_embeddings, scoring, scoring_version, model)
+    scores <- (probs-0.5)*2
+    scores
+    # Restore NAs before return
+    scores[which(na_index)] <- NA
+    # Done!
+    return(scores)
+
+}
+
+#' Sentiment Matching - give score AND explanation
 #' This returns a single vector, and will run a little faster
-#' @param text EITHER a plain text vector or column name if data supplied
+#' @return data.table with sentiment score, topic match, and match score
+#' @param x EITHER a plain text vector or column name if data supplied
 #' @param positive Custom positive word or term to compare against. e.g. "happy", "high quality"
 #' @param negative Custom Negative word or term to compare against. e.g. "unhappy", "low quality"
 #' @param envname specify virtual environment for Reticulate
 #' @param model embedding from tensorflow-hub
 #' @export
 #' @rdname sentiment_easy
-sentiment_easy <- function(x = NULL,
+sentiment_match <- function(x = NULL,
                            positive = default$positive,
                            negative = default$negative,
                            model    = c("en", "multi"),
                            batch_size = 100,
                            envname  = "r-sentiment-ai"
-                           ){
+){
     # Setup stuff
     model <- model[1] # not arg match to allow manual force override from power user
 
@@ -115,10 +198,10 @@ sentiment_easy <- function(x = NULL,
 
     # Step 3 - Make lookup table of reference embeddings
     # in case user feeds in vector, rep positive and negative labels
-    reference <- .reference_sentiment(positive, negative, model)
+    reference <- .reference_embed(positive, negative, model)
 
     # step 4 - Text embeddings (needs batch option == messy, wrapped in func)
-    text_embeddings <- .text_sentiment(x, batch_size)
+    text_embeddings <- .text_embed(x, batch_size)
 
     # Step 5 - Vector similarity
     match <- .cosine_match(target    = text_embeddings,
@@ -141,28 +224,6 @@ sentiment_easy <- function(x = NULL,
     out[which(na_index)] <- NA
     # Done!
     return(out)
-
-}
-
-#' @param x EITHER a plain text vector or column name if data supplied
-#' @param data OPTIONAL dataframe or data.table with text
-#' @param idcol OPTIONAL IF data supplied, use idcol to do shit
-#' @param lexicon data.frame or data.table of words: sentiment (default is XXX)
-#' @param envname specify virtual environment for Reticulate
-#' @param model embedding from tensorflow-hub
-#' @export
-#' @rdname sentiment_match
-sentiment_match <- function(x = NULL,
-                           data = NULL,
-                           idcol = NULL,
-                           lexicon = NULL,
-                           model   = "multi",
-                           envname = "r-sentiment-ai"){
-
-    # PLACEHOLDER
-    # run sentiment_easy_scores
-    # match to smaller orthoganal dictionary
-    NULL
 
 }
 
