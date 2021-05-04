@@ -3,3 +3,5 @@
 ^.*.csv
 save_default_data.R
 ^data-raw$
+^README\.Rmd$
+^LICENSE\.md$

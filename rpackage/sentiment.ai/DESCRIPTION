@@ -1,26 +1,31 @@
 Package: sentiment.ai
 Type: Package
-Title: sentiment.ai - Simplified sentiment analysis with AI
+Title: Simplified sentiment analysis with AI
 Version: 0.1.0
-Authors@R:c(person('Ben', 'Wiseman', role = c('cre', 'aut'), email = 'benjamin.wiseman@kornferry.com'),
-            person('Steven',  'Nydick', role = c('aut'),     email = 'steven.nydick@kornferry.com'),
-            person('Tristan', 'Wisner', role = c('aut'),     email = 'tristan.wisner@kornferry.com'),
-            person('Fiona', 'Lodge',    role = c('ctb'),     email = 'fiona.lodge@kornferry.com'),
-            person('Yu-Ann', 'Wang',    role = c('ctb'),     email = 'yu-ann-wang@kornferry.com'))
+Authors@R:
+  c(person('Ben', 'Wiseman',
+           role    = c('cre', 'aut'),
+           email   = 'benjamin.h.wiseman@gmail.com'),
+    person('Steven', 'Nydick',
+           role    = c('aut'),
+           email   = 'swnydick@gmail.com',
+           comment = c(ORCID = "0000-0002-2908-1188")),
+    person('Tristan', 'Wisner',
+           role    = c('aut'),
+           email   = 'tristan.wisner@kornferry.com'),
+    person('Fiona', 'Lodge',
+           role    = c('ctb'),
+           email   = 'fiona.lodge@kornferry.com'),
+    person('Yu-Ann', 'Wang',
+           role    = c('ctb'),
+           email   = 'yu-ann-wang@kornferry.com'))
 Maintainer: Ben Wiseman <benjamin.h.wiseman@gmail.com>
-Description: This package uses Google's Universal Sentence Encoder, simplifies all the guff, and turns it into a sentiment analysis package.
-    Benefits:
-        1) Tolerates spelling mistakes
-        2) Not dependent on exactly matching a fixed dictionary
-        3) Requires less pre-processing
-        4) More powerful than dictionary-based methods
-    Drawback:
-        1) Requires a lot or RAM and, without a GPU install, can be a tad slow on larger datasets
-    Effectivelly, if you have a reasonably powerful computer, you can use sentiment.ai as a more flexible, powerful, and modern approach to sentiment analysis. 
-License: MIT
+Description: A simplified and streamlined version of Google's Universal Sentence
+  Encoder, optimized for sentiment analysis.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 7.1.1
 Suggests: magrittr, knitr, prettydoc
 VignetteBuilder: knitr
 Depends:
