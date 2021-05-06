@@ -103,24 +103,32 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 #' @param model path to tensorflow hub embedding model.default are universal sentence encoder  en (default) and multi
 #' @export
 #' @rdname setup
-sentiment.ai.init <- function(model = c("en", "multi"),
+sentiment.ai.init <- function(model = c("en.large", "multi.large", "en", "multi"),
                               envname = "r-sentiment-ai"){
 
+    # can reduce GPU out oof memory issues
+    Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = TRUE)
+
+    # Allowing overrides (warning issued later)
     model = model[1]
 
     .activate_env(envname, silent = FALSE, r_envir = -2)
     message("Preparing Model")
     reticulate:::source_python(system.file("get_embedder.py", package = "sentiment.ai"))
 
-    default_models <- c(en    = "https://tfhub.dev/google/universal-sentence-encoder-large/5",
-                        multi = "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
+
+    default_models <- list(en.large    = "https://tfhub.dev/google/universal-sentence-encoder-large/5",
+                           en          = "https://tfhub.dev/google/universal-sentence-encoder/4",
+                           multi.large = "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3",
+                           multi       = "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3")
+
 
     # extract defaults
     if(tolower(model) %in% c(names(default_models), default_models) ) {
-        model = default_models[model]
+        model = default_models[[model]]
     } else{
         warning("
-                model argument not in c('en', 'multi')
+                model argument not in c('en.large', 'multi.large', 'en', 'multi')
                 Overriding the defaults is allowed, but may or may not work!
                 You're on your own from here on, cowboy! Godspeed!
                 ")

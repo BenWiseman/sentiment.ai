@@ -25,7 +25,7 @@ default_small <- fread(file.path(cur_dir, "default_short.csv"))
 # setup your environment if you haven't
 
 # install_sentiment.ai()
-sentiment.ai.init(model = "en")
+sentiment.ai.init(model = "en.large")
 
 
 # strategy: make mix of random and orthogonal hash keys
@@ -83,7 +83,7 @@ rownames(en_neg_embeddings) <- negative
 # Step 4 Repeat with Multi Embeddings ==========================================
 
 # assumes previous things work
-sentiment.ai.init(model = "multi")
+sentiment.ai.init(model = "multi.large")
 
 multi_pos_embeddings <- as.matrix(sentiment.ai.embed(positive))
 rownames(multi_pos_embeddings) <- positive
@@ -93,10 +93,10 @@ rownames(multi_neg_embeddings) <- negative
 # Step 5 Combine Everything ====================================================
 
 # For users that want stock-standard, pre-embed the reference dicts
-default_embeddings <- list(en    = list(positive = en_pos_embeddings,
-                                        negative = en_neg_embeddings),
-                           multi = list(positive = multi_pos_embeddings,
-                                        negative = multi_neg_embeddings))
+default_embeddings <- list(en.large    = list(positive = en_pos_embeddings,
+                                              negative = en_neg_embeddings),
+                           multi.large = list(positive = multi_pos_embeddings,
+                                              negative = multi_neg_embeddings))
 
 # Need the unique na omitted vectors!!
 default <- list(positive = positive,

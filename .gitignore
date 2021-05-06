@@ -1,6 +1,9 @@
 # for messing around
 scratch/
 
+# local cache - will kill repo size if included!!!
+rpackage/sentiment.ai/inst/tfhub_modules/*
+
 ##########
 # MAC OS #
 ##########

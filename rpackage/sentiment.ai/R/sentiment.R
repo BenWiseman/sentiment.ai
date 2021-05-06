@@ -53,7 +53,7 @@
     if(is.null(negative)) neg = rownames(default_embeddings[[model]]$negative) else neg = negative
 
     #if pre calculated embeddings exist, just load them!
-    if(is.null(positive) && model %in% c("en", "multi")){
+    if(is.null(positive) && model %in%  c("en.large", "multi.large", "en", "multi")){
         pos_embedding <- default_embeddings[[model]]$positive
         # already mx with rownames!
     } else{
@@ -61,7 +61,7 @@
         rownames(pos_embedding) <- pos
     }
 
-    if(is.null(negative) && model %in% c("en", "multi")){
+    if(is.null(negative) && model %in%  c("en.large", "multi.large", "en", "multi")){
         neg_embedding <- default_embeddings[[model]]$negative
         # already mx with rownames!
     } else{
@@ -125,11 +125,11 @@
 #' @export
 #' @rdname sentiment_easy
 sentiment_easy <- function(x = NULL,
-                           model    = c("en", "multi"),
+                           model    = c("en.large", "multi.large", "en", "multi"),
                            scoring  = c("xgb", "glm"),
+                           scoring_version = "1.0",
                            batch_size = 100,
-                           envname  = "r-sentiment-ai",
-                           scoring_version = "1.0"
+                           envname  = "r-sentiment-ai"
                            ){
     # Setup stuff
     model   <- model[1] # not arg match to allow manual force override from power user
@@ -174,11 +174,13 @@ sentiment_easy <- function(x = NULL,
 #' @export
 #' @rdname sentiment_easy
 sentiment_match <- function(x = NULL,
-                           positive = default$positive,
-                           negative = default$negative,
-                           model    = c("en", "multi"),
-                           batch_size = 100,
-                           envname  = "r-sentiment-ai"
+                            model    = c("en.large", "multi.large", "en", "multi"),
+                            positive = default$positive,
+                            negative = default$negative,
+                            scoring  = c("xgb", "glm"),
+                            scoring_version = "1.0",
+                            batch_size = 100,
+                            envname  = "r-sentiment-ai"
 ){
     # Setup stuff
     model <- model[1] # not arg match to allow manual force override from power user
