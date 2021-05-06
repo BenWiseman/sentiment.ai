@@ -5,4 +5,4 @@ save_default_data.R
 ^data-raw$
 ^README\.Rmd$
 ^LICENSE\.md$
-
+^inst/tfhub_modules/*
