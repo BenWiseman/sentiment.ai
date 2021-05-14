@@ -6,3 +6,4 @@ save_default_data.R
 ^README\.Rmd$
 ^LICENSE\.md$
 ^inst/tfhub_modules/*
+^\.github$
