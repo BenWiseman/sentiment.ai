@@ -1,30 +1,41 @@
 
 #' Cosine Similarity
-#' @export
+#'
+#' @param x A numeric vector or matrix
+#' @param y A numeric vector or matrix of the same dimensions as x
+#'
+#' @examples
+#' n <- 1000
+#' y <- matrix(rnorm(n * 512), ncol = 512)
+#' x <- matrix(rnorm(n * 512), ncol = 512)
+#'
+#' microbenchmark::microbenchmark(
+#'   cosine(x, y),
+#'   text2vec::sim2(x, y),
+#'   times = 10
+#' )
+#'
+#' all.equal(cosine(x, y),
+#'           text2vec::sim2(x, y))
+#'
+#' @name matrix_similarity
+NULL
+
 #' @rdname matrix_similarity
-cosine <- function(x, y) {
-    return(crossprod(x, y)/sqrt(crossprod(x) * crossprod(y)))
-}
+#' @export
+cosine <- function(x, y = NULL){
 
-#' Cosine Similarity Lookup
-.cosine_lookup  <- function(i, y) {
-    apply(y, 1, function(j) cosine(i, j))
+  # can also try text2vec::sim2
 
-}
+  # if x is missing, cosing with self
+  if(is.null(y)){
+    y <- x
+  }
 
-#' Do Each relevant match
-.match_each <- function(target, reference){
-    # Slower, was hoping underlying cpp would help
-    t(apply(target, 1, .cosine_lookup, y=reference))
-}
-
-#' Do all matches at once (slower)
-.match_all <- function(target, reference){
-    # Slower, was hoping underlying cpp would help
-    # Can also try text2vec::sim2
-    mx_all  <- cbind(t(target), t(reference))
-    cos_all <- coop:::cosine.matrix(mx_all)
-    cos_all[rownames(target), rownames(reference)]
+  # make sure everything is a matrix to work
+  x  <- rbind(x)
+  y  <- rbind(y)
+  tcrossprod(x, y) / sqrt(rowSums(x^2) %o% rowSums(y^2))
 }
 
 #' ToDo add aproximate NN hash matching for speed on large data
@@ -32,11 +43,6 @@ cosine <- function(x, y) {
    # RANN already has c++ ANN lookup
    # eg  test_nn <- nn2(centers, matrix(c(test, rnorm(512)), byrow = TRUE, nrow = 2), k = 1)
 }
-
-
-# There is room to optimise this. Can lag a bit when target is large
-# microbenchmark::microbenchmark(.match_all(target, reference),
-#                               .match_each(target, reference))
 
 .cosine_match <- function(target, reference){
 
@@ -52,8 +58,14 @@ cosine <- function(x, y) {
     # |  B   | 0.40 | 0.90 | 0.15 |
     # |  ... |  ... |  ... |  ... |
 
-    sim_dt <- data.table(text2vec::sim2(target, reference), keep.rownames = TRUE)
-    setnames(sim_dt, old = "rn.V1", new ="rn", skip_absent = TRUE)
+    sim_dt <- data.table(cosine(target, reference),
+                         keep.rownames = TRUE)
+
+    # this only works if rn is a column of the data, right? uper specific!
+    setnames(sim_dt,
+             old = "rn.V1",
+             new = "rn",
+             skip_absent = TRUE)
 
     # Make long, then rank match by text input rowname (rn)
     # melt like so
@@ -67,9 +79,14 @@ cosine <- function(x, y) {
     # |  B   |   c   | 0.15  |
     # | ...  |  ...  |  ...  |
 
-    sim_dt <- data.table::melt(sim_dt, id.vars=("rn"), variable.name = "word")
+    sim_dt <- data.table::melt(sim_dt,
+                               id.vars = "rn",
+                               variable.name = "word")
+
     # rank matches per target (rnn) with frank() and by reference for speed
-    sim_dt[, rank := data.table::frank(-value, ties.method = "first"), by = .(rn)]
+    sim_dt[,
+           rank := data.table::frank(-value, ties.method = "first"),
+           by    = .(rn)]
 
     return(sim_dt)
 }

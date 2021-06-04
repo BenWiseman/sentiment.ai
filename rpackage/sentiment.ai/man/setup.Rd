@@ -18,7 +18,10 @@ install_sentiment.ai(
   ...
 )
 
-sentiment.ai.init(model = c("en", "multi"), envname = "r-sentiment-ai")
+sentiment.ai.init(
+  model = c("en.large", "multi.large", "en", "multi"),
+  envname = "r-sentiment-ai"
+)
 }
 \arguments{
 \item{method}{Installation method. By default, "auto" automatically finds a

@@ -2,54 +2,34 @@
 % Please edit documentation in R/sentiment.R
 \name{sentiment_easy}
 \alias{sentiment_easy}
-\alias{sentiment_match}
 \title{Simpler Sentiment - give score ranging from -1 (negative) to +1 (positive)
 This returns a single vector, and will run a little faster than sentiment_match or sentiment_model
 Defaults to English-specific, change model to 'multi' for support of 16 languages from Universal Sentence Encoder Multilingual.}
 \usage{
 sentiment_easy(
   x = NULL,
-  model = c("en", "multi"),
+  model = c("en.large", "multi.large", "en", "multi"),
   scoring = c("xgb", "glm"),
-  batch_size = 100,
-  envname = "r-sentiment-ai",
-  scoring_version = "1.0"
-)
-
-sentiment_match(
-  x = NULL,
-  positive = default$positive,
-  negative = default$negative,
-  model = c("en", "multi"),
+  scoring_version = "1.0",
   batch_size = 100,
   envname = "r-sentiment-ai"
 )
 }
 \arguments{
-\item{x}{EITHER a plain text vector or column name if data supplied}
+\item{x}{a plain text vector or column name if data supplied}
 
-\item{model}{embedding from tensorflow-hub}
+\item{model}{embedding from tensorflow-hub. Shortcuts are en (english-large) and multi (multi-lingual-large)}
 
 \item{scoring}{model used to score embedding. Can choose between a glm or xbg.}
+
+\item{scoring_version}{Placeholder - future versions may include updates/improvements}
 
 \item{batch_size}{Compute embeddings in n batches. The higher the faster BUT be careful not to exhaust your system memory!}
 
 \item{envname}{specify virtual environment for Reticulate}
-
-\item{scoring_version}{Placeholder - future versions may include updates/improvements}
-
-\item{positive}{Custom positive word or term to compare against. e.g. "happy", "high quality"}
-
-\item{negative}{Custom Negative word or term to compare against. e.g. "unhappy", "low quality"}
-}
-\value{
-data.table with sentiment score, topic match, and match score
 }
 \description{
 Simpler Sentiment - give score ranging from -1 (negative) to +1 (positive)
 This returns a single vector, and will run a little faster than sentiment_match or sentiment_model
 Defaults to English-specific, change model to 'multi' for support of 16 languages from Universal Sentence Encoder Multilingual.
-
-Sentiment Matching - give score AND explanation
-This returns a single vector, and will run a little faster
 }

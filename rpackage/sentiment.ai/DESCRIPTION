@@ -37,6 +37,7 @@ Depends:
     text2vec (>= 0.6),
     tfhub (>= 0.8.0)
 Imports:
+    coop (>= 0.6.2),
     data.table (>= 1.14.0),
     reticulate (>= 1.18),
     roperators (>= 1.1.0),

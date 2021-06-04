@@ -11,7 +11,9 @@ An object of class `"list"`
 data(default_embeddings)
 }
 \description{
-This is a default sentiment embeddings for the default data. You can use them for vector ordination
-otherwise they exist to speed up sentiment analysis when you have posivie = NULL, negative = NULL, and are using either a default "en" or "multi" model.
+This is a default sentiment embeddings for the default data. You can use them
+for vector ordination; otherwise they exist to speed up sentiment analysis
+when you have positive = NULL, negative = NULL, and are using either a default
+"en" or "multi" model.
 }
 \keyword{datasets}

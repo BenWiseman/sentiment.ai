@@ -172,7 +172,7 @@ sentiment_easy <- function(x = NULL,
 #' @param envname specify virtual environment for Reticulate
 #' @param model embedding from tensorflow-hub
 #' @export
-#' @rdname sentiment_easy
+#' @rdname sentiment_match
 sentiment_match <- function(x = NULL,
                             model    = c("en.large", "multi.large", "en", "multi"),
                             positive = default$positive,
