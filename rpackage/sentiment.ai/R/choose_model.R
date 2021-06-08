@@ -10,10 +10,6 @@ choose_model <- function(model){
   }
 
   # model defaults/names
-  default_models <- c(en.large    = "universal-sentence-encoder-large/5",
-                      en          = "universal-sentence-encoder/4",
-                      multi.large = "universal-sentence-encoder-multilingual-large/3",
-                      multi       = "universal-sentence-encoder-multilingual/3")
   model_names    <- names(default_models)
 
   default_models <- setNames(object = "https://tfhub.dev/google/" %+% default_models,

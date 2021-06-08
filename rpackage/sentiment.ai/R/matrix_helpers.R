@@ -50,12 +50,12 @@ rescale <- function(x){
 }
 
 #' ToDo add aproximate NN hash matching for speed on large data
-.hash_match <- function(){
+hash_match <- function(){
    # RANN already has c++ ANN lookup
    # eg  test_nn <- nn2(centers, matrix(c(test, rnorm(512)), byrow = TRUE, nrow = 2), k = 1)
 }
 
-.cosine_match <- function(target, reference){
+cosine_match <- function(target, reference){
 
     # TODO: explore hashing the reference table
     # ie reduce to local search only

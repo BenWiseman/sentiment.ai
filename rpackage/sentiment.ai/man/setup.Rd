@@ -3,6 +3,7 @@
 \name{install_sentiment.ai}
 \alias{install_sentiment.ai}
 \alias{init_sentiment.ai}
+\alias{check_sentiment.ai}
 \title{Install and Setup sentiment.ai Algorithm}
 \usage{
 install_sentiment.ai(
@@ -20,6 +21,8 @@ init_sentiment.ai(
   model = c("en.large", "multi.large", "en", "multi"),
   envname = "r-sentiment-ai"
 )
+
+check_sentiment.ai(...)
 }
 \arguments{
 \item{envname}{The name, or full path, of the environment in which Python

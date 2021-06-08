@@ -154,6 +154,22 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   sentiment.ai_embed <<- load_language_model(model, cache_dir)
 }
 
+#' @export
+#' @rdname setup
+check_sentiment.ai <- function(...){
+
+  if(is.null(sentiment.ai_embed)){
+    message("Preparing model (this may take a while).\n",
+            "Consider running init_sentiment.ai().")
+    init_sentiment.ai(...)
+  } else{
+    message("sentiment.ai_embed found in environment.\n",
+            "To change model, call init_sentiment.ai().")
+  }
+
+  return(NULL)
+}
+
 # 3. HELPER FUNCTIONS ==========================================================
 
 
