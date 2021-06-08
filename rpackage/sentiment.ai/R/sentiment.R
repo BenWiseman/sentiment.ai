@@ -17,7 +17,7 @@
     pb  <- txtProgressBar(min=0, max=max(batches)+1, char = "|", style = 3)
 
     # Initial batch
-    text_embeddings <- as.matrix(sentiment.ai.embed(.bandaid(text[1:min(length(text), batch_size)])))
+    text_embeddings <- as.matrix(sentiment.ai_embed(.bandaid(text[1:min(length(text), batch_size)])))
     if(talk) setTxtProgressBar(pb, batches[1]+1)
 
     # use data.table ':=' on transverse matrix to add by reference
@@ -30,7 +30,7 @@
         to   <- min(length(text), (i+1)*batch_size)
 
         # Make vectors into a list/data.frame (so can be added to data.table in :=)
-        temp_embeddings <- data.frame(t(as.matrix(sentiment.ai.embed(.bandaid(text[from:to])))))
+        temp_embeddings <- data.frame(t(as.matrix(sentiment.ai_embed(.bandaid(text[from:to])))))
 
         # Add to container by reference
         text_embeddings[, `:=`(paste0("V", from:to), lapply(temp_embeddings, function(x) x))]
@@ -57,7 +57,7 @@
         pos_embedding <- default_embeddings[[model]]$positive
         # already mx with rownames!
     } else{
-        pos_embedding <- as.matrix(sentiment.ai.embed(.bandaid(pos)))
+        pos_embedding <- as.matrix(sentiment.ai_embed(.bandaid(pos)))
         rownames(pos_embedding) <- pos
     }
 
@@ -65,7 +65,7 @@
         neg_embedding <- default_embeddings[[model]]$negative
         # already mx with rownames!
     } else{
-        neg_embedding <- as.matrix(sentiment.ai.embed(.bandaid(neg)))
+        neg_embedding <- as.matrix(sentiment.ai_embed(.bandaid(neg)))
         rownames(neg_embedding) <- neg
     }
 
@@ -142,11 +142,11 @@ sentiment_easy <- function(x = NULL,
     x[which(na_index)] <- chr(which(na_index))
 
     # Activate env and Create embeder object (if needed)
-    if(!exists("sentiment.ai.embed")){
+    if(!exists("sentiment.ai_embed")){
         message("Preparing Model (this may take a while)\n Considder running sentiment.ai.init()")
-        sentiment.ai.init(model = model, envname = envname)
+        init_sentiment.ai(model = model, envname = envname)
     } else {
-        message("sentiment.ai.embed found in environment.\n To change model call sentiment.ai.init again")}
+        message("sentiment.ai_embed found in environment.\n To change model call sentiment.ai.init again")}
 
 
     # $tep 3 - Text embeddings (needs batch option == messy, wrapped in func)
@@ -191,11 +191,11 @@ sentiment_match <- function(x = NULL,
     x[which(na_index)] <- chr(which(na_index))
 
     # Activate env and Create embeder object (if needed)
-    if(!exists("sentiment.ai.embed")){
+    if(!exists("sentiment.ai_embed")){
         message("Preparing Model (this may take a while)\n Considder running sentiment.ai.init()")
-        sentiment.ai.init(model = model, envname = envname)
+        init_sentiment.ai(model = model, envname = envname)
     } else {
-        message("sentiment.ai.embed found in environment.\n To change model call sentiment.ai.init again")}
+        message("sentiment.ai_embed found in environment.\n To change model call sentiment.ai.init again")}
 
 
     # Step 3 - Make lookup table of reference embeddings
