@@ -3,9 +3,12 @@
 \name{matrix_similarity}
 \alias{matrix_similarity}
 \alias{cosine}
+\alias{rescale}
 \title{Cosine Similarity}
 \usage{
 cosine(x, y = NULL)
+
+rescale(x)
 }
 \arguments{
 \item{x}{A numeric vector or matrix}

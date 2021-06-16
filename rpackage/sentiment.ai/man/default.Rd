@@ -5,7 +5,7 @@
 \alias{default}
 \title{Default sentiment matching dictionary}
 \format{
-An object of class `"data.table"`
+An object of class \code{"data.table"}
 }
 \usage{
 data(default)

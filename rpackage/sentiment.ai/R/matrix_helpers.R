@@ -26,25 +26,36 @@ NULL
 cosine <- function(x, y = NULL){
 
   # can also try text2vec::sim2
+  tcrossprod(x = rescale(x),
+             y = rescale(y))
+}
 
-  # if x is missing, cosing with self
-  if(is.null(y)){
-    y <- x
+#' @rdname matrix_similarity
+#' @export
+rescale <- function(x){
+
+  if(is.null(x)){
+    return(NULL)
+  } else if(!is.matrix(x)){
+    x  <- rbind(x)
   }
 
-  # make sure everything is a matrix to work
-  x  <- rbind(x)
-  y  <- rbind(y)
-  tcrossprod(x, y) / sqrt(rowSums(x^2) %o% rowSums(y^2))
+  if(nrow(x) == 1){
+    sx <- sum(x^2)
+  } else{
+    sx <- rowSums(x^2)
+  }
+
+  x / sqrt(sx)
 }
 
 #' ToDo add aproximate NN hash matching for speed on large data
-.hash_match <- function(){
+hash_match <- function(){
    # RANN already has c++ ANN lookup
    # eg  test_nn <- nn2(centers, matrix(c(test, rnorm(512)), byrow = TRUE, nrow = 2), k = 1)
 }
 
-.cosine_match <- function(target, reference){
+cosine_match <- function(target, reference){
 
     # TODO: explore hashing the reference table
     # ie reduce to local search only

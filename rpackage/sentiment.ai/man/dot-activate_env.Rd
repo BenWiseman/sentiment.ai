@@ -2,10 +2,10 @@
 % Please edit documentation in R/init_and_install.R
 \name{.activate_env}
 \alias{.activate_env}
-\title{Activate sentiment.ai environment in reticulate}
+\title{Activate sentiment.ai Environment}
 \usage{
 .activate_env(envname = "r-sentiment-ai", silent = FALSE, r_envir = -1)
 }
 \description{
-Activate sentiment.ai environment in reticulate
+Activate sentiment.ai Environment
 }

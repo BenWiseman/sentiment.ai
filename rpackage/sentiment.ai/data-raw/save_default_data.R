@@ -47,7 +47,7 @@ hash_embeddings <- matrix(data = rnorm(512 * 32, mean = mu_guess, sd = sd_guess/
                    set_rownames(paste0("rand", seq_len(nrow(.))))
 
 # randomize a little
-test_embed      <- as.matrix(sentiment.ai.embed(list("Calculator")))
+test_embed      <- as.matrix(sentiment.ai_embed(list("Calculator")))
 
 # simulate range
 range <- numeric(10000)
@@ -75,9 +75,9 @@ negative  <- unique(na.omit(default$negative))
 # Step 3 Generate reference embeddings =========================================
 
 # english positive and negative
-en_pos_embeddings <- as.matrix(sentiment.ai.embed(positive))
+en_pos_embeddings <- as.matrix(sentiment.ai_embed(positive))
 rownames(en_pos_embeddings) <- positive
-en_neg_embeddings <- as.matrix(sentiment.ai.embed(negative))
+en_neg_embeddings <- as.matrix(sentiment.ai_embed(negative))
 rownames(en_neg_embeddings) <- negative
 
 # Step 4 Repeat with Multi Embeddings ==========================================
@@ -85,9 +85,9 @@ rownames(en_neg_embeddings) <- negative
 # assumes previous things work
 sentiment.ai.init(model = "multi.large")
 
-multi_pos_embeddings <- as.matrix(sentiment.ai.embed(positive))
+multi_pos_embeddings <- as.matrix(sentiment.ai_embed(positive))
 rownames(multi_pos_embeddings) <- positive
-multi_neg_embeddings <- as.matrix(sentiment.ai.embed(negative))
+multi_neg_embeddings <- as.matrix(sentiment.ai_embed(negative))
 rownames(multi_neg_embeddings) <- negative
 
 # Step 5 Combine Everything ====================================================

@@ -25,8 +25,8 @@ Description: A simplified and streamlined version of Google's Universal Sentence
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Suggests: magrittr, knitr, prettydoc
 VignetteBuilder: knitr
 Depends:
     R (>= 4.0.0),
@@ -36,16 +36,23 @@ Depends:
     tensorflow (>= 2.4.0),
     tfhub (>= 0.8.0)
 Imports:
-    coop (>= 0.6.2),
     data.table (>= 1.14.0),
     reticulate (>= 1.18),
     roperators (>= 1.1.0),
     tensorflow (>= 2.4.0),
+    tfhub (>= 0.8.0),
+    xgboost
+Suggests:
     text2vec (>= 0.6),
-    tfhub (>= 0.8.0)
+    magrittr,
+    knitr,
+    prettydoc
 Collate: 
+    'package-sentiment_ai.R'
     'init_and_install.R'
     'sentiment.R'
+    'choose_model.R'
     'default_data.R'
     'matrix_helpers.R'
     'package-sentiment_ai.R'
+    'constants.R'

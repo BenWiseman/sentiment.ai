@@ -5,7 +5,7 @@
 \alias{default_embeddings}
 \title{Default sentiment embeddings}
 \format{
-An object of class `"list"`
+An object of class \code{"list"}
 }
 \usage{
 data(default_embeddings)

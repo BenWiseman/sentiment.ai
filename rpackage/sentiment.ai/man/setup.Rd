@@ -2,15 +2,14 @@
 % Please edit documentation in R/init_and_install.R
 \name{install_sentiment.ai}
 \alias{install_sentiment.ai}
-\alias{sentiment.ai.init}
-\title{Sets up environment specific for sentiment.as
-Currently needs:}
+\alias{init_sentiment.ai}
+\alias{check_sentiment.ai}
+\title{Install and Setup sentiment.ai Algorithm}
 \usage{
 install_sentiment.ai(
   envname = "r-sentiment-ai",
   method = c("auto", "virtualenv", "conda"),
   gpu = FALSE,
-  conda = "auto",
   python_version = "3.7.10",
   modules = list(numpy = "1.19.5", sentencepiece = "0.1.95", tensorflow = "2.4.1",
     tensorflow_hub = "0.12.0", `tensorflow-text` = "2.4.3"),
@@ -18,33 +17,62 @@ install_sentiment.ai(
   ...
 )
 
-sentiment.ai.init(
+init_sentiment.ai(
   model = c("en.large", "multi.large", "en", "multi"),
   envname = "r-sentiment-ai"
 )
+
+check_sentiment.ai(...)
 }
 \arguments{
+\item{envname}{The name, or full path, of the environment in which Python
+packages are to be installed. When \code{NULL} (the default), the active
+environment as set by the \code{RETICULATE_PYTHON_ENV} variable will be used;
+if that is unset, then the \code{r-reticulate} environment will be used.}
+
 \item{method}{Installation method. By default, "auto" automatically finds a
-method that will work in the local environment. Change the default to force
-a specific installation method. Note that the "virtualenv" method may not
-available on Windows (issue in TensorFlow). Note also
-that since this command runs without privilege the "system" method is
-available only on Windows.}
+method that will work in the local environment. Change the default to
+force a specific installation method. Note that the "virtualenv"
+method may not available on Windows due to a tensorflow issue. Note
+also that since this command runs without privilege the "system"
+method is available only on Windows.}
 
-\item{gpu}{logical, should GPU enabled TensorFlow be installed?}
+\item{gpu}{Whether GPU should be enabled when installing TensorFlow}
 
-\item{model}{path to tensorflow hub embedding model.default are universal sentence encoder  en (default) and multi}
+\item{python_version}{The requested Python version. Ignored when attempting
+to install with a Python virtual environment.}
+
+\item{modules}{A list of modules needed for installing tensorflow. See
+details for more information. Only change this argument if you know
+what you are doing!}
+
+\item{restart_session}{Whether to restart the R session after finishing
+installation. Only works on Rstudio.}
+
+\item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
+or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
+
+\item{model}{path to tensorflow hub embedding model. default is both universal
+sentence encoder  en (default) and multi}
 }
 \description{
-| Module          | Version |
-| :-------------- | :------:|
-|python           | 3.7.10  |
-|numpy            | 1.19.5  |
-|tensorflow       | 2.4.1   |
-|tensorflow_hub   | 0.12.0  |
-|tensorflow-text  | 2.4.3   |
-|sentencepiece    | 0.1.95  |
+Install and Setup sentiment.ai Algorithm
 }
 \details{
-Installs with like tensorflow::install_tensorflow with pip=TRUE
+Sets up environment specific for sentiment.ai. The packages that it currently
+needs are as follows:\tabular{lc}{
+   Module \tab Version \cr
+   python \tab 3.7.10 \cr
+   numpy \tab 1.19.5 \cr
+   tensorflow \tab 2.4.1 \cr
+   tensorflow_hub \tab 0.12.0 \cr
+   tensorflow-text \tab 2.4.3 \cr
+   sentencepiece \tab 0.1.95 \cr
+}
+
+
+Please do not change these if you do not know what you are doing.
+
+Note that it installs with like \code{tensorflow::install_tensorflow} and
+\code{pip = TRUE}
 }
