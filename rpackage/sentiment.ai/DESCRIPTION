@@ -34,7 +34,6 @@ Depends:
     reticulate (>= 1.18),
     roperators (>= 1.1.0),
     tensorflow (>= 2.4.0),
-    text2vec (>= 0.6),
     tfhub (>= 0.8.0)
 Imports:
     coop (>= 0.6.2),
@@ -42,9 +41,11 @@ Imports:
     reticulate (>= 1.18),
     roperators (>= 1.1.0),
     tensorflow (>= 2.4.0),
+    text2vec (>= 0.6),
     tfhub (>= 0.8.0)
 Collate: 
     'init_and_install.R'
     'sentiment.R'
     'default_data.R'
     'matrix_helpers.R'
+    'package-sentiment_ai.R'

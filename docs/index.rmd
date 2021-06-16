@@ -7,6 +7,7 @@ output:
         collapsed: true
         smooth_scroll: true
     theme: flatly
+    code_folding: hide
     highlight: espresso
     css: www/css/custom.css
     includes:
@@ -42,7 +43,7 @@ always_allow_html: true
 knitr::opts_chunk$set(echo = TRUE)
 require(reticulate)
 require(sentiment.ai)
-sentiment.ai.init()
+#sentiment.ai.init(model = "en.large")
 assign("depthtrigger", 4, data.table:::.global)
 ```
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
@@ -83,8 +84,6 @@ underlying hassle up to make the process as simple as possible. In addition to j
 
 ### Simple Example
 
-<input onclick="change()" type="button" class="collapsible" value="Open Code"></input>
-<div class="content">
 ```{r example1, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 # Load the package
 require(sentiment.ai)
@@ -96,30 +95,27 @@ require(sentimentr)
 
 # Initiate the model
 # This will create the sentiment.ai.embed model in your environment
-sentiment.ai.init(model = "en")
+sentiment.ai.init(model = "en.large")
 
 
 text <- c(
-    "Steve Irwin",
-    "Bob Ross",
-    "Rosa Parks",
-    "Mother Teresa",
-    "Mister Rodgers",
+    "What a great car. It stopped working after a week.",
+    "Steve Irwin working to save endangered species",
+    "Bob Ross teaching people how to paint",
     "Adolf Hitler",
     "That was such a cute dog omg I'm literally crying it was so cute!",
     "u-g-l-y- you ain't got no aliby",
     "the resturant served human flesh",
-    "the resturant served endangered species",
     "the resturant is my favourite!",
-    "the redturanr is my faborite!",
-    "the resturant was my absolute favourite until they gave me food poisoning",
+    "the redturanr is my fabourite!",
+    "the resturant was my absolute favorite until they gave me food poisoning",
     "The app freezes all the time!",
     "The app is a life saver!",
     "I learned so much on my trip to Hiroshima museum last year!",
     "What happened to the people of Hiroshima in 1945",
-    "I drank tap water in Chernobyl",
-    "The psychopath has a lot of fun on the battlefield",
-    "I love watching horror movies",
+    "I had a blast on my trip to Nagasaki",
+    "The blast in Nagasaki",
+    "I love watching scary horror movies",
     "This package offers so much more nuance to sentiment analysis!",
      "you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!"
 )
@@ -139,7 +135,6 @@ example <- data.table(target = text,
                       sentimentAnalysis = sentimentAnalysis.score,
                       sentimentr = sentimentr.score)
 ```
-</div>
 
 
 ```{r draw_kable, echo = FALSE, eval=TRUE, message=FALSE}
@@ -174,14 +169,46 @@ ex_draw  %>%
 
 ## Benchmarks
 
-### Power
-```{r benchmark_power, message=FALSE, warning=FALSE}
+### Glassdoor
+
+Applied example, estimating whether the text from a glassdoor.com review is positive or negative. 
+
+```{r benchmark_glassdoor, message=FALSE, warning=FALSE, echo=FALSE}
+
+our_scores    <- readRDS("../../docs/test/sentiment_ai_scores.rds")
+vshift_scores <- readRDS("../../docs/test/sentimentr_scores.rds")
+dict_scores   <- readRDS("../../docs/test/dict_scores.rds")
+
+dict_scores$yhat   <- factor(round(scales::rescale(dict_scores$SentimentQDAP, to=0:1)), levels = c("0","1"))
+vshift_scores$yhat <- factor(round(scales::rescale(vshift_scores$ave_sentiment, to=0:1)), levels = c("0","1"))
+
+caret::confusionMatrix(data = our_scores$y_hat, reference = our_scores$y, positive = "1")
+caret::confusionMatrix(data = dict_scores$yhat, reference = dict_scores$y, positive = "1")
+caret::confusionMatrix(data = vshift_scores$yhat, reference = vshift_scores$y, positive = "1")
+
 
 ```
  
-### Speed
 
-```{r benchmark_speed, message=FALSE, warning=FALSE}
+### Airline Tweets
+
+```{r benchmark_airline, message=FALSE, warning=FALSE, echo=FALSE}
+
+
+our_tweet_scores    <- readRDS("../../docs/test/sentimentai_tweet_scores.rds")
+vshift_tweet_scores <- readRDS("../../docs/test/sentimentr_tweet_scores.rds")
+dict_tweet_scores   <- readRDS("../../docs/test/dict_tweet_scores.rds")
+azure_tweet_scores  <- readRDS("../../docs/test/azure_tweet_scores.rds")
+
+dict_tweet_scores$yhat   <- factor(round(scales::rescale(dict_tweet_scores$SentimentQDAP, to=0:1)), 
+                                   levels = c("0","1"))
+vshift_tweet_scores$yhat <- factor(round(scales::rescale(vshift_tweet_scores$ave_sentiment, to=0:1)), 
+                             levels = c("0","1"))
+
+caret::confusionMatrix(data = our_tweet_scores$y_hat, reference = our_tweet_scores$y, positive = "1")
+caret::confusionMatrix(data = dict_tweet_scores$yhat, reference = dict_tweet_scores$y, positive = "1")
+caret::confusionMatrix(data = vshift_tweet_scores$yhat, reference = vshift_tweet_scores$y, positive = "1")
+caret::confusionMatrix(data = azure_tweet_scores$yhat, reference = azure_tweet_scores$y, positive = "1")
 
 ```
 
@@ -207,8 +234,7 @@ This only needs to be run the first time you install the package. If you're feel
 
 
 
-<input onclick="change()" type="button" class="collapsible" value="Open Example"></input>
-<div class="content">
+
 ```{r echo=TRUE, eval=FALSE}
 
 # Just leave this as default unless you have a good reason to change it. 
@@ -216,7 +242,6 @@ This only needs to be run the first time you install the package. If you're feel
 sentiment.ai.install()
 
 ```
-</div>
 
 ## Basic Usage
 

@@ -12,9 +12,9 @@
     batches <- unique(1:(length(text)-1) %/% batch_size)
 
     # 2 ) Set up progress indication!
-    talk <- length(text>batch_size)
+    talk <- length(text) > batch_size
     if(talk) cat("Model Running...")
-    pb  <- txtProgressBar(min=0, max=max(batches)+1, char = "|", style = 3)
+    if(talk) pb  <- txtProgressBar(min=0, max=max(batches)+1, char = "|", style = 3)
 
     # Initial batch
     text_embeddings <- as.matrix(sentiment.ai.embed(.bandaid(text[1:min(length(text), batch_size)])))
