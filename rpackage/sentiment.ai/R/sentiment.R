@@ -1,7 +1,7 @@
-#' Simple Sentiment
+#' Simple Sentiment Scores
 #'
 #' Uses simple preditive models on embeddings to provide probability of positive
-#' score.
+#' score (rescaled to -1:1 for consistency with other packages)
 #'
 #' @param x A plain text vector or column name if data is supplied
 #' @param model An embedding name from tensorflow-hub, some of which are
@@ -23,12 +23,12 @@
 #' @importFrom roperators
 #'             chr
 #' @export
-sentiment_simple <- function(x          = NULL,
-                             model      = names(default_models),
-                             scoring    = c("xgb", "glm"),
-                             scoring_version = "1.0",
-                             batch_size = 100,
-                             ...){
+sentiment_score <- function(x          = NULL,
+                            model      = names(default_models),
+                            scoring    = c("xgb", "glm"),
+                            scoring_version = "1.0",
+                            batch_size = 100,
+                            ...){
 
   # setup everything (don't use arg.match for model ...)
   model           <- model[1]
@@ -67,7 +67,7 @@ sentiment_simple <- function(x          = NULL,
 
 #' Sentiment Matching
 #'
-#' @inheritParams sentiment_simple
+#' @inheritParams sentiment_score
 #' @param positive Custom positive words/terms to compare against
 #'        (e.g., "happy", "high quality", ...)
 #' @param negative Custom negative words/terms to compare against
@@ -102,15 +102,13 @@ sentiment_match <- function(x        = NULL,
   # activate environment
   check_sentiment.ai(model = model, ...)
 
-<<<<<<< HEAD
     # 2 ) Set up progress indication!
     talk <- length(text) > batch_size
     if(talk) cat("Model Running...")
     if(talk) pb  <- txtProgressBar(min=0, max=max(batches)+1, char = "|", style = 3)
-=======
+
   # calculate text embeddings
   text_embed  <- embed_text(x, batch_size)
->>>>>>> 73dcd998dcf61e00e6839bab00e5af1800430afe
 
   # make lookup table of reference embeddings
   reference   <- embed_pos_neg(positive, negative, model)
@@ -143,7 +141,7 @@ sentiment_match <- function(x        = NULL,
 
 #' Model-Based Sentiment
 #'
-#' @inheritParams sentiment_simple
+#' @inheritParams sentiment_score
 #' @param data A data.frame or data.table with text
 #' @param idcol If data is supplied, use this column to pick something?
 #' @param lexicon A data.frame or data.table of words: sentiment (default is XXX)
@@ -217,12 +215,16 @@ embed_text <- function(text, batch_size = NULL){
 
   # INTERNAL FUNCTION NEEDED FOR sentiment_() #
 
-  # pull out sentiment function
-  get_embed <- sentiment.ai:::sentiment.ai_embed
-
-  if(!is.function(get_embed)){
-    stop("you need to run init_sentiment.ai first",
-         call. = FALSE)
+  if(!exists("sentiment.ai_embed")){
+    warning("Embedding model: sentiment.ai_embed not found!")
+    cat(
+      "
+      Initiating an instance now with model = ", model,
+      "
+      If you have not ran install_sentiment.ai() yet this will probably cause an error!
+      "
+      )
+    init_sentiment.ai(model = model)
   }
 
   if(is.null(batch_size)){
@@ -262,7 +264,7 @@ embed_text <- function(text, batch_size = NULL){
     this_inds  <- batches[[this_batch]]
 
     # make vectors into a list/data.frame (so can be added to data.table in :=)
-    this_embed <- get_embed(as_py_list(text[this_inds]))
+    this_embed <- sentiment.ai_embed(as_py_list(text[this_inds]))
     this_embed <- data.table(t(as.matrix(this_embed)))
 
     if(is.null(text_embed)){

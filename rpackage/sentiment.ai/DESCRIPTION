@@ -54,5 +54,4 @@ Collate:
     'choose_model.R'
     'default_data.R'
     'matrix_helpers.R'
-    'package-sentiment_ai.R'
     'constants.R'

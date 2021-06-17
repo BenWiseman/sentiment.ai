@@ -10,6 +10,7 @@ choose_model <- function(model){
   }
 
   # model defaults/names
+  # !! default_models is declared in constants.R !!
   model_names    <- names(default_models)
 
   default_models <- setNames(object = "https://tfhub.dev/google/" %+% default_models,

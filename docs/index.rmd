@@ -95,7 +95,7 @@ require(sentimentr)
 
 # Initiate the model
 # This will create the sentiment.ai.embed model in your environment
-sentiment.ai.init(model = "en.large")
+init_sentiment.ai(model = "en.large")
 
 
 text <- c(
@@ -121,7 +121,7 @@ text <- c(
 )
 
 # sentiment.ai
-sentiment.ai.score <- sentiment_easy(text)
+sentiment.ai.score <- sentiment_score(text)
 
 # From Sentiment Analysis
 sentimentAnalysis.score <- analyzeSentiment(text)$SentimentQDAP

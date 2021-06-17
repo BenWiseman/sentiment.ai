@@ -158,7 +158,7 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 #' @rdname setup
 check_sentiment.ai <- function(...){
 
-  if(is.null(sentiment.ai_embed)){
+  if(!exists("sentiment.ai_embed") || is.null(sentiment.ai_embed)){
     message("Preparing model (this may take a while).\n",
             "Consider running init_sentiment.ai().")
     init_sentiment.ai(...)
