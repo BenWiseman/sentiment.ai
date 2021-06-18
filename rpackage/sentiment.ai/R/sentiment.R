@@ -221,7 +221,7 @@ embed_text <- function(text, batch_size = NULL){
       "
       Initiating an instance now with model = ", model,
       "
-      If you have not ran install_sentiment.ai() yet this will probably cause an error!
+      If you have not run install_sentiment.ai() yet this will probably cause an error!
       "
       )
     init_sentiment.ai(model = model)

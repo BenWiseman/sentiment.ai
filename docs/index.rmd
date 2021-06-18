@@ -7,7 +7,7 @@ output:
         collapsed: true
         smooth_scroll: true
     theme: flatly
-    code_folding: hide
+    code_folding: show
     highlight: espresso
     css: www/css/custom.css
     includes:
@@ -66,11 +66,12 @@ sentiment<span class="rainbow-text">.ai</span>
 <br>
 
 
-## Overview
+# Overview
 
-We made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
-use open source deep learning models to improve their sentiment analyses. We've wrapped a lot of the 
-underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
+Korn Ferry Institute's AITMI team made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
+use powerful, open source deep learning models to improve their sentiment analyses. Our approach is relatively simple and out performs the current best offerings on CRAN and even Microsoft's Azure Cognitive Services. Given that we felt the current norm for sentiment analysis isn't quite good enough, we decided to open-source our simple interface to turn Universal Sentence Encoder embedding vectors into sentiment scores. 
+
+We've wrapped a lot of the underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
 
 1) It is **case-insensitive**, can **handle spelling mitsakes**, and can be applied to **16 languages**! 
 
@@ -82,7 +83,7 @@ underlying hassle up to make the process as simple as possible. In addition to j
 4) **Power** Because it draws from models trained on billions of texts, news articles, and wikipedia entries, it is able to detect things such as *"I learned so much on my trip to Hiroshima museum last year!"* is associated with something positive and that *"What happeded to the people of Hiroshima in 1945"* is associated with something negative. 
 
 
-### Simple Example
+## Simple Example
 
 ```{r example1, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 # Load the package
@@ -110,7 +111,6 @@ text <- c(
     "the redturanr is my fabourite!",
     "the resturant was my absolute favorite until they gave me food poisoning",
     "The app freezes all the time!",
-    "The app is a life saver!",
     "I learned so much on my trip to Hiroshima museum last year!",
     "What happened to the people of Hiroshima in 1945",
     "I had a blast on my trip to Nagasaki",
@@ -169,28 +169,80 @@ ex_draw  %>%
 
 ## Benchmarks
 
+So, what impact does more robust detection and some broader context have? To test it, in real-world scenarios,
+we use two datasets/use cases:
+
+1) classifying whether review text from Glassdoor.com is from a `pro` or a `con`
+
+2) the popular airline tweet sentiment dataset.
+
+We use the default settings for `sentimentr`, the QDAP dictionary in `sentimentAnalysis`, and `en.large` in `sentiment.ai`. We prefer the use of Kappa to validate classification as it's a less forgiving metric than F1 scores. In both benchmarks `sentiment.ai` comes out on top by a decent margin! 
+
+
 ### Glassdoor
 
 Applied example, estimating whether the text from a glassdoor.com review is positive or negative. 
+The validation set used here is the same data we used [in our 2020 SIOP workshop](https://benwiseman.github.io/Should-You-Outsource-AI/)
+
+Note: As a part of KFI's core purpose, `sentiment.ai`'s scoring models were tuned with extra work-related data, hence this is tilted in our favor! 
 
 ```{r benchmark_glassdoor, message=FALSE, warning=FALSE, echo=FALSE}
+require(ggplot2)
+# retrieve benchmark/test data 
 
 our_scores    <- readRDS("../../docs/test/sentiment_ai_scores.rds")
 vshift_scores <- readRDS("../../docs/test/sentimentr_scores.rds")
 dict_scores   <- readRDS("../../docs/test/dict_scores.rds")
+azure_scores  <- fread("../../docs/test/azure_scores-12084-rows.csv")
 
 dict_scores$yhat   <- factor(round(scales::rescale(dict_scores$SentimentQDAP, to=0:1)), levels = c("0","1"))
 vshift_scores$yhat <- factor(round(scales::rescale(vshift_scores$ave_sentiment, to=0:1)), levels = c("0","1"))
+azure_scores$yhat  <- factor(round(scales::rescale(azure_scores$score, to=0:1)), levels = c("0","1"))
+azure_scores$y     <- factor(azure_scores$target, levels = c("0", "1"))
 
-caret::confusionMatrix(data = our_scores$y_hat, reference = our_scores$y, positive = "1")
-caret::confusionMatrix(data = dict_scores$yhat, reference = dict_scores$y, positive = "1")
-caret::confusionMatrix(data = vshift_scores$yhat, reference = vshift_scores$y, positive = "1")
+gd_ai <- caret::confusionMatrix(data = our_scores$y_hat, reference = our_scores$y, positive = "1")
+gd_sa <- caret::confusionMatrix(data = dict_scores$yhat, reference = dict_scores$y, positive = "1")
+gd_sr <- caret::confusionMatrix(data = vshift_scores$yhat, reference = vshift_scores$y, positive = "1")
+gd_az <- caret::confusionMatrix(data = azure_scores$yhat, reference = azure_scores$y, positive = "1")
+
+# put into dataframe and plot!
+
+kappas <- list(sentiment.ai      = gd_ai$overall["Kappa"],
+               sentimentr        = gd_sr$overall["Kappa"],
+               sentimentAnalysis = gd_sa$overall["Kappa"],
+               azure             = gd_az$overall["Kappa"]) %>%
+          as.data.table(keep.rownames = TRUE) %>%
+          melt(measure.vars = c("sentiment.ai", "sentimentr", "sentimentAnalysis", "azure"),
+               variable.name = "Method",
+               value.name    = "Kappa")
+
+setorder(kappas, Kappa)
+kappas[, Method := factor(Method, levels = unique(Method))]
 
 
+plot_cols <- c(sentiment.ai      = "#2b8cbeCA",
+               sentimentr        = "#808080CA",
+               sentimentAnalysis = "#808080CA",
+               azure             = "#808080CA")
+
+ggplot(kappas) +
+  geom_bar(aes(x = Method, y = Kappa, fill = Method),
+           stat = "identity") + 
+  scale_fill_manual(values = plot_cols, guide = FALSE) + 
+  scale_y_continuous(expand = c(0,0)) +
+  theme_minimal() + 
+  theme(axis.title.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+  
 ```
  
 
 ### Airline Tweets
+
+Taken from the airline tweet dataset from Kaggle. Classification is positive vs negative 
+(neutral was omitted to remove concerns about cutoff values). 
+
+Note: Azure Cognitive Services tune their sentiment model on product reviews, as such this is tilted in favor of Azure!
 
 ```{r benchmark_airline, message=FALSE, warning=FALSE, echo=FALSE}
 
@@ -205,22 +257,49 @@ dict_tweet_scores$yhat   <- factor(round(scales::rescale(dict_tweet_scores$Senti
 vshift_tweet_scores$yhat <- factor(round(scales::rescale(vshift_tweet_scores$ave_sentiment, to=0:1)), 
                              levels = c("0","1"))
 
-caret::confusionMatrix(data = our_tweet_scores$y_hat, reference = our_tweet_scores$y, positive = "1")
-caret::confusionMatrix(data = dict_tweet_scores$yhat, reference = dict_tweet_scores$y, positive = "1")
-caret::confusionMatrix(data = vshift_tweet_scores$yhat, reference = vshift_tweet_scores$y, positive = "1")
-caret::confusionMatrix(data = azure_tweet_scores$yhat, reference = azure_tweet_scores$y, positive = "1")
+tw_ai <- caret::confusionMatrix(data = our_tweet_scores$y_hat, reference = our_tweet_scores$y, positive = "1")
+tw_sa <- caret::confusionMatrix(data = dict_tweet_scores$yhat, reference = dict_tweet_scores$y, positive = "1")
+tw_sr <- caret::confusionMatrix(data = vshift_tweet_scores$yhat, reference = vshift_tweet_scores$y, positive = "1")
+tw_az <- caret::confusionMatrix(data = azure_tweet_scores$yhat, reference = azure_tweet_scores$y, positive = "1")
 
+
+# put into dataframe and plot!
+
+kappas2 <- list(sentiment.ai      = tw_ai$overall["Kappa"],
+               sentimentr        = tw_sr$overall["Kappa"],
+               sentimentAnalysis = tw_sa$overall["Kappa"],
+               azure             = tw_az$overall["Kappa"]) %>%
+          as.data.table(keep.rownames = TRUE) %>%
+          melt(measure.vars = c("sentiment.ai", "sentimentr", "sentimentAnalysis", "azure"),
+               variable.name = "Method",
+               value.name    = "Kappa")
+
+setorder(kappas2, Kappa)
+kappas2[, Method := factor(Method, levels = unique(Method))]
+
+ggplot(kappas2) +
+  geom_bar(aes(x = Method, y = Kappa, fill = Method),
+           stat = "identity") + 
+  scale_fill_manual(values = plot_cols, guide = FALSE) + 
+  scale_y_continuous(expand = c(0,0)) +
+  theme_minimal() + 
+  theme(axis.title.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+  
 ```
 
+<br>
+<hr> 
+<br>
 
-## Installation
+# Installation
 
 After installing `sentiment.ai` from CRAN, you will need to make sure you have a compatible python environment for `tensorflow` and `tensorflow-text`. As this can be a cumbersome experience, we included a 
 convenience function to install that for you:
 
-`sentiment.ai.install()` 
+`install_sentiment.ai()` 
 
-This only needs to be run the first time you install the package. If you're feeling adventurous, you can modify the environment it will create with the following paramaters:
+**This only needs to be run the first time you install the package**. If you're feeling adventurous, you can modify the environment it will create with the following paramaters:
 
 * `envname` - the name of the virtual environment
 
@@ -234,42 +313,113 @@ This only needs to be run the first time you install the package. If you're feel
 
 
 
-
 ```{r echo=TRUE, eval=FALSE}
 
 # Just leave this as default unless you have a good reason to change it. 
 # This is quite dependent on specific versions of python moduules
-sentiment.ai.install()
+install_sentiment.ai()
 
 ```
 
-## Basic Usage
 
-### `sentiment_easy`
+<br>
+<hr> 
+<br>
+
+
+# Usage
+
+## Step 1: Initialise
+
+You'll need to initialise the language embedding model first. Doing so will create a function called 
+`sentiment.ai_embed` in your global environment. This is necessary for downstream sentiment scoring and matching. As an added bonus you can call this manually to turn text into a numeric embedding vector (e.g if you want to cluster comments).
+
+
+
+### Parameter: `model`
+
+The default Universal Sentence Encoder models available are:
+
+
+* `en.large` (default) use this when your text is in English and you aren't too worried about
+resource use (i.e. compute time and RAM). This is the most powerful option.
+
+* `en` use this when your text is English but your computer can't handle the larger model.
+
+* `multi.large` use this when your text is multi lingual and you aren't too worried about
+resource use (i.e. compute time and RAM)
+
+* `multi` use this when your text is multi lingual but your computer can't handle the larger model.
+
+* A custom tfhub URL - we try to accommodate this if you, for example, want to use an older USE model. This should work but we don't guarantee it! 
+
+### Patrameter: `envname`
+
+default is `envname = "r-sentiment-ai"` - only change this if you set a different environment in `install_sentiment.ai()`
+
+
+### Example
+
+```{r echo=TRUE, eval=FALSE}
+
+# e.g. to initialise for use on multi lingual comments:
+# leave envname alone unless you have a good reason to change it! 
+init_sentiment.ai(model = "multi.large")
+
+```
+
+
+
+## Step 2: Get Sentiment
+
+### `sentiment_score`
 
 Returns a vector of sentiment scores. The scores are the maximum closeness (cosine simalirity) to a positive or negative example. If the max similarity was to a negative item, the score is returned as a negative value. 
 
-* `model` two defaults are `en` and `multi`. `en` is a shortcut to Universal Sentence Encoder English (large) which has better performance but only works on English, `multi` is the U.S.E Multi-language (large) that has good performance on 16 different languages. 
+* `x` character vector to analyse.
 
-* 
+* `model` the name of the embedding model you are using (from `init_sentiment.ai()`)
 
-* `batch_szie` determines how many rows are processed at a time. On CPU this doesn't change much, but can be important if you installed the GPU version. Put simply, small bathes take longer but use less RAM/VRAM, large batches run faster on GPU but could exhaust VRAM if too large. 
+* `scoring` the method of scoring sentiment. Options are `xgb` (default) and `glm`. `xgb` is generally more powerful, but requires xgboost (shouldn't be an issue!), `glm` is faster and almost as powerful (can be better for more 'black and white' use cases)
 
-* `environment` if you installed into a custom environment, you can specify it here (ignored if you called `sentiment.ai_init()` in the same session.)
+* `scoring_version` "1.0" is the default and (currently) only option. In future this will allow you to use updated/improved models. 
 
-## Initialising
+* `batch_szie` determines how many rows are processed at a time. On CPU this doesn't change much, but can be important if you installed the GPU version. Put simply, small bathes take longer but use less RAM/VRAM, large batches run faster on GPU but could exhaust memopry if too large. Default is 100 (works reliably on an RTX 2080)
 
-## Models
+Note that if `init_sentiment.ai()` has not been called before, the function will try to recover by calling it into the default environment. 
 
-## Benchmarks
 
-### sentiment.ai
 
-### tiytext/sentimentAnalysis
+### `sentiment_match`
 
-### sentimentr
+<br>
+<hr> 
+<br>
 
-### azure
+# Helper Functions
+
+
+<br>
+<hr> 
+<br>
+
+
+
+# Troubleshooting
+
+Because this package requires communication between R and Python, there be dragons. We've tried to make it as seamless as possible, but here are a few gremlins we've encountered when trying to use Python within R. 
+
+* `RPyTools  is not available` - this happens on Windows sometimes. It appears to be a problem with Reticulate in RStudio. Weirdly the solution is to restart R and try the exact same thing again.
+
+* Running on a proxy server/docker container: we've found it difficult to change environment for Reticulate in this case - try installing into the base `r-reticulate` environment. 
+
+* Rstudio & changing python environment. As above. I've only encountered this a few times, I **think** it's an issue of Rstudio countermanding the python environment. You can either install in the base reticulate environment OR go to tools > global options > python and force it to use `r-sentiment.ai` (or whatever environment you want)
+
+
+* Error messages about missing python modules: either something went wrong in `install_sentiment.ai()` OR Reticulate isn't changing to the `r-sentiment.ai()` environment (see points above). 
+
+
+* Using a newer version of Tensorflow: do so at your own risk! In my experience tensorflow and its dependencies are somewhat lacking in the stability department having a "it's different now - deal with it" approach to backward compatibility! If you experiment and manage get it working faster with a newer Tensorflow setup, let us know so we can update the package! If you want to use an older Tensorflow version you may be SOL as the Universal Sentence Encoder models need the new(ish) tensorflow-text module. 
 
 
 <script src="www/js/collapsible.js"></script>

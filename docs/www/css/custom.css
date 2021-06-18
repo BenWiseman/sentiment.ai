@@ -143,7 +143,8 @@ button.btn.btn-default.btn-xs.code-folding-btn.pull-right{
 h1.title .rainbow-text{
      color: transparent;
      background: rgb(190,80,255);
-     background: linear-gradient(to right, #895f3e , #89813e, #49893e, #3e897b, #6a518c);
+     //background: linear-gradient(to right, #895f3e , #89813e, #49893e, #3e897b, #6a518c);
+     background: linear-gradient(to right, #2b8cbe, #1cb1c4);
      -webkit-background-clip: text!important;
      -webkit-text-fill-color: transparent!important;
 
