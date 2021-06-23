@@ -35,3 +35,27 @@ or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
 Provides score and explanation, returns a single vector, and runs relatively
 fast.
 }
+\examples{
+\dontrun{
+
+envname   <- "r-sentiment-ai"
+
+# make sure to install sentiment ai (install_sentiment.ai)
+# install_sentiment.ai(envname = envname,
+#                      method  = "conda")
+
+# running the model
+mod_match <- sentiment_match(x       = airline_tweets$text,
+                             model   = "en.large",
+                             envname = envname)
+
+# checking performance
+pos_neg <- factor(airline_tweets$airline_sentiment,
+                  levels = c("negative", "neutral", "positive"))
+pos_neg <- (as.numeric(pos_neg) - 1) / 2
+cosine(mod_match, pos_neg)
+
+# you could also calculate accuracy/kappa
+}
+
+}

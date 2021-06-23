@@ -52,6 +52,7 @@ Collate:
     'init_and_install.R'
     'sentiment.R'
     'choose_model.R'
-    'default_data.R'
+    'data-default_data.R'
+    'data-example_data.R'
     'matrix_helpers.R'
     'constants.R'

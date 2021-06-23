@@ -19,6 +19,33 @@
 #' or negative.
 #'
 #' @examples
+#' \dontrun{
+#'
+#' envname <- "r-sentiment-ai"
+#'
+#' # make sure to install sentiment ai (install_sentiment.ai)
+#' # install_sentiment.ai(envname = envname,
+#' #                      method  = "conda")
+#'
+#' # running the model
+#' mod_xgb <- sentiment_score(x       = airline_tweets$text,
+#'                            model   = "en.large",
+#'                            scoring = "xgb",
+#'                            envname = envname)
+#' mod_glm <- sentiment_score(x       = airline_tweets$text,
+#'                            model   = "en.large",
+#'                            scoring = "glm",
+#'                            envname = envname)
+#'
+#' # checking performance
+#' pos_neg <- factor(airline_tweets$airline_sentiment,
+#'                   levels = c("negative", "neutral", "positive"))
+#' pos_neg <- (as.numeric(pos_neg) - 1) / 2
+#' cosine(mod_xgb, pos_neg)
+#' cosine(mod_glm, pos_neg)
+#'
+#' # you could also calculate accuracy/kappa
+#' }
 #'
 #' @importFrom roperators
 #'             chr
@@ -77,6 +104,29 @@ sentiment_score <- function(x          = NULL,
 #' Provides score and explanation, returns a single vector, and runs relatively
 #' fast.
 #'
+#' @examples
+#' \dontrun{
+#'
+#' envname   <- "r-sentiment-ai"
+#'
+#' # make sure to install sentiment ai (install_sentiment.ai)
+#' # install_sentiment.ai(envname = envname,
+#' #                      method  = "conda")
+#'
+#' # running the model
+#' mod_match <- sentiment_match(x       = airline_tweets$text,
+#'                              model   = "en.large",
+#'                              envname = envname)
+#'
+#' # checking performance
+#' pos_neg <- factor(airline_tweets$airline_sentiment,
+#'                   levels = c("negative", "neutral", "positive"))
+#' pos_neg <- (as.numeric(pos_neg) - 1) / 2
+#' cosine(mod_match, pos_neg)
+#'
+#' # you could also calculate accuracy/kappa
+#' }
+#'
 #' @importFrom data.table
 #'             setkeyv
 #' @export
@@ -102,10 +152,11 @@ sentiment_match <- function(x        = NULL,
   # activate environment
   check_sentiment.ai(model = model, ...)
 
-    # 2 ) Set up progress indication!
-    talk <- length(text) > batch_size
-    if(talk) cat("Model Running...")
-    if(talk) pb  <- txtProgressBar(min=0, max=max(batches)+1, char = "|", style = 3)
+  # 2 ) Set up progress indication!
+  talk <- length(text) > batch_size
+
+  if(talk) cat("Model Running...")
+  if(talk) pb <- txtProgressBar(min = 0, max = max(batches) + 1, char = "|", style = 3)
 
   # calculate text embeddings
   text_embed  <- embed_text(x, batch_size)
@@ -118,7 +169,7 @@ sentiment_match <- function(x        = NULL,
                               reference = reference$embeddings)
 
   # filter to top match, join to sentiment table (and add word:sentiment)
-  similarity  <- similarity[rank = 1,
+  similarity  <- similarity[rank == 1,
                             .(text = rn, word, value)]
   similarity  <- reference$lookup[similarity, on = "word", mult = "first"]
 

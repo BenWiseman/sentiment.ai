@@ -65,7 +65,11 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # make sure gpu is TRUE or FALSE
   gpu <- isTRUE(gpu)
 
-  if(gpu){
+  if(gpu && Sys.info()["sysname"] %in% "Darwin"){
+    warning("gpu not available for OSX; setting gpu flag to FALSE",
+            call. = FALSE)
+    gpu <- FALSE
+  } else if(gpu){
     message("gpu flag is TRUE; installation needs CUDA configured",
             call. = FALSE)
     names(modules)[names(modules) %in% tf_module] <- paste0(
