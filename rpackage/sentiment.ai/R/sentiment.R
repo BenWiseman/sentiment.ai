@@ -190,29 +190,6 @@ sentiment_match <- function(x        = NULL,
   return(scores)
 }
 
-#' Model-Based Sentiment
-#'
-#' @inheritParams sentiment_score
-#' @param data A data.frame or data.table with text
-#' @param idcol If data is supplied, use this column to pick something?
-#' @param lexicon A data.frame or data.table of words: sentiment (default is XXX)
-#'
-#' @description
-#'
-#' @export
-sentiment_model <- function(x       = NULL,
-                            data    = NULL,
-                            idcol   = NULL,
-                            lexicon = NULL,
-                            model   = names(default_models),
-                            ...){
-
-  # PLACEHOLDER
-  # if x is numeric matrix, don't need to embed text, just model right away
-  # fit custom model on pos, neg
-  # give scores on custom model
-
-}
 
 # Y. HELPER FUNCTIONS ==========================================================
 

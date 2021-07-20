@@ -25,7 +25,7 @@ NULL
 #' @export
 cosine <- function(x, y = NULL){
 
-  # can also try text2vec::sim2
+  # faster than text2vec::sim2
   tcrossprod(x = rescale(x),
              y = rescale(y))
 }

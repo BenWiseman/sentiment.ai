@@ -211,10 +211,24 @@ check_sentiment.ai <- function(...){
        envir = r_envir)
 
   # just a double check in case the previous code returns silently
-  if(!endsWith(reticulate::py_discover_config()$exec_prefix, envname)){
-    stop("env ", envname, "not active. try restarting R.",
-         call. = FALSE)
-  }
+  tryCatch({
+    # dooesn't work on microsoft R open!
+    if(!endsWith(reticulate::py_discover_config()$exec_prefix, envname)){
+      stop("env ", envname, "not active. try restarting R.",
+           call. = FALSE)
+    }},
+    error = function(cond){
+      cat("
+          Internal error when checking that the environment is active.
+          This happens when using Microsoft R Open and reticulate 1.6/tensorflow 2.2
+          You can upgrade those dependencies or check that the environment is loading.
+
+          We appreciate that getting conda environments correct with reticulate is a pain!
+          If you have difficulties with environments in RStudio, go to tools>Global Options>Python.
+          From there you can force Rstudio to use the proper environment if reticulate isn't working right!
+          ")
+  })
+
 
   return(TRUE)
 }
