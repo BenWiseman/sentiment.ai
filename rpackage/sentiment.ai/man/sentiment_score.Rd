@@ -40,7 +40,6 @@ score (rescaled to -1:1 for consistency with other packages)
 }
 \examples{
 \dontrun{
-
 envname <- "r-sentiment-ai"
 
 # make sure to install sentiment ai (install_sentiment.ai)

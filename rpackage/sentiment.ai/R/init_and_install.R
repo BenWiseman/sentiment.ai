@@ -56,6 +56,16 @@
 #'    with the specific version/environment of Python that you want to use, or
 #'    you will not be able to change it!
 #'
+#' Manually setting the environment variable to NULL (using
+#' `Sys.unsetenv("RETICULATE_PYTHON")`, updating your Project/Global options going
+#' Tools>Project Options or Tools>Global Options and then select Python in the
+#' left menu bar and click the "Select" button to manually set the Python
+#' interpreter, and/or restarting your R session **might** fix the problem.
+#'
+#' We know this is a pain, and we would like to fix this for you, but we are
+#' dependent on the RStudio/reticulate team to update how they determine the
+#' allowable Python versions/environments.
+#'
 #' @examples
 #' \dontrun{
 #' install_sentiment.ai(envname = "r-sentiment-ai",
