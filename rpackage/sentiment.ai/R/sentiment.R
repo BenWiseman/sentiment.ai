@@ -20,7 +20,6 @@
 #'
 #' @examples
 #' \dontrun{
-#'
 #' envname <- "r-sentiment-ai"
 #'
 #' # make sure to install sentiment ai (install_sentiment.ai)
@@ -106,7 +105,6 @@ sentiment_score <- function(x          = NULL,
 #'
 #' @examples
 #' \dontrun{
-#'
 #' envname   <- "r-sentiment-ai"
 #'
 #' # make sure to install sentiment ai (install_sentiment.ai)
@@ -245,13 +243,9 @@ embed_text <- function(text, batch_size = NULL){
 
   if(!exists("sentiment.ai_embed")){
     warning("Embedding model: sentiment.ai_embed not found!")
-    cat(
-      "
-      Initiating an instance now with model = ", model,
-      "
-      If you have not run install_sentiment.ai() yet this will probably cause an error!
-      "
-      )
+    create_error_text(paste0("Initiating an instance now with model = ", model),
+                      "",
+                      "If you have not run install_sentiment.ai() yet, this will probably cause an error!")
     init_sentiment.ai(model = model)
   }
 

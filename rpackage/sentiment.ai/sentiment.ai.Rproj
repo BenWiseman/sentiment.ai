@@ -18,3 +18,7 @@ StripTrailingWhitespace: Yes
 BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
+
+PythonType: conda
+PythonVersion: 3.7.10
+PythonPath: /usr/local/Caskroom/miniconda/base/envs/r-sentiment-ai/bin/python3.7

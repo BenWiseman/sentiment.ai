@@ -56,3 +56,4 @@ Collate:
     'data-example_data.R'
     'matrix_helpers.R'
     'constants.R'
+    'create_error_text.R'

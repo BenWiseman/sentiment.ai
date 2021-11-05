@@ -1,4 +1,3 @@
-
 #' Cosine Similarity
 #'
 #' @param x A numeric vector or matrix
@@ -95,7 +94,7 @@ cosine_match <- function(target, reference){
                                variable.name = "word")
 
     # rank matches per target (rnn) with frank() and by reference for speed
-    sim_dt[,
+    sim_dt[ ,
            rank := data.table::frank(-value, ties.method = "first"),
            by    = .(rn)]
 
