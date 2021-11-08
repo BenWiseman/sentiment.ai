@@ -254,9 +254,20 @@ check_sentiment.ai <- function(...){
   eval(expr  = env_expr,
        envir = r_envir)
 
+
   # pull out the python environment
   py_ver_def <- Sys.getenv("RETICULATE_PYTHON")
+
+  # FIONA REVIEW Not sure if we need the exec_prefix?  That took
+  # me back to where my Miniconda is stored and not to the environment
+  # Then again, I am not sure of the differences of what the list objects
+  # of py_discover_config are.
+  # Also not sure about the Microsoft error - may be too specific
+  # as I garner this error was from py_env_ok = FALSE and not what was specified in
+  # the microsoft error
+
   py_env_set <- reticulate::py_discover_config()$exec_prefix
+  #py_env_set   <- reticulate::py_discover_config()$pythonhome
 
   # determine if environment is set correctly (if previous code returns silently)
   py_env_ok  <- endsWith(py_env_set, envname)
