@@ -254,9 +254,12 @@ check_sentiment.ai <- function(...){
   eval(expr  = env_expr,
        envir = r_envir)
 
+
   # pull out the python environment
   py_ver_def <- Sys.getenv("RETICULATE_PYTHON")
+
   py_env_set <- normalizePath(reticulate::py_discover_config()$exec_prefix)
+
 
   # determine if environment is set correctly (if previous code returns silently)
   py_env_ok  <- endsWith(py_env_set, envname)
