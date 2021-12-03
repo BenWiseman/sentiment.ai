@@ -1,4 +1,5 @@
 #' @importFrom roperators "%+%" "%ni%"
+#' @importFrom stats setNames
 choose_model <- function(model){
 
   # take only first model

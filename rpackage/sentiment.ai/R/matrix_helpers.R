@@ -54,6 +54,9 @@ hash_match <- function(){
    # eg  test_nn <- nn2(centers, matrix(c(test, rnorm(512)), byrow = TRUE, nrow = 2), k = 1)
 }
 
+#' @importFrom data.table
+#'             data.table
+#'             setnames
 cosine_match <- function(target, reference){
 
     # TODO: explore hashing the reference table

@@ -154,7 +154,7 @@ sentiment_match <- function(x        = NULL,
   talk <- length(text) > batch_size
 
   if(talk) cat("Model Running...")
-  if(talk) pb <- txtProgressBar(min = 0, max = max(batches) + 1, char = "|", style = 3)
+  if(talk) pb <- utils::txtProgressBar(min = 0, max = max(batches) + 1, char = "|", style = 3)
 
   # calculate text embeddings
   text_embed  <- embed_text(x, batch_size)
@@ -308,6 +308,9 @@ embed_text <- function(text, batch_size = NULL){
 }
 
 #' Apply Model for Sentiment Score
+#' @importFrom stats
+#'             predict
+#'             setNames
 find_sentiment_probs <- function(embeddings,
                                  scoring,
                                  scoring_version,
@@ -317,7 +320,7 @@ find_sentiment_probs <- function(embeddings,
   #       specified correctly
 
   # find the scoring object (ONLY WORKS FOR CERTAIN scoring/scoring_version)
-  score_dir <- file.path(system.file("scoring", package = packageName()),
+  score_dir <- file.path(system.file("scoring", package = utils::packageName()),
                          scoring,
                          scoring_version)
 

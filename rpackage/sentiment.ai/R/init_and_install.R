@@ -80,8 +80,11 @@
 
 # 1. INSTALL ===================================================================
 
-#' @export
 #' @rdname setup
+#' @importFrom roperators "%ni%"
+#' @import tensorflow
+#' @import tfhub
+#' @export
 install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  method  = c("auto", "virtualenv", "conda"),
                                  gpu     = FALSE,
@@ -151,13 +154,13 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 
 # 2. INITIALIZE ================================================================
 
-#' @export
 #' @rdname setup
+#' @export
 init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "multi"),
                               envname = "r-sentiment-ai"){
 
   # determining package name and base path
-  pkg_name <- packageName()
+  pkg_name <- utils::packageName()
   pkg_path <- system.file(package = pkg_name)
 
   # can reduce GPU out oof memory issues
@@ -168,7 +171,7 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 
   # 2. preparing model ---------------------------------------------------------
   message("Preparing Model")
-  reticulate:::source_python(
+  reticulate::source_python(
     system.file("get_embedder.py", package = pkg_name)
   )
 
@@ -202,8 +205,8 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   sentiment.ai_embed <<- load_language_model(model, cache_dir)
 }
 
-#' @export
 #' @rdname setup
+#' @export
 check_sentiment.ai <- function(...){
 
   if(!exists("sentiment.ai_embed") || is.null(sentiment.ai_embed)){

@@ -68,11 +68,11 @@ if(FALSE){
 
   # For testing!
   # could be done in batches. Gods forgive me
-  pb = txtProgressBar(0, length(batches), style = 3, char = "|")
+  pb <- utils::txtProgressBar(0, length(batches), style = 3, char = "|")
   for(b in batches){
     batch_dt <- dt_test[batch == b,]
     glass_mx[min(batch_dt$idx):max(batch_dt$idx),] <- as.matrix(sentiment.ai.embed(batch_dt$text))
-    setTxtProgressBar(pb, b)
+    utils::setTxtProgressBar(pb, b)
   }
 
   saveRDS(glass_mx, "../../scratch/glassdoor_validation_embedding.rds")
@@ -228,12 +228,12 @@ if(!file.exists(embed_file)){
 
 
     # could be done in batches. Gods forgive me
-    pb = txtProgressBar(0, length(batches), style = 3, char = "|")
+    pb <- utils::txtProgressBar(0, length(batches), style = 3, char = "|")
 
     for(b in batches){
       batch_dt <- sentiment_dt[batch == b,]
       result_mx[min(batch_dt$idx):max(batch_dt$idx),] <- as.matrix(sentiment.ai.embed(batch_dt$word))
-      setTxtProgressBar(pb, b)
+      utils::setTxtProgressBar(pb, b)
     }
 
     mx_list[[m]] <- result_mx
