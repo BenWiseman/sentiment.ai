@@ -170,6 +170,11 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   .activate_env(envname, silent = FALSE, r_envir = -2)
 
   # 2. preparing model ---------------------------------------------------------
+
+  # make sure load_language_model is NULL to suppress NOTE
+  load_language_model <- NULL
+
+  # load things (including load_language_model)
   message("Preparing Model")
   reticulate::source_python(
     system.file("get_embedder.py", package = pkg_name)
@@ -183,9 +188,9 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   # "OSError: SavedModel file does not exist at: path/to/temp/dir")
 
   # pulling out the directory/name/version
-  model_dir  <- gsub(x       = model,
-                     pattern = ".*\\/(.*\\/)(.*$)",
-                     replace = "\\1\\2")
+  model_dir  <- gsub(x           = model,
+                     pattern     = ".*\\/(.*\\/)(.*$)",
+                     replacement = "\\1\\2")
   model_dir  <- strsplit(x     = model_dir,
                          split = "/")[[1]]
 
@@ -197,19 +202,22 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 
   # make sure the directory has been created
   # (for manual DL, need to create each level of name, version???)
-  dir.create(path = cache_dir,
+  dir.create(path         = cache_dir,
              showWarnings = FALSE,
              recursive    = TRUE)
 
   # create sentiment.ai_embed object and make it global IN the package
-  sentiment.ai_embed <<- load_language_model(model, cache_dir)
+  env   <- sentiment.ai::sentiment.ai_embed
+  env$f <- load_language_model(model, cache_dir)
+
+  env$f
 }
 
 #' @rdname setup
 #' @export
 check_sentiment.ai <- function(...){
 
-  if(!exists("sentiment.ai_embed") || is.null(sentiment.ai_embed)){
+  if(is.null(sentiment.ai::sentiment.ai_embed$f)){
     message("Preparing model (this may take a while).\n",
             "Consider running init_sentiment.ai().")
     init_sentiment.ai(...)
@@ -223,8 +231,7 @@ check_sentiment.ai <- function(...){
 
 # 3. HELPER FUNCTIONS ==========================================================
 
-
-#' Activate sentiment.ai Environment
+# Activate sentiment.ai Environment
 .activate_env <- function(envname = "r-sentiment-ai",
                           silent  = FALSE,
                           r_envir = -1){

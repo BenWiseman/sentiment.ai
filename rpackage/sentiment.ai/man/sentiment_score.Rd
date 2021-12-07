@@ -22,6 +22,9 @@ sentiment_score(
 \item{scoring}{Model to use for scoring the embedding matrix (currently
 either "xgb" or "glm").}
 
+\item{scoring_version}{The scoring version to use, currently only 1.0, but
+other versions might be supported in the future.}
+
 \item{batch_size}{Size of batches to use. Larger numbers will be faster than
 smaller numbers, but do not exhaust your system memory!}
 

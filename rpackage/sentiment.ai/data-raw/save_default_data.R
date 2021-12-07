@@ -27,6 +27,8 @@ default_small <- fread(file.path(cur_dir, "default_short.csv"))
 # install_sentiment.ai()
 sentiment.ai.init(model = "en.large")
 
+# add sentiment.ai_embed to global environment
+sentiment.ai_embed <- sentiment.ai::sentiment_ai.embed$f
 
 # strategy: make mix of random and orthogonal hash keys
 

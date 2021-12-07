@@ -59,47 +59,50 @@ hash_match <- function(){
 #'             setnames
 cosine_match <- function(target, reference){
 
-    # TODO: explore hashing the reference table
-    # ie reduce to local search only
+  # fix global variable declaration
+  rn <- value <- NULL
 
-    # this could be quite large, so overwrite variable to free memory
+  # TODO: explore hashing the reference table
+  # ie reduce to local search only
 
-    # Create data.table of cosine similarities, like so
-    # | rn   |   a  |   b  |   c  |
-    # | ---- | ---- | ---- | ---- |
-    # |  a   | 1.00 | 0.50 | 0.25 |
-    # |  B   | 0.40 | 0.90 | 0.15 |
-    # |  ... |  ... |  ... |  ... |
+  # this could be quite large, so overwrite variable to free memory
 
-    sim_dt <- data.table(cosine(target, reference),
-                         keep.rownames = TRUE)
+  # Create data.table of cosine similarities, like so
+  # | rn   |   a  |   b  |   c  |
+  # | ---- | ---- | ---- | ---- |
+  # |  a   | 1.00 | 0.50 | 0.25 |
+  # |  B   | 0.40 | 0.90 | 0.15 |
+  # |  ... |  ... |  ... |  ... |
 
-    # this only works if rn is a column of the data, right? uper specific!
-    setnames(sim_dt,
-             old = "rn.V1",
-             new = "rn",
-             skip_absent = TRUE)
+  sim_dt <- data.table(cosine(target, reference),
+                       keep.rownames = TRUE)
 
-    # Make long, then rank match by text input rowname (rn)
-    # melt like so
-    # | rn   |  word | value |
-    # | ---- | ----- | ----- |
-    # |  a   |   a   | 1.00  |
-    # |  a   |   b   | 0.50  |
-    # |  a   |   c   | 0.25  |
-    # |  B   |   a   | 0.40  |
-    # |  B   |   b   | 0.90  |
-    # |  B   |   c   | 0.15  |
-    # | ...  |  ...  |  ...  |
+  # this only works if rn is a column of the data, right? uper specific!
+  setnames(sim_dt,
+           old = "rn.V1",
+           new = "rn",
+           skip_absent = TRUE)
 
-    sim_dt <- data.table::melt(sim_dt,
-                               id.vars = "rn",
-                               variable.name = "word")
+  # Make long, then rank match by text input rowname (rn)
+  # melt like so
+  # | rn   |  word | value |
+  # | ---- | ----- | ----- |
+  # |  a   |   a   | 1.00  |
+  # |  a   |   b   | 0.50  |
+  # |  a   |   c   | 0.25  |
+  # |  B   |   a   | 0.40  |
+  # |  B   |   b   | 0.90  |
+  # |  B   |   c   | 0.15  |
+  # | ...  |  ...  |  ...  |
 
-    # rank matches per target (rnn) with frank() and by reference for speed
-    sim_dt[ ,
-           rank := data.table::frank(-value, ties.method = "first"),
-           by    = .(rn)]
+  sim_dt <- data.table::melt(sim_dt,
+                             id.vars = "rn",
+                             variable.name = "word")
 
-    return(sim_dt)
+  # rank matches per target (rnn) with frank() and by reference for speed
+  sim_dt[ ,
+         rank := data.table::frank(-value, ties.method = "first"),
+         by    = .(rn)]
+
+  return(sim_dt)
 }

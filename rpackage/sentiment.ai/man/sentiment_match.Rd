@@ -7,8 +7,8 @@
 sentiment_match(
   x = NULL,
   model = names(default_models),
-  positive = default$positive,
-  negative = default$negative,
+  positive = sentiment.ai::default$positive,
+  negative = sentiment.ai::default$negative,
   batch_size = 100,
   ...
 )
