@@ -63,6 +63,7 @@ sentiment_score <- function(x          = NULL,
   scoring         <- match.arg(scoring)
   scoring_version <- match.arg(scoring_version)
 
+
   # note: what do we do for xgb/glm with custom models??
 
   # if x is missing, return NOTHING
@@ -72,12 +73,13 @@ sentiment_score <- function(x          = NULL,
 
   # replace missing values with index numbers (can't handle missing)
   na_index    <- which(is.na(x))
-  x[na_index] <- chr(na_index)
-
 
   # calculate text embeddings if x is text
   # else if x looks like numeric embedding matrix, pass it through as-is
   if(is.character(x)){
+    # replace NA n the text
+    x[na_index] <- as.character(na_index)
+
     # activate environment
     check_sentiment.ai(model = model, ...)
 
@@ -85,7 +87,10 @@ sentiment_score <- function(x          = NULL,
     text_embed  <- embed_text(x, batch_size, model)
 
   } else if(is.matrix(x) && ncol(x)==512){
-    text_embed <- x
+    # x looks like embedding already - no need to init the embedder
+    # ! assumes user knows what they're doing!
+    x[na_index] <- 0 # not passing NA to python!
+    text_embed  <- x
   }
 
 
