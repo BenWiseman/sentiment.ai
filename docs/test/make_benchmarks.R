@@ -126,7 +126,7 @@ require(jsonlite)
 azure_file_name <-  "../../docs/test/azure_tweet_scores.rds"
 
 # Stored in .Rprofile -- you'll need one of your own.
-api_key      <- "89e64c63dac54ef59958faca2f3813b5"
+api_key      <- "xxx"
 api_endpoint <- "https://throwawaytrial.cognitiveservices.azure.com/"
 api_url_lan  <- "https://westus.api.cognitive.microsoft.com/text/analytics/v3.0/languages"
 api_url_sen  <- "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment"

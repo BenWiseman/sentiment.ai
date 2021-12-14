@@ -76,3 +76,48 @@ Please do not change these if you do not know what you are doing.
 Note that it installs with like \code{tensorflow::install_tensorflow} and
 \code{pip = TRUE}
 }
+\note{
+Setting environments with \code{reticulate} is notoriously difficult. If the
+RETICULATE_PYTHON environment is set, then reticulate will not let you change
+the Python binary used (or the Python environment) using \code{use_condaenv}
+\strong{or} \code{use_virtualenv}. This environment can be accidentally set in
+the following ways:
+\enumerate{
+\item If RETICULATE_PYTHON is in your .Renviron file or bash/zsh rc files. This is
+the most obvious place that this environment will be set.
+\item Using Project Options or Global Options under "Python>Python Interpreter".
+If this is set, then reticulate will almost always use this version of Python
+and will not let you change.
+\item If you have already loaded reticulate and have run \code{py_config}. Once a Python
+version/environment is instantiated, you will not be able to change it and
+will have to restart R.
+\item If you are in \strong{any} project, at all! Currently (as of \code{reticulate} version
+1.22), every project automatically sets the RETICULATE_PYTHON environment
+variable, either through the Global or Project Options of by using heuristics.
+If you are in an RStudio project, you \strong{must} update Global/Project Options
+with the specific version/environment of Python that you want to use, or
+you will not be able to change it!
+}
+
+Manually setting the environment variable to NULL (using
+\code{Sys.unsetenv("RETICULATE_PYTHON")}, updating your Project/Global options going
+Tools>Project Options or Tools>Global Options and then select Python in the
+left menu bar and click the "Select" button to manually set the Python
+interpreter, and/or restarting your R session \strong{might} fix the problem.
+
+We know this is a pain, and we would like to fix this for you, but we are
+dependent on the RStudio/reticulate team to update how they determine the
+allowable Python versions/environments.
+}
+\examples{
+\dontrun{
+install_sentiment.ai(envname = "r-sentiment-ai",
+                     method  = "conda",
+                     python_version = "3.7.10")
+init_sentiment.ai(model   = "en.large",
+                  envname = "r-sentiment-ai")
+check_sentiment.ai()
+
+# if you run into an issue, follow the instructions/see the note and retry!
+}
+}

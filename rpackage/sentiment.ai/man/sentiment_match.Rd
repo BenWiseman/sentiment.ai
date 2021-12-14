@@ -7,8 +7,8 @@
 sentiment_match(
   x = NULL,
   model = names(default_models),
-  positive = default$positive,
-  negative = default$negative,
+  positive = sentiment.ai::default$positive,
+  negative = sentiment.ai::default$negative,
   batch_size = 100,
   ...
 )
@@ -37,7 +37,6 @@ fast.
 }
 \examples{
 \dontrun{
-
 envname   <- "r-sentiment-ai"
 
 # make sure to install sentiment ai (install_sentiment.ai)

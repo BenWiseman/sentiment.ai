@@ -8,6 +8,8 @@
 #'        "en" (english large or not) and "multi" (multi-lingual large or not).
 #' @param scoring Model to use for scoring the embedding matrix (currently
 #'        either "xgb" or "glm").
+#' @param scoring_version The scoring version to use, currently only 1.0, but
+#'        other versions might be supported in the future.
 #' @param batch_size Size of batches to use. Larger numbers will be faster than
 #'        smaller numbers, but do not exhaust your system memory!
 #' @inheritParams install_sentiment.ai
@@ -20,7 +22,6 @@
 #'
 #' @examples
 #' \dontrun{
-#'
 #' envname <- "r-sentiment-ai"
 #'
 #' # make sure to install sentiment ai (install_sentiment.ai)
@@ -77,7 +78,7 @@ sentiment_score <- function(x          = NULL,
   check_sentiment.ai(model = model, ...)
 
   # calculate text embeddings
-  text_embed  <- embed_text(x, batch_size)
+  text_embed  <- embed_text(x, batch_size, model)
 
   # find sentiment probabilities
   probs  <- find_sentiment_probs(embeddings = text_embed,
@@ -106,7 +107,6 @@ sentiment_score <- function(x          = NULL,
 #'
 #' @examples
 #' \dontrun{
-#'
 #' envname   <- "r-sentiment-ai"
 #'
 #' # make sure to install sentiment ai (install_sentiment.ai)
@@ -132,10 +132,16 @@ sentiment_score <- function(x          = NULL,
 #' @export
 sentiment_match <- function(x        = NULL,
                             model    = names(default_models),
-                            positive = default$positive,
-                            negative = default$negative,
+                            positive = sentiment.ai::default$positive,
+                            negative = sentiment.ai::default$negative,
                             batch_size = 100,
                             ...){
+
+  # fix global variable declaration
+  rn <- word <- value <- sentiment <- NULL
+
+  # what to do with:
+  # text, batches
 
   # setup everything (don't use arg.match for model ...)
   model           <- model[1]
@@ -152,14 +158,11 @@ sentiment_match <- function(x        = NULL,
   # activate environment
   check_sentiment.ai(model = model, ...)
 
-  # 2 ) Set up progress indication!
-  talk <- length(text) > batch_size
-
-  if(talk) cat("Model Running...")
-  if(talk) pb <- txtProgressBar(min = 0, max = max(batches) + 1, char = "|", style = 3)
+  # indicate that the model is running?!
+  message("Model Running...")
 
   # calculate text embeddings
-  text_embed  <- embed_text(x, batch_size)
+  text_embed  <- embed_text(x, batch_size, model)
 
   # make lookup table of reference embeddings
   reference   <- embed_pos_neg(positive, negative, model)
@@ -193,10 +196,12 @@ sentiment_match <- function(x        = NULL,
 
 # Y. HELPER FUNCTIONS ==========================================================
 
-#' Create Pos/Neg Embeddings
+# Create Pos/Neg Embeddings
 embed_pos_neg <- function(positive = NULL,
                           negative = NULL,
                           model    = "en.large"){
+
+  default_embeddings <- sentiment.ai::default_embeddings
 
   # all models
   cur_models  <- names(default_models)
@@ -210,7 +215,7 @@ embed_pos_neg <- function(positive = NULL,
     if(is.null(positive)){
       positive <- rownames(first_embed$positive)
     }
-    pos_embed  <- embed_text(positive)
+    pos_embed  <- embed_text(positive, model = model)
   }
 
   # - if pre-calculated embeddings exist, load them
@@ -236,22 +241,20 @@ embed_pos_neg <- function(positive = NULL,
        lookup     = lookup)
 }
 
-#' Create Text Embeddings
-#'
+# Create Text Embeddings
+
 #' @importFrom data.table data.table
-embed_text <- function(text, batch_size = NULL){
+embed_text <- function(text,
+                       batch_size = NULL,
+                       model      = NULL){
 
   # INTERNAL FUNCTION NEEDED FOR sentiment_() #
 
-  if(!exists("sentiment.ai_embed")){
+  if(is.null(sentiment.ai::sentiment.ai_embed$f)){
     warning("Embedding model: sentiment.ai_embed not found!")
-    cat(
-      "
-      Initiating an instance now with model = ", model,
-      "
-      If you have not run install_sentiment.ai() yet this will probably cause an error!
-      "
-      )
+    create_error_text(paste0("Initiating an instance now with model = ", model),
+                      "",
+                      "If you have not run install_sentiment.ai() yet, this will probably cause an error!")
     init_sentiment.ai(model = model)
   }
 
@@ -292,7 +295,7 @@ embed_text <- function(text, batch_size = NULL){
     this_inds  <- batches[[this_batch]]
 
     # make vectors into a list/data.frame (so can be added to data.table in :=)
-    this_embed <- sentiment.ai_embed(as_py_list(text[this_inds]))
+    this_embed <- sentiment.ai::sentiment.ai_embed$f(as_py_list(text[this_inds]))
     this_embed <- data.table(t(as.matrix(this_embed)))
 
     if(is.null(text_embed)){
@@ -313,7 +316,11 @@ embed_text <- function(text, batch_size = NULL){
   return(text_embed)
 }
 
-#' Apply Model for Sentiment Score
+# Apply Model for Sentiment Score
+
+#' @importFrom stats
+#'             predict
+#'             setNames
 find_sentiment_probs <- function(embeddings,
                                  scoring,
                                  scoring_version,
@@ -323,7 +330,7 @@ find_sentiment_probs <- function(embeddings,
   #       specified correctly
 
   # find the scoring object (ONLY WORKS FOR CERTAIN scoring/scoring_version)
-  score_dir <- file.path(system.file("scoring", package = packageName()),
+  score_dir <- file.path(system.file("scoring", package = utils::packageName()),
                          scoring,
                          scoring_version)
 

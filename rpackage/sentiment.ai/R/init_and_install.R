@@ -33,11 +33,58 @@
 #'
 #' Note that it installs with like \code{tensorflow::install_tensorflow} and
 #' \code{pip = TRUE}
+#'
+#' @note
+#' Setting environments with \code{reticulate} is notoriously difficult. If the
+#' RETICULATE_PYTHON environment is set, then reticulate will not let you change
+#' the Python binary used (or the Python environment) using \code{use_condaenv}
+#' **or** \code{use_virtualenv}. This environment can be accidentally set in
+#' the following ways:
+#'
+#' 1. If RETICULATE_PYTHON is in your .Renviron file or bash/zsh rc files. This is
+#'    the most obvious place that this environment will be set.
+#' 2. Using Project Options or Global Options under "Python>Python Interpreter".
+#'    If this is set, then reticulate will almost always use this version of Python
+#'    and will not let you change.
+#' 3. If you have already loaded reticulate and have run `py_config`. Once a Python
+#'    version/environment is instantiated, you will not be able to change it and
+#'    will have to restart R.
+#' 4. If you are in **any** project, at all! Currently (as of `reticulate` version
+#'    1.22), every project automatically sets the RETICULATE_PYTHON environment
+#'    variable, either through the Global or Project Options of by using heuristics.
+#'    If you are in an RStudio project, you **must** update Global/Project Options
+#'    with the specific version/environment of Python that you want to use, or
+#'    you will not be able to change it!
+#'
+#' Manually setting the environment variable to NULL (using
+#' `Sys.unsetenv("RETICULATE_PYTHON")`, updating your Project/Global options going
+#' Tools>Project Options or Tools>Global Options and then select Python in the
+#' left menu bar and click the "Select" button to manually set the Python
+#' interpreter, and/or restarting your R session **might** fix the problem.
+#'
+#' We know this is a pain, and we would like to fix this for you, but we are
+#' dependent on the RStudio/reticulate team to update how they determine the
+#' allowable Python versions/environments.
+#'
+#' @examples
+#' \dontrun{
+#' install_sentiment.ai(envname = "r-sentiment-ai",
+#'                      method  = "conda",
+#'                      python_version = "3.7.10")
+#' init_sentiment.ai(model   = "en.large",
+#'                   envname = "r-sentiment-ai")
+#' check_sentiment.ai()
+#'
+#' # if you run into an issue, follow the instructions/see the note and retry!
+#' }
 
 # 1. INSTALL ===================================================================
 
-#' @export
 #' @rdname setup
+#' @importFrom roperators "%ni%"
+#' @import tensorflow
+#' @import tfhub
+#' @export
 install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  method  = c("auto", "virtualenv", "conda"),
                                  gpu     = FALSE,
@@ -107,13 +154,13 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 
 # 2. INITIALIZE ================================================================
 
-#' @export
 #' @rdname setup
+#' @export
 init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "multi"),
                               envname = "r-sentiment-ai"){
 
   # determining package name and base path
-  pkg_name <- packageName()
+  pkg_name <- utils::packageName()
   pkg_path <- system.file(package = pkg_name)
 
   # can reduce GPU out oof memory issues
@@ -123,8 +170,13 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   .activate_env(envname, silent = FALSE, r_envir = -2)
 
   # 2. preparing model ---------------------------------------------------------
+
+  # make sure load_language_model is NULL to suppress NOTE
+  load_language_model <- NULL
+
+  # load things (including load_language_model)
   message("Preparing Model")
-  reticulate:::source_python(
+  reticulate::source_python(
     system.file("get_embedder.py", package = pkg_name)
   )
 
@@ -136,9 +188,9 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   # "OSError: SavedModel file does not exist at: path/to/temp/dir")
 
   # pulling out the directory/name/version
-  model_dir  <- gsub(x       = model,
-                     pattern = ".*\\/(.*\\/)(.*$)",
-                     replace = "\\1\\2")
+  model_dir  <- gsub(x           = model,
+                     pattern     = ".*\\/(.*\\/)(.*$)",
+                     replacement = "\\1\\2")
   model_dir  <- strsplit(x     = model_dir,
                          split = "/")[[1]]
 
@@ -150,19 +202,22 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 
   # make sure the directory has been created
   # (for manual DL, need to create each level of name, version???)
-  dir.create(path = cache_dir,
+  dir.create(path         = cache_dir,
              showWarnings = FALSE,
              recursive    = TRUE)
 
   # create sentiment.ai_embed object and make it global IN the package
-  sentiment.ai_embed <<- load_language_model(model, cache_dir)
+  env   <- sentiment.ai::sentiment.ai_embed
+  env$f <- load_language_model(model, cache_dir)
+
+  env$f
 }
 
-#' @export
 #' @rdname setup
+#' @export
 check_sentiment.ai <- function(...){
 
-  if(!exists("sentiment.ai_embed") || is.null(sentiment.ai_embed)){
+  if(is.null(sentiment.ai::sentiment.ai_embed$f)){
     message("Preparing model (this may take a while).\n",
             "Consider running init_sentiment.ai().")
     init_sentiment.ai(...)
@@ -176,8 +231,7 @@ check_sentiment.ai <- function(...){
 
 # 3. HELPER FUNCTIONS ==========================================================
 
-
-#' Activate sentiment.ai Environment
+# Activate sentiment.ai Environment
 .activate_env <- function(envname = "r-sentiment-ai",
                           silent  = FALSE,
                           r_envir = -1){
@@ -210,25 +264,46 @@ check_sentiment.ai <- function(...){
   eval(expr  = env_expr,
        envir = r_envir)
 
-  # just a double check in case the previous code returns silently
-  tryCatch({
-    # dooesn't work on microsoft R open!
-    if(!endsWith(reticulate::py_discover_config()$exec_prefix, envname)){
-      stop("env ", envname, "not active. try restarting R.",
-           call. = FALSE)
-    }},
+
+  # pull out the python environment
+  py_ver_def <- Sys.getenv("RETICULATE_PYTHON")
+
+  py_env_set <- normalizePath(reticulate::py_discover_config()$exec_prefix)
+
+
+  # determine if environment is set correctly (if previous code returns silently)
+  py_env_ok  <- endsWith(py_env_set, envname)
+
+  # double check if system environment is set
+  tryCatch(
+    expr = {
+      if(!py_env_ok){
+        stop("")
+      }
+    },
     error = function(cond){
-      cat("
-          Internal error when checking that the environment is active.
-          This happens when using Microsoft R Open and reticulate 1.6/tensorflow 2.2
-          You can upgrade those dependencies or check that the environment is loading.
+      if(nchar(py_ver_def) > 0){
+        # doesn't work if in projects unless the RETICULATE_PYTHON is set correctly
+        text <- c("The RETICULATE_PYTHON environment variable is set, which can be due to",
+                  "being in a project (regardless of whether the global/project Python options",
+                  "are set), having the global/project Python options set, or having",
+                  "RETICULATE_PYTHON in your .Renviron file or bash/zsh rc files.")
+      } else{
+        # doesn't work with MS open (should we check this?)
+        text <- c("This happens when using Microsoft R Open and reticulate 1.6/tensorflow 2.2.",
+                  "You can upgrade those dependencies or check that the environment is loading.")
+      }
 
-          We appreciate that getting conda environments correct with reticulate is a pain!
-          If you have difficulties with environments in RStudio, go to tools>Global Options>Python.
-          From there you can force Rstudio to use the proper environment if reticulate isn't working right!
-          ")
-  })
+      head_text <- "Internal error when checking that the environment is active."
+      tail_text <- c("We appreciate that getting conda environments correct with reticulate is a pain!",
+                     "If you have difficulties with environments in RStudio, go to tools>Global Options>Python.",
+                     "From there you can force RStudio to use the proper environment if reticulate isn't working.")
 
+      create_error_text(head_text, text, "", tail_text)
+      stop("env ", envname, " is not active. try restarting R and/or changing default environment.",
+           call. = FALSE)
+    }
+  )
 
   return(TRUE)
 }

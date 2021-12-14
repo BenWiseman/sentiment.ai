@@ -419,5 +419,10 @@ Because this package requires communication between R and Python, there be drago
 
 * Using a newer version of Tensorflow: do so at your own risk! In my experience tensorflow and its dependencies are somewhat lacking in the stability department having a "it's different now - deal with it" approach to backward compatibility! If you experiment and manage get it working faster with a newer Tensorflow setup, let us know so we can update the package! If you want to use an older Tensorflow version you may be SOL as the Universal Sentence Encoder models need the new(ish) tensorflow-text module. 
 
+* Other errors during installation of python packages may include incorrect tls/ssl configurations ('pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available').  Please see the following for advice on possible solutions to solve this problem, solutions may include ensuring correct path environment variables and/or resolving dll conflicts.   
+  + Solutions for different operating systems : <https://stackoverflow.com/questions/45954528/pip-is-configured-with-locations-that-require-tls-ssl-however-the-ssl-module-in>
+  + DLL Conflicts : <https://stackoverflow.com/questions/41328451/ssl-module-in-python-is-not-available-when-installing-package-with-pip3>
+
+
 
 <script src="www/js/collapsible.js"></script>

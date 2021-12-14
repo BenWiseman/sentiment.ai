@@ -33,24 +33,23 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 Depends:
-    R (>= 4.0.0),
-    data.table (>= 1.12.8),
-    reticulate (>= 1.16),
-    roperators (>= 1.1.0),
-    tensorflow (>= 2.2.0),
-    tfhub (>= 0.8.0)
+    R (>= 4.0.0)
 Imports:
     data.table (>= 1.12.8),
     reticulate (>= 1.16),
     roperators (>= 1.1.0),
+    stats,
     tensorflow (>= 2.2.0),
     tfhub (>= 0.8.0),
+    utils,
     xgboost
 Suggests:
-    text2vec (>= 0.6),
-    magrittr,
     knitr,
-    prettydoc
+    magrittr,
+    microbenchmark,
+    prettydoc,
+    rstudioapi,
+    text2vec (>= 0.6)
 Collate: 
     'package-sentiment_ai.R'
     'init_and_install.R'
@@ -58,5 +57,9 @@ Collate:
     'choose_model.R'
     'data-default_data.R'
     'data-example_data.R'
+    'object-sentiment_ai_embed.R'
     'matrix_helpers.R'
     'constants.R'
+    'create_error_text.R'
+    'utils-data-table.R'
+    'globals.R'
