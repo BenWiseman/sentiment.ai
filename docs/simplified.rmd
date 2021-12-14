@@ -1,0 +1,296 @@
+---
+image: "media/nnet_big.svg"
+output:
+  html_document:
+    toc: yes
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    theme: flatly
+    code_folding: show
+    highlight: espresso
+    css: www/css/custom.css
+    includes:
+      in_header: header.html
+  word_document:
+    toc: yes
+editor_options:
+  chunk_output_type: console
+always_allow_html: true
+---
+```{css, echo=FALSE}
+ #TOC::before {
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center; 
+  content: "sentiment.ai";
+  display: block;
+  width: 200px;
+  height: 80px;
+  line-height: 80px;
+  margin: 10px 10px 10px 20px;
+  //background-image: url("media/nnetsmall.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+#TOC{
+    border:none;
+}
+
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(reticulate)
+require(sentiment.ai)
+#sentiment.ai.init(model = "en.large")
+assign("depthtrigger", 4, data.table:::.global)
+```
+```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
+require(knitr)
+require(kableExtra)
+require(magrittr)
+require(formattable)
+require(data.table)
+
+
+colLight <- "#1cb1c4"
+colMed   <- "#2b8cbe"
+colDark  <- "#4158CD"
+colDarkest <- "#09001c"
+```
+<h1 class="title toc-ignore">
+sentiment<span class="rainbow-text">.ai</span>
+</h1>
+<h1 class="subtitle toc-ignore rainbow-text"> Open Source AI-Based Sentiment Analysis</h1>
+<br>
+
+
+# Overview
+
+Korn Ferry Institute's AITMI team created `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
+use powerful, open source deep learning models to improve their sentiment analyses. Our approach is relatively simple and out performs the current best offerings on CRAN and even Microsoft's Azure Cognitive Services. Given that we felt the current norm for sentiment analysis isn't quite good enough, we decided to open-source our simplified interface to turn Universal Sentence Encoder (U.S.E.) embedding vectors into sentiment scores. 
+
+We've wrapped a lot of the underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
+
+1) It is **case-insensitive**, can **handle spelling mitsakes**, and can be applied to **16 languages**! 
+
+2) It **doesn't need to match words to a ridged lexicon**, rather it matches to an embedding vector (reduces language to a vector of numbers that capture the information, kind of like a PCA). This means you can get scores for words that are not in the lexicon but are similar to existing words! 
+
+3) You can **choose the context** for what negative and positive mean. For example, you could set `positive` to mean `"high quality"` and negative to mean `"low quality"` when looking at product reviews.
+
+
+4) **Power** Because it draws from models trained on billions of texts, news articles, and wikipedia entries, it is able to detect things such as *"I learned so much on my trip to Hiroshima museum last year!"* is associated with something positive and that *"What happeded to the people of Hiroshima in 1945"* is associated with something negative. 
+
+
+# Simple Example
+
+```{r example1, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, error=FALSE,results='hide'}
+# Load the package
+require(sentiment.ai)
+require(SentimentAnalysis)
+require(sentimentr)
+
+# Only if it's your first ever time
+# sentiment.ai.install()
+
+# Initiate the model
+# This will create the sentiment.ai.embed model in your environment
+Sys.setenv("CUDA_VISIBLE_DEVICES" = -1)   
+init_sentiment.ai(model = "en.large")
+
+
+text <- c(
+    "What a great car. It stopped working after a week.",
+    "Steve Irwin working to save endangered species",
+    "Bob Ross teaching people how to paint",
+    "I saw Adolf Hitler on my vacation in Argentina...",
+    "the resturant served human flesh",
+    "the resturant is my favorite!",
+    "the resturant is my favourite!",
+    "this restront is my FAVRIT innit!",
+    "the resturant was my absolute favorite until they gave me food poisoning",
+    "This fantastic app freezes all the time!",
+    "I learned so much on my trip to Hiroshima museum last year!",
+    "What happened to the people of Hiroshima in 1945",
+    "I had a blast on my trip to Nagasaki",
+    "The blast in Nagasaki",
+    "I love watching scary horror movies",
+    "This package offers so much more nuance to sentiment analysis!",
+     "you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe!"
+)
+
+# sentiment.ai
+sentiment.ai.score <- sentiment_score(text)
+
+# From Sentiment Analysis
+sentimentAnalysis.score <- analyzeSentiment(text)$SentimentQDAP
+
+# From sentimentr
+sentimentr.score <- sentiment_by(get_sentences(text), 1:length(text))$ave_sentiment
+
+
+example <- data.table(target = text, 
+                      sentiment.ai = sentiment.ai.score,
+                      sentimentAnalysis = sentimentAnalysis.score,
+                      sentimentr = sentimentr.score)
+```
+
+
+```{r draw_kable, echo = FALSE, eval=TRUE, message=FALSE}
+ex_draw <- copy(example)
+
+ex_draw$sentiment.ai %<>% round(2)
+ex_draw$sentimentAnalysis %<>% round(2)
+ex_draw$sentimentr %<>% round(2)
+
+
+color_func <- function(x, col_high = colLight, col_low = colDarkest ){
+    out <- ifelse(x > 0,
+                  cell_spec(x, color = colLight, bold = TRUE),
+                  ifelse(x < 0,
+                         cell_spec(x, color = colDarkest, bold = TRUE),
+                         cell_spec(x, color = "#808080", bold = FALSE)))
+}
+
+ex_draw[, sentiment.ai := color_func(sentiment.ai)]
+
+ex_draw[, sentimentr := color_func(sentimentr)]
+
+ex_draw[, sentimentAnalysis := color_func(sentimentAnalysis)]
+
+
+ex_draw  %>%
+ kableExtra::kable(escape = F) %>%
+ kableExtra::kable_styling() %>%
+ scroll_box(width = "100%", height = "600px")
+```
+
+
+# Benchmarks
+
+So, what impact does more robust detection and some broader context have? To test it, in real-world scenarios,
+we use two datasets/use cases:
+
+1) classifying whether review text from Glassdoor.com is from a `pro` or a `con`
+
+2) the popular airline tweet sentiment dataset.
+
+We use the default settings for `sentimentr`, the QDAP dictionary in `sentimentAnalysis`, and `en.large` in `sentiment.ai`. We prefer the use of Kappa to validate classification as it's a less forgiving metric than F1 scores. In both benchmarks `sentiment.ai` comes out on top by a decent margin! 
+
+
+## Glassdoor
+
+Applied example, estimating whether the text from a glassdoor.com review is positive or negative. 
+The validation set used here is the same data we used [in our 2020 SIOP workshop](https://benwiseman.github.io/Should-You-Outsource-AI/)
+
+Note: As a part of KFI's core purpose, `sentiment.ai`'s scoring models were tuned with extra work-related data, hence this is tilted in our favor! 
+
+```{r benchmark_glassdoor, message=FALSE, warning=FALSE, echo=FALSE}
+require(ggplot2)
+# retrieve benchmark/test data 
+
+our_scores    <- readRDS("../../docs/test/sentiment_ai_scores.rds")
+vshift_scores <- readRDS("../../docs/test/sentimentr_scores.rds")
+dict_scores   <- readRDS("../../docs/test/dict_scores.rds")
+azure_scores  <- fread("../../docs/test/azure_scores-12084-rows.csv")
+
+dict_scores$yhat   <- factor(round(scales::rescale(dict_scores$SentimentQDAP, to=0:1)), levels = c("0","1"))
+vshift_scores$yhat <- factor(round(scales::rescale(vshift_scores$ave_sentiment, to=0:1)), levels = c("0","1"))
+azure_scores$yhat  <- factor(round(scales::rescale(azure_scores$score, to=0:1)), levels = c("0","1"))
+azure_scores$y     <- factor(azure_scores$target, levels = c("0", "1"))
+
+gd_ai <- caret::confusionMatrix(data = our_scores$y_hat, reference = our_scores$y, positive = "1")
+gd_sa <- caret::confusionMatrix(data = dict_scores$yhat, reference = dict_scores$y, positive = "1")
+gd_sr <- caret::confusionMatrix(data = vshift_scores$yhat, reference = vshift_scores$y, positive = "1")
+gd_az <- caret::confusionMatrix(data = azure_scores$yhat, reference = azure_scores$y, positive = "1")
+
+# put into dataframe and plot!
+
+kappas <- list(sentiment.ai      = gd_ai$overall["Kappa"],
+               sentimentr        = gd_sr$overall["Kappa"],
+               sentimentAnalysis = gd_sa$overall["Kappa"],
+               azure             = gd_az$overall["Kappa"]) %>%
+          as.data.table(keep.rownames = TRUE) %>%
+          melt(measure.vars = c("sentiment.ai", "sentimentr", "sentimentAnalysis", "azure"),
+               variable.name = "Method",
+               value.name    = "Kappa")
+
+setorder(kappas, Kappa)
+kappas[, Method := factor(Method, levels = unique(Method))]
+
+
+plot_cols <- c(sentiment.ai      = "#2b8cbeCA",
+               sentimentr        = "#808080CA",
+               sentimentAnalysis = "#808080CA",
+               azure             = "#808080CA")
+
+ggplot(kappas) +
+  geom_bar(aes(x = Method, y = Kappa, fill = Method),
+           stat = "identity") + 
+  scale_fill_manual(values = plot_cols, guide = FALSE) + 
+  scale_y_continuous(expand = c(0,0)) +
+  theme_minimal() + 
+  theme(axis.title.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+  
+```
+ 
+
+## Airline Tweets
+
+Taken from the airline tweet dataset from Kaggle. Classification is positive vs negative 
+(neutral was omitted to remove concerns about cutoff values). 
+
+Note: Azure Cognitive Services tune their sentiment model on product reviews, as such this is tilted in favor of Azure!
+
+```{r benchmark_airline, message=FALSE, warning=FALSE, echo=FALSE}
+
+
+our_tweet_scores    <- readRDS("../../docs/test/sentimentai_tweet_scores.rds")
+vshift_tweet_scores <- readRDS("../../docs/test/sentimentr_tweet_scores.rds")
+dict_tweet_scores   <- readRDS("../../docs/test/dict_tweet_scores.rds")
+azure_tweet_scores  <- readRDS("../../docs/test/azure_tweet_scores.rds")
+
+dict_tweet_scores$yhat   <- factor(round(scales::rescale(dict_tweet_scores$SentimentQDAP, to=0:1)), 
+                                   levels = c("0","1"))
+vshift_tweet_scores$yhat <- factor(round(scales::rescale(vshift_tweet_scores$ave_sentiment, to=0:1)), 
+                             levels = c("0","1"))
+
+tw_ai <- caret::confusionMatrix(data = our_tweet_scores$y_hat, reference = our_tweet_scores$y, positive = "1")
+tw_sa <- caret::confusionMatrix(data = dict_tweet_scores$yhat, reference = dict_tweet_scores$y, positive = "1")
+tw_sr <- caret::confusionMatrix(data = vshift_tweet_scores$yhat, reference = vshift_tweet_scores$y, positive = "1")
+tw_az <- caret::confusionMatrix(data = azure_tweet_scores$yhat, reference = azure_tweet_scores$y, positive = "1")
+
+
+# put into dataframe and plot!
+
+kappas2 <- list(sentiment.ai      = tw_ai$overall["Kappa"],
+               sentimentr        = tw_sr$overall["Kappa"],
+               sentimentAnalysis = tw_sa$overall["Kappa"],
+               azure             = tw_az$overall["Kappa"]) %>%
+          as.data.table(keep.rownames = TRUE) %>%
+          melt(measure.vars = c("sentiment.ai", "sentimentr", "sentimentAnalysis", "azure"),
+               variable.name = "Method",
+               value.name    = "Kappa")
+
+setorder(kappas2, Kappa)
+kappas2[, Method := factor(Method, levels = unique(Method))]
+
+ggplot(kappas2) +
+  geom_bar(aes(x = Method, y = Kappa, fill = Method),
+           stat = "identity") + 
+  scale_fill_manual(values = plot_cols, guide = FALSE) + 
+  scale_y_continuous(expand = c(0,0)) +
+  theme_minimal() + 
+  theme(axis.title.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+  
+```
+
+<br>
+<hr> 
+<br>
+
+
+<script src="www/js/collapsible.js"></script>

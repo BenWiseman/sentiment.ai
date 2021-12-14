@@ -4,7 +4,7 @@ Title: Simplified sentiment analysis with AI
 Version: 0.1.0
 Authors@R:
   c(person('Ben', 'Wiseman',
-           role    = c('cre', 'aut'),
+           role    = c('ccp', 'cre', 'aut'),
            email   = 'benjamin.h.wiseman@gmail.com'),
     person('Steven', 'Nydick',
            role    = c('aut'),
@@ -18,7 +18,11 @@ Authors@R:
            email   = 'fiona.lodge@kornferry.com'),
     person('Yu-Ann', 'Wang',
            role    = c('ctb'),
-           email   = 'yu-ann-wang@kornferry.com'))
+           email   = 'yu-ann-wang@kornferry.com'),
+    person('Korn Ferry Institute', 
+           role = c('fnd'),
+           email = 'KFInstituteRequests@KornFerry.com')
+           )
 Maintainer: Ben Wiseman <benjamin.h.wiseman@gmail.com>
 Description: A simplified and streamlined version of Google's Universal Sentence
   Encoder, optimized for sentiment analysis.
