@@ -73,7 +73,7 @@ use powerful, open source deep learning models to improve their sentiment analys
 
 We've wrapped a lot of the underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
 
-1) It is **case-insensitive**, can **handle spelling mitsakes**, and can be applied to **16 languages**! 
+1) It is **case-Insensitive**, can **handle spelling mitsakes**, and can be applied to **dieciséis (16) languages**! 
 
 2) It **doesn't need to match words to a ridged lexicon**, rather it matches to an embedding vector (reduces language to a vector of numbers that capture the information, kind of like a PCA). This means you can get scores for words that are not in the lexicon but are similar to existing words! 
 
@@ -98,19 +98,17 @@ require(sentimentr)
 # This will create the sentiment.ai.embed model in your environment
 init_sentiment.ai(model = "en.large")
 
-
 text <- c(
     "What a great car. It stopped working after a week.",
     "Steve Irwin working to save endangered species",
     "Bob Ross teaching people how to paint",
-    "Adolf Hitler",
-    "That was such a cute dog omg I'm literally crying it was so cute!",
-    "u-g-l-y- you ain't got no aliby",
+    "I saw Adolf Hitler on my vacation in Argentina...",
     "the resturant served human flesh",
+    "the resturant is my favorite!",
     "the resturant is my favourite!",
-    "the redturanr is my fabourite!",
+    "this restront is my FAVRIT innit!",
     "the resturant was my absolute favorite until they gave me food poisoning",
-    "The app freezes all the time!",
+    "This fantastic app freezes all the time!",
     "I learned so much on my trip to Hiroshima museum last year!",
     "What happened to the people of Hiroshima in 1945",
     "I had a blast on my trip to Nagasaki",
