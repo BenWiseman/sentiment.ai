@@ -74,11 +74,20 @@ sentiment_score <- function(x          = NULL,
   na_index    <- which(is.na(x))
   x[na_index] <- chr(na_index)
 
-  # activate environment
-  check_sentiment.ai(model = model, ...)
 
-  # calculate text embeddings
-  text_embed  <- embed_text(x, batch_size, model)
+  # calculate text embeddings if x is text
+  # else if x looks like numeric embedding matrix, pass it through as-is
+  if(is.character(x)){
+    # activate environment
+    check_sentiment.ai(model = model, ...)
+
+    #  apply embedding
+    text_embed  <- embed_text(x, batch_size, model)
+
+  } else if(is.matrix(x) && ncol(x)==512){
+    text_embed <- x
+  }
+
 
   # find sentiment probabilities
   probs  <- find_sentiment_probs(embeddings = text_embed,

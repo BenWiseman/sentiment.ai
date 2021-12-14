@@ -268,11 +268,15 @@ check_sentiment.ai <- function(...){
   # pull out the python environment
   py_ver_def <- Sys.getenv("RETICULATE_PYTHON")
 
-  py_env_set <- normalizePath(reticulate::py_discover_config()$exec_prefix)
+  # py config depends on OS - pick which one isn't NULL
+  py_path <- c(reticulate::py_discover_config()$exec_prefix,
+               reticulate::py_discover_config()$pythonhome)
+
+  py_env_set <- vapply(py_path, normalizePath, character(1))
 
 
   # determine if environment is set correctly (if previous code returns silently)
-  py_env_ok  <- endsWith(py_env_set, envname)
+  py_env_ok  <- any(endsWith(py_env_set, envname))
 
   # double check if system environment is set
   tryCatch(
