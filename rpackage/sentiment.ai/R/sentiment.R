@@ -3,7 +3,8 @@
 #' Uses simple preditive models on embeddings to provide probability of positive
 #' score (rescaled to -1:1 for consistency with other packages)
 #'
-#' @param x A plain text vector or column name if data is supplied
+#' @param x A plain text vector or column name if data is supplied.
+#'        If you know what you're doing, you can also pass in a 512-D numeric embedding
 #' @param model An embedding name from tensorflow-hub, some of which are
 #'        "en" (english large or not) and "multi" (multi-lingual large or not).
 #' @param scoring Model to use for scoring the embedding matrix (currently
@@ -46,6 +47,8 @@
 #' cosine(mod_glm, pos_neg)
 #'
 #' # you could also calculate accuracy/kappa
+#'
+#'
 #' }
 #'
 #' @importFrom roperators
@@ -77,7 +80,7 @@ sentiment_score <- function(x          = NULL,
   # calculate text embeddings if x is text
   # else if x looks like numeric embedding matrix, pass it through as-is
   if(is.character(x)){
-    # replace NA n the text
+    # replace NA in x with token text (will revert to NA after applying model)
     x[na_index] <- as.character(na_index)
 
     # activate environment
