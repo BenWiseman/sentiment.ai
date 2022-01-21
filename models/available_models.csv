@@ -1,0 +1,2 @@
+model, version, embedding_model, default
+xgb, 1.0, en.large, TRUE
