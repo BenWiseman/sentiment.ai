@@ -28,7 +28,7 @@ sentiment.ai as a more flexible, powerful, and modern approach to sentiment
 analysis.
 }
 \author{
-\strong{Maintainer}: Ben Wiseman \email{benjamin.h.wiseman@gmail.com}
+\strong{Maintainer}: Ben Wiseman \email{benjamin.h.wiseman@gmail.com} [conceptor]
 
 Authors:
 \itemize{
@@ -40,6 +40,7 @@ Other contributors:
 \itemize{
   \item Fiona Lodge \email{fiona.lodge@kornferry.com} [contributor]
   \item Yu-Ann Wang \email{yu-ann-wang@kornferry.com} [contributor]
+  \item Korn Ferry Institute \email{KFInstituteRequests@KornFerry.com} [funder]
 }
 
 }
