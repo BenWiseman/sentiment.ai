@@ -216,7 +216,7 @@ sentiment_match <- function(x        = NULL,
 # Create Pos/Neg Embeddings
 embed_pos_neg <- function(positive = NULL,
                           negative = NULL,
-                          model    = "en.large"){
+                          model    = c("en.large", "multi.large")){
 
   default_embeddings <- sentiment.ai::default_embeddings
 
@@ -358,7 +358,12 @@ find_sentiment_probs <- function(embeddings,
   if(scoring == "glm"){
 
     # pulling out the weights (too large if serialized!)
-    weights    <- readRDS(paste0(model_path, ".rds"))
+    # Simple CSV of param name & value to named number vec for multiplication
+    csv     <- read.csv(paste0(model_path, ".csv"))
+    names   <- csv[,1]
+    weights <- csv[,2]
+    names(weights) <- names
+
 
     # add intercept to embeddings and calculating probs
     embeddings <- cbind(1, embeddings)
