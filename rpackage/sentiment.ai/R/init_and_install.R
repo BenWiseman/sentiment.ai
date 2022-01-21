@@ -152,6 +152,60 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   invisible(NULL)
 }
 
+
+#' @rdname setup
+#' @return
+#' 0 if model did not need to be downloaded.
+#' 1 if model needed to be downloaded.
+#' @details
+#' This downloads the scoring models from a set repository in order to keep the main package
+#' within CRAN size limits.
+#'
+#' In the future, this will also make it possible for the community to add new and improved models!
+#'
+#' @importFrom roperators "%ni%"
+install_model <- function(model =  c("en.large", "en", "multi.large", "multi"),
+                          scoring = c("xgb", "glm"),
+                          scoring_version = "1.0",
+                          repo_url = "https://github.com/BenWiseman/sentiment.ai/blob/main/models"
+                           ){
+
+  # Remove match.arg not used - give flexibility.
+  model <- match.arg(model)
+  scoring <- scoring[1]
+  scoring_version <- scoring_version[1]
+
+  # glm models will be plain text for max compatibility
+  file_ext  <- if(scoring == "glm") "txt" else scoring
+  file_name <- paste0(model, ".", file_ext)
+  # base url - repo containing model objects
+  target_url <- paste(repo_url, scoring, scoring_version, file_name, sep = "/")
+  # Add query param to end
+  target_url <- paste0(target_url, "?raw=true")
+
+
+  # get download location: <pkg_dir>/scoring/xgb/1.0/en.large
+  # determining package name and base path
+  pkg_name <- utils::packageName()
+  pkg_path <- system.file(package = pkg_name)
+  dl_path  <- file.path(pkg_path, "scoring", scoring, scoring_version)
+  obj_path <- file.path(dl_path, file_name)
+
+  # if model exists, return NULL - nothing to do
+  if(file.exists(obj_path)) return(0)
+
+  # model doesn't exist, download it into dl_path
+  if(!dir.exists(dl_path)) {
+    # directory doesn't exist, make directory & download
+    dir.create(dl_path, showWarnings = FALSE, recursive = TRUE)
+  }
+
+  message("Downloading ", model, ": ", scoring, " ", scoring_version,  " from github")
+  download.file(target_url, obj_path)
+
+  return(1)
+}
+
 # 2. INITIALIZE ================================================================
 
 #' @rdname setup
