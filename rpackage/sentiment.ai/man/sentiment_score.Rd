@@ -14,7 +14,8 @@ sentiment_score(
 )
 }
 \arguments{
-\item{x}{A plain text vector or column name if data is supplied}
+\item{x}{A plain text vector or column name if data is supplied.
+If you know what you're doing, you can also pass in a 512-D numeric embedding}
 
 \item{model}{An embedding name from tensorflow-hub, some of which are
 "en" (english large or not) and "multi" (multi-lingual large or not).}
@@ -67,6 +68,8 @@ cosine(mod_xgb, pos_neg)
 cosine(mod_glm, pos_neg)
 
 # you could also calculate accuracy/kappa
+
+
 }
 
 }

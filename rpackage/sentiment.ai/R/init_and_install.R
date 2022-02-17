@@ -144,16 +144,25 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 
   message("Successfully created ", method, " environment: ", envname)
 
+  # Since they already have internet here, install.
+  message("Installing default scoring model from Github")
+  install_scoring_model(scoring = "xgb")
+  install_scoring_model(scoring = "glm")
+
   # restart session if needed
   if(restart_session && rstudioapi::hasFun("restartSession")){
     rstudioapi::restartSession()
   }
 
   invisible(NULL)
-}
+  }
 
 
 #' @rdname setup
+#' @param model - the embedding model used one of c("en.large", "en", "multi.large", "multi")
+#' @param scoring - the scoring model, "xgb" does default xgboost, "glm" if you can't run xgboost
+#' @param scoring_version - version of scoring model, will get more over time
+#' @param repo_url OPTIONAL custom github repo blob url for external scoring models. default is  "https://github.com/BenWiseman/sentiment.ai/blob/main/models"
 #' @return
 #' 0 if model did not need to be downloaded.
 #' 1 if model needed to be downloaded.
@@ -164,11 +173,19 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 #' In the future, this will also make it possible for the community to add new and improved models!
 #'
 #' @importFrom roperators "%ni%"
-install_model <- function(model =  c("en.large", "en", "multi.large", "multi"),
+install_scoring_model <- function(model =  c("en.large", "en", "multi.large", "multi"),
                           scoring = c("xgb", "glm"),
                           scoring_version = "1.0",
-                          repo_url = "https://github.com/BenWiseman/sentiment.ai/blob/main/models"
+                          ...
                            ){
+
+  #passthrough optional repo_url
+  opts <- list(...)
+  if(is.null(opts$repo_url)) {
+    repo_url <- "https://github.com/BenWiseman/sentiment.ai/raw/main/models"
+  } else{
+    repo_url <- opts$repo_url
+  }
 
   # Remove match.arg not used - give flexibility.
   model <- match.arg(model)
@@ -176,7 +193,7 @@ install_model <- function(model =  c("en.large", "en", "multi.large", "multi"),
   scoring_version <- scoring_version[1]
 
   # glm models will be plain text for max compatibility
-  file_ext  <- if(scoring == "glm") "txt" else scoring
+  file_ext  <- if(scoring == "glm") "csv" else scoring
   file_name <- paste0(model, ".", file_ext)
   # base url - repo containing model objects
   target_url <- paste(repo_url, scoring, scoring_version, file_name, sep = "/")
@@ -201,7 +218,14 @@ install_model <- function(model =  c("en.large", "en", "multi.large", "multi"),
   }
 
   message("Downloading ", model, ": ", scoring, " ", scoring_version,  " from github")
-  download.file(target_url, obj_path)
+
+  # Windows needs some extra love
+  if(roperators::is.os_win()){
+    utils::download.file(target_url, obj_path, mode="wb")
+  } else{
+    utils::download.file(target_url, obj_path)
+  }
+
 
   return(1)
 }
@@ -276,8 +300,10 @@ check_sentiment.ai <- function(...){
             "Consider running init_sentiment.ai().")
     init_sentiment.ai(...)
   } else{
-    message("sentiment.ai_embed found in environment.\n",
-            "To change model, call init_sentiment.ai().")
+    # commented out for now - this may get annoying for users to see every time
+    # ...especially if they *apply instead of passing in a vector for some reason!
+    # message("sentiment.ai_embed found in environment.\n",
+    #         "To change model, call init_sentiment.ai().")
   }
 
   return(NULL)
