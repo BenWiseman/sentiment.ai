@@ -24,13 +24,13 @@ Authors@R:
            email = 'KFInstituteRequests@KornFerry.com')
            )
 Maintainer: Ben Wiseman <benjamin.h.wiseman@gmail.com>
-Description: A simplified and streamlined version of Google's Universal Sentence
-  Encoder, optimized for sentiment analysis.
+Description: Easy way to do sentiment analysis with transfer learning from Google's Universal Sentence
+  Encoder. Better performance than traditional dictionary based sentiment analysis! 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
 Depends:
     R (>= 4.0.0)
