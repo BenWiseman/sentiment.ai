@@ -1,4 +1,242 @@
 ![](https://github.com/BenWiseman/sentiment.ai/blob/main/repository-open-graph-template.png)
 
+<style>
+  /* Color Variables */
+:root {
+  --colDim: #3e6f89;
+  --colLight2: #569cc0;
+  --colLight: #1cb1c4;
+  --colMed: #2b8cbe;
+  --colDark: #4158CD;
+  --colDarkest: #09001c;
+  --bgGrey:  #EFEFEF;
+}
+
+.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus{
+    /*background-image: -webkit-linear-gradient(45deg, #ff5f6d 0%, #ffc371 100%)!important;*/
+    background-image: -webkit-linear-gradient(45deg, var(--colDark)  0%, var(--colMed) 75%)!important;
+
+
+}
+
+
+// FLOATING HEADER
+#header {
+  position: fixed;
+}
+
+#content {
+  margin-top: 100px;
+}
+
+.tocify-subheader > .tocify-item {
+  text-indent: initial;
+  padding-left: 2em;
+}
+
+
+
+/* Things with bg gradient */
+h1.title {
+    font-size: 58px;
+    font-weight: 600;
+    background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
+    -webkit-background-clip: text!important;
+    -webkit-text-fill-color: transparent!important;
+}
+
+
+h1.subtitle {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--colDarkest);
+    /*background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
+    -webkit-background-clip: text!important;
+    -webkit-text-fill-color: transparent!important; */
+}
+
+
+.subtitle {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--colDarkest);
+    /*
+    font-size: 42px;
+    background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
+    -webkit-background-clip: text!important;
+    -webkit-text-fill-color: transparent!important;*/
+}
+
+h2 {
+    font-weight: 600;
+    background-image: -webkit-linear-gradient(45deg, var(--colDarkest)  0%, var(--colDark) 75%)!important;
+    -webkit-background-clip: text!important;
+    -webkit-text-fill-color: transparent!important;
+}
+
+/* Collapsable class */
+
+.collapsible {
+
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  width: auto;
+  border: none;
+  text-align: center;
+  outline: none;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  padding: 3px 20px;
+  margin: 4px 2px;
+  border-radius: 32px;
+  background-image: -webkit-linear-gradient(45deg, var(--colDark)  0%, var(--colMed) 75%)!important;
+}
+
+
+.active, .collapsible:hover {
+  background-color: #555;
+  background-image: -webkit-linear-gradient(45deg, var(--colMed)  0%, var(--colLight) 75%)!important;
+}
+
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: var(--bgGrey);
+  border-radius: 32px !important;
+  //background-image: -webkit-linear-gradient(45deg, var(--colMed)  0%, var(--colMed) 75%)!important;
+
+  //border: 5px solid;
+  //border-image-slice: 1;
+  //border-width: 2px;
+  //border-image-source: linear-gradient(45deg, var(--colDark)  0%, var(--colLight) 75%);
+
+}
+
+button.btn.btn-default.btn-xs.code-folding-btn.pull-right{
+  float: left !important;
+  background-color: #777 !important;
+  color: white !important;
+  cursor: pointer !important;
+  width: auto !important;
+  border: none!important;
+  text-align: center !important;
+  align: center !important;
+  outline: none !important;
+  font-size: 15px !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding: 3px 20px !important;
+  margin: 4px 2px !important;
+  border-radius: 32px !important;
+  background-image: -webkit-linear-gradient(45deg, var(--colDark)  0%, var(--colMed) 75%)!important;
+}
+
+.active, button.btn.btn-default.btn-xs.code-folding-btn.pull-right:hover{
+    background-color: #555 !important;
+   background-image: -webkit-linear-gradient(45deg, var(--colDark)  0%, var(--colMed) 75%)!important;
+}
+
+
+
+/* FONT */
+
+h1.title .rainbow-text{
+     color: transparent;
+     background: rgb(190,80,255);
+     //background: linear-gradient(to right, #895f3e , #89813e, #49893e, #3e897b, #6a518c);
+     background: linear-gradient(to right, #2b8cbe, #1cb1c4);
+     -webkit-background-clip: text!important;
+     -webkit-text-fill-color: transparent!important;
+
+  }
+
+
+@font-face {
+ font-family: 'Gothamy';
+ src: local('Gotham Book'), local('Gotham-Book');
+ font-weight: normal;
+ font-style: normal;
+ font-variant: normal;
+}
+@font-face {
+ font-family: 'Gothamy';
+ src: local('Gotham Bold'), local('Gotham-Bold');
+ font-weight: bold;
+ font-style: normal;
+ font-variant: normal;
+}
+@font-face {
+ font-family: 'Gothamy';
+ src: local('Gotham Book Italic'), local('Gotham-BookItalic');
+ font-weight: normal;
+ font-style: italic;
+ font-variant: normal;
+}
+@font-face {
+ font-family: 'Gothamy';
+ src: local('Gotham Bold Italic'), local('Gotham-BoldItalic');
+ font-weight: bold;
+ font-style: italic;
+ font-variant: normal;
+}
+body {
+ font-family: Gothamy, Gotham-Book, Arial, sans-serif;
+}
+
+/* CODE HIGHLIGHTING */
+  pre.sourceCode{
+    font-size: 16px;
+    color: #fff;
+    border-radius: 32px !important;
+    padding: 16px;
+    background-color: #000;
+    width: 100%;
+  }
+
+  code.sourceCode .cb1{
+      background-color: #000;
+  }
+
+  pre.sourceCode .st, pre.sourceCode .dv {
+    color: var(--colLight);
+  }
+
+  pre.sourceCode .fu, pre.sourceCode .sc{
+     color: var(--colLight2);
+  }
+
+  pre.sourceCode .ot{
+      color: var(--colLight);
+  }
+
+    pre.sourceCode .co{
+      color:  #808080;
+      background: linear-gradient(to right, #895f3e , #89813e, #49893e, #3e897b, #6a518c);
+      //background-image: -webkit-linear-gradient(45deg, var(--colLight)  0%, var(--colDim) 75%)!important;
+     -webkit-background-clip: text!important;
+     -webkit-text-fill-color: transparent!important;
+  }
+
+  pre:not([class]) {
+    color: var(--colMed);
+    background-color:  var(--bgGrey);
+    border: 0px solid;
+    border-width: 0px;
+    //border-radius: 32px !important;
+    background-image: -webkit-linear-gradient(45deg, var(--colDark)  0%, var(--colMed) 75%)!important;
+    -webkit-background-clip: text!important;
+    -webkit-text-fill-color: transparent!important;
+  }
+
+
+code{
+    color: var(--colMed);
+    background-color:  var(--bgGrey);
+}
+
+</style>
 # sentiment.ai
 Package for using deep learning models (from tf hub) for easy sentiment analysis
