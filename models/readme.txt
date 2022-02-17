@@ -13,13 +13,15 @@ If it's not a glm or XGB, let us know so we can make it work in find_sentiment_p
 
 Currently we support xgboost and glm, and will add support for others as needed.
 
-We only ask that numeric version (e.g xgb/2.0/...) names be left for 'official'/default models.
+We only ask that numeric version (e.g xgb/2.0/...) names be left for official/default models.
 For community models, the version can be a descriptor (so long as it's a valid file name and URL!)
 e.g: xgb/jimbojones_imdb1/en.large.xgb
 This way we can keep it easy for less engaged people who want a package that "just works"
 and we can accomodate power users that want custom models
 
-* will add support to pass through custom github urls if you don't feel like sharing
+If you have a general purpose model (i.e. trained on a variety of sources, not context specific) that out-performs the default ones, get in touch, we'll test some extra benchmarks, and if it's "just better" we'll add it to become the new official/default :)
+
+* will add support to pass through custom github urls if you don't feel like sharing - when that's done you'd pass in: repo_url = "https://github.com/<your name>/<repo name>/blob/<branch>/models" in the ...
 
 NOTE FOR GLM MODELS -----
 

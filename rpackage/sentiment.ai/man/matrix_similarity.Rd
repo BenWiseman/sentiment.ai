@@ -19,6 +19,7 @@ rescale(x)
 Cosine Similarity
 }
 \examples{
+\dontrun{
 n <- 1000
 y <- matrix(rnorm(n * 512), ncol = 512)
 x <- matrix(rnorm(n * 512), ncol = 512)
@@ -31,5 +32,6 @@ microbenchmark::microbenchmark(
 
 all.equal(cosine(x, y),
           text2vec::sim2(x, y))
+}
 
 }

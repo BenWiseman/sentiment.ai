@@ -4,6 +4,7 @@
 #' @param y A numeric vector or matrix of the same dimensions as x
 #'
 #' @examples
+#' \dontrun{
 #' n <- 1000
 #' y <- matrix(rnorm(n * 512), ncol = 512)
 #' x <- matrix(rnorm(n * 512), ncol = 512)
@@ -16,6 +17,7 @@
 #'
 #' all.equal(cosine(x, y),
 #'           text2vec::sim2(x, y))
+#' }
 #'
 #' @name matrix_similarity
 NULL
@@ -60,7 +62,7 @@ hash_match <- function(){
 cosine_match <- function(target, reference){
 
   # fix global variable declaration
-  rn <- value <- NULL
+  id__temp__ <- rn <- value <- NULL
 
   # TODO: explore hashing the reference table
   # ie reduce to local search only
@@ -95,14 +97,12 @@ cosine_match <- function(target, reference){
   # |  B   |   c   | 0.15  |
   # | ...  |  ...  |  ...  |
 
-  sim_dt <- data.table::melt(sim_dt,
-                             id.vars = "rn",
-                             variable.name = "word")
+  sim_dt[, id__temp__ := 1:.N]
+  sim_dt <- data.table::melt(sim_dt, id.vars=(c("rn", "id__temp__")), variable.name = "word")
 
   # rank matches per target (rnn) with frank() and by reference for speed
-  sim_dt[ ,
-         rank := data.table::frank(-value, ties.method = "first"),
-         by    = .(rn)]
+  sim_dt[, rank := data.table::frank(-value), by = .(rn, id__temp__)]
+
 
   return(sim_dt)
 }

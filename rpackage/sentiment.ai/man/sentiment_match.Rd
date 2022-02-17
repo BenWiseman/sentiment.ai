@@ -6,30 +6,30 @@
 \usage{
 sentiment_match(
   x = NULL,
+  phrases = NULL,
   model = names(default_models),
-  positive = sentiment.ai::default$positive,
-  negative = sentiment.ai::default$negative,
   batch_size = 100,
   ...
 )
 }
 \arguments{
-\item{x}{A plain text vector or column name if data is supplied}
+\item{x}{A plain text vector or column name if data is supplied.
+If you know what you're doing, you can also pass in a 512-D numeric embedding}
 
 \item{model}{An embedding name from tensorflow-hub, some of which are
 "en" (english large or not) and "multi" (multi-lingual large or not).}
-
-\item{positive}{Custom positive words/terms to compare against
-(e.g., "happy", "high quality", ...)}
-
-\item{negative}{Custom negative words/terms to compare against
-(e.g., "unhappy", "low quality", ...)}
 
 \item{batch_size}{Size of batches to use. Larger numbers will be faster than
 smaller numbers, but do not exhaust your system memory!}
 
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
 or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
+
+\item{positive}{Custom positive words/terms to compare against
+(e.g., "happy", "high quality", ...)}
+
+\item{negative}{Custom negative words/terms to compare against
+(e.g., "unhappy", "low quality", ...)}
 }
 \description{
 Provides score and explanation, returns a single vector, and runs relatively
