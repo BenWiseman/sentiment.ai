@@ -195,17 +195,23 @@ sentiment_match <- function(x        = NULL,
 
   # determine match_table between the embeddings
   match_table  <- cosine_match(target    = text_embed,
-                               reference = reference$embeddings)
+                               reference = reference$embeddings,
+                               keep_target_order=TRUE)
 
-  match_table  <- match_table[rank == 1, .(temp_id = id__temp__, text = rn, phrase=word, similarity = value)]
+  match_table  <- match_table[rank == 1,
+                              .(temp_id = target_order,
+                                text = target,
+                                phrase=reference,
+                                similarity)]
+
   match_table  <- reference$lookup[match_table, on = c("phrase"), mult = "first"]
 
   # force order to be the same as input
   setkeyv(match_table, c("text", "temp_id"))
-  key_dt <- data.table(text = x, orig_id = temp_id, temp_id = temp_id, key = c("text", "temp_id"))
+  key_dt <- data.table(text = x, temp_id = temp_id, key = c("text", "temp_id"))
 
   match_table <- match_table[key_dt,]
-  setkeyv(match_table, c("orig_id"))
+  setkeyv(match_table, c("temp_id"))
 
   # filter to top match, join to sentiment table (and add word:sentiment)
   sentiments <- sentiment_score(text_embed)
@@ -219,7 +225,7 @@ sentiment_match <- function(x        = NULL,
   match_table[bad_index, "class"]      <- NA
   match_table[bad_index, "text"]       <- x_orig
 
-  setorderv(match_table, "orig_id")
+  setorderv(match_table, "temp_id")
 
   return(match_table[, .(text, sentiment, phrase, class, similarity)])
 }
@@ -288,9 +294,17 @@ embed_topics <- function(phrases = NULL,
 
 }
 
-# Create Text Embeddings
-
+#' Create Text Embedding Matrix
+#'
+#' @description turns charactewr vector into length(text)x512 embedding matrix.
+#' For power users. Requires init_sentiment.ai() to have been called!
+#'
+#' @param text character vector to be embedded. Notye that longer comments take longer
+#' @param batch_size integer - how many to embed at once. Higher numbers are faster but use more memory.
+#' @param model character - the embedding model to use (same as sentiment_score())
 #' @importFrom data.table data.table
+#'
+#' @export
 embed_text <- function(text,
                        batch_size = NULL,
                        model      = NULL){
@@ -363,8 +377,7 @@ embed_text <- function(text,
   return(text_embed)
 }
 
-# Apply Model for Sentiment Score
-
+#' Apply Model for Sentiment Score
 #' @importFrom stats
 #'             predict
 #'             setNames
@@ -410,7 +423,10 @@ find_sentiment_probs <- function(embeddings,
 
 # Z. UTILITY FUNCTIONS =========================================================
 
-# conversion doesn't work with list is of length 1
+#' as py list
+#' because R to Python conversion doesn't work with list is of length 1
+#' @param x character vector that is to be passed into tensorflowtext via reticulate
+#' @export
 as_py_list <- function(x){
 
   # do we need to convert this to python? reticulate::r_to_py

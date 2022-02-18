@@ -5,15 +5,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' n <- 1000
+#' n <- 5
 #' y <- matrix(rnorm(n * 512), ncol = 512)
 #' x <- matrix(rnorm(n * 512), ncol = 512)
-#'
-#' microbenchmark::microbenchmark(
-#'   cosine(x, y),
-#'   text2vec::sim2(x, y),
-#'   times = 10
-#' )
 #'
 #' all.equal(cosine(x, y),
 #'           text2vec::sim2(x, y))
@@ -31,8 +25,10 @@ cosine <- function(x, y = NULL){
              y = rescale(y))
 }
 
-#' @rdname matrix_similarity
-#' @export
+
+# not exporting for now!
+# @rdname matrix_similarity
+# @export
 rescale <- function(x){
 
   if(is.null(x)){
@@ -56,10 +52,21 @@ hash_match <- function(){
    # eg  test_nn <- nn2(centers, matrix(c(test, rnorm(512)), byrow = TRUE, nrow = 2), k = 1)
 }
 
+
+#' cosine_match()
+#'
+#' @param target numeric matrix of j values where each row is one observation. Use row names as ID
+#' @param reference  numeric matrix of j values where each row is one observation. Use row names as ID
+#' @param keep_target_order logical include column indicating original row order of target matrix
+#'
+#' @return data.table containing ranked (1 = top) pairwise similarities between target and reference
+#'
 #' @importFrom data.table
 #'             data.table
 #'             setnames
-cosine_match <- function(target, reference){
+#' @rdname matrix_similarity
+#' @export
+cosine_match <- function(target, reference, keep_target_order=FALSE){
 
   # fix global variable declaration
   id__temp__ <- rn <- value <- NULL
@@ -76,14 +83,15 @@ cosine_match <- function(target, reference){
   # |  B   | 0.40 | 0.90 | 0.15 |
   # |  ... |  ... |  ... |  ... |
 
+
+  # data.table keeping rownames from matrices (will be column called rn)
   sim_dt <- data.table(cosine(target, reference),
                        keep.rownames = TRUE)
 
-  # this only works if rn is a column of the data, right? uper specific!
-  setnames(sim_dt,
-           old = "rn.V1",
-           new = "rn",
-           skip_absent = TRUE)
+  # if no rownames, improvise some!
+  if(is.null(sim_dt$rn)) sim_dt[, rn := 1:.N]
+
+  setnames(sim_dt, old = "rn", new = "target", skip_absent = TRUE)
 
   # Make long, then rank match by text input rowname (rn)
   # melt like so
@@ -97,12 +105,19 @@ cosine_match <- function(target, reference){
   # |  B   |   c   | 0.15  |
   # | ...  |  ...  |  ...  |
 
-  sim_dt[, id__temp__ := 1:.N]
-  sim_dt <- data.table::melt(sim_dt, id.vars=(c("rn", "id__temp__")), variable.name = "word")
+  sim_dt[, target_order := 1:.N]
+  sim_dt <- data.table::melt(sim_dt,
+                             id.vars=(c("target", "target_order")),
+                             variable.name = "reference",
+                             value.name = "similarity")
 
   # rank matches per target (rnn) with frank() and by reference for speed
-  sim_dt[, rank := data.table::frank(-value), by = .(rn, id__temp__)]
+  sim_dt[, rank := data.table::frank(-similarity), by = .(target, target_order)]
 
+  # return prettier table
+  columns <- c("target", "reference", "similarity", "rank")
+  if(keep_target_order) columns <- c(columns, "target_order")
 
-  return(sim_dt)
+  return(sim_dt[, ..columns])
+
 }
