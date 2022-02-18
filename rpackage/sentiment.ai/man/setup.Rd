@@ -2,7 +2,6 @@
 % Please edit documentation in R/init_and_install.R
 \name{install_sentiment.ai}
 \alias{install_sentiment.ai}
-\alias{install_scoring_model}
 \alias{init_sentiment.ai}
 \alias{check_sentiment.ai}
 \title{Install and Setup sentiment.ai Algorithm}
@@ -15,13 +14,6 @@ install_sentiment.ai(
   modules = list(numpy = "1.19.5", sentencepiece = "0.1.95", tensorflow = "2.4.1",
     tensorflow_hub = "0.12.0", `tensorflow-text` = "2.4.3"),
   restart_session = TRUE,
-  ...
-)
-
-install_scoring_model(
-  model = c("en.large", "en", "multi.large", "multi"),
-  scoring = c("xgb", "glm"),
-  scoring_version = "1.0",
   ...
 )
 
@@ -60,23 +52,8 @@ installation. Only works on Rstudio.}
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
 or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
 
-\item{model}{\itemize{
-\item the embedding model used one of c("en.large", "en", "multi.large", "multi")
-}}
-
-\item{scoring}{\itemize{
-\item the scoring model, "xgb" does default xgboost, "glm" if you can't run xgboost
-}}
-
-\item{scoring_version}{\itemize{
-\item version of scoring model, will get more over time
-}}
-
-\item{repo_url}{OPTIONAL custom github repo blob url for external scoring models. default is  "https://github.com/BenWiseman/sentiment.ai/blob/main/models"}
-}
-\value{
-0 if model did not need to be downloaded.
-1 if model needed to be downloaded.
+\item{model}{path to tensorflow hub embedding model. default is both universal
+sentence encoder  en (default) and multi}
 }
 \description{
 Install and Setup sentiment.ai Algorithm
@@ -98,11 +75,6 @@ Please do not change these if you do not know what you are doing.
 
 Note that it installs with like \code{tensorflow::install_tensorflow} and
 \code{pip = TRUE}
-
-This downloads the scoring models from a set repository in order to keep the main package
-within CRAN size limits.
-
-In the future, this will also make it possible for the community to add new and improved models!
 }
 \note{
 Setting environments with \code{reticulate} is notoriously difficult. If the

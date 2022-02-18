@@ -16,6 +16,11 @@ sentiment_match(
 \item{x}{A plain text vector or column name if data is supplied.
 If you know what you're doing, you can also pass in a 512-D numeric embedding}
 
+\item{phrases}{A named list of examples phrases with each element of the list
+being words/terms that are indications of the name of that element (
+such as positive words/terms under the name "positive" and negative
+words/terms under the name "negative", all within the same list)}
+
 \item{model}{An embedding name from tensorflow-hub, some of which are
 "en" (english large or not) and "multi" (multi-lingual large or not).}
 
@@ -24,12 +29,6 @@ smaller numbers, but do not exhaust your system memory!}
 
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
 or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
-
-\item{positive}{Custom positive words/terms to compare against
-(e.g., "happy", "high quality", ...)}
-
-\item{negative}{Custom negative words/terms to compare against
-(e.g., "unhappy", "low quality", ...)}
 }
 \description{
 Provides score and explanation, returns a single vector, and runs relatively

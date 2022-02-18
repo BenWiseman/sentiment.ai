@@ -97,7 +97,14 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  restart_session = TRUE,
                                  ...){
 
+  # STILL HAVE INSTALL ISSUES ... SHOULD DO SOMETHING ABOUT THIS ???
+
   method <- match.arg(method)
+
+  # if environment is missing, set it to r-sentiment-ai
+  if(length(envname) == 0){
+    envname <- "r-sentiment-ai"
+  }
 
   # 1. parse tensorflow version name -----------------------------------------
 
@@ -112,7 +119,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # make sure gpu is TRUE or FALSE
   gpu <- isTRUE(gpu)
 
-  if(gpu && Sys.info()["sysname"] %in% "Darwin"){
+  if(gpu && roperators::is.os_mac()){
     warning("gpu not available for OSX; setting gpu flag to FALSE",
             call. = FALSE)
     gpu <- FALSE
@@ -152,35 +159,46 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # restart session if needed
   if(restart_session && rstudioapi::hasFun("restartSession")){
     rstudioapi::restartSession()
+  } else{
+    message("Please restart your R session")
   }
 
   invisible(NULL)
-  }
+}
 
 
-#' @rdname setup
-#' @param model - the embedding model used one of c("en.large", "en", "multi.large", "multi")
-#' @param scoring - the scoring model, "xgb" does default xgboost, "glm" if you can't run xgboost
-#' @param scoring_version - version of scoring model, will get more over time
-#' @param repo_url OPTIONAL custom github repo blob url for external scoring models. default is  "https://github.com/BenWiseman/sentiment.ai/blob/main/models"
+#' Install a Scoring Model
+#'
+#' @param model The embedding model, one of c("en.large", "en", "multi.large",
+#'        "multi")
+#' @param scoring The scoring model, currently one of:
+#'   - "xgb" does default xgboost
+#'   - "glm" does generalized linear model (if you can't run xgboost)
+#' @param scoring_version Version of scoring model (will add more over time)
+#' @param ... Additional options to the function, including:
+#'   - repo_url: OPTIONAL custom github repo blob url for external scoring models.
+#'     The default repo_url is "https://github.com/BenWiseman/sentiment.ai/blob/main/models"
+#'
 #' @return
 #' 0 if model did not need to be downloaded.
 #' 1 if model needed to be downloaded.
-#' @details
-#' This downloads the scoring models from a set repository in order to keep the main package
-#' within CRAN size limits.
 #'
-#' In the future, this will also make it possible for the community to add new and improved models!
+#' @details
+#' This downloads the scoring models from a set repository in order to keep the
+#' main package within CRAN size limits.
+#'
+#' In the future, this will also make it possible for the community to add new
+#' and improved models!
 #'
 #' @importFrom roperators "%ni%"
-install_scoring_model <- function(model =  c("en.large", "en", "multi.large", "multi"),
-                          scoring = c("xgb", "glm"),
-                          scoring_version = "1.0",
-                          ...
-                           ){
+install_scoring_model <- function(model   =  c("en.large", "en", "multi.large", "multi"),
+                                  scoring = c("xgb", "glm"),
+                                  scoring_version = "1.0",
+                                  ...){
 
-  #passthrough optional repo_url
+  # passthrough optional repo_url
   opts <- list(...)
+
   if(is.null(opts$repo_url)) {
     repo_url <- "https://github.com/BenWiseman/sentiment.ai/raw/main/models"
   } else{
@@ -188,15 +206,17 @@ install_scoring_model <- function(model =  c("en.large", "en", "multi.large", "m
   }
 
   # Remove match.arg not used - give flexibility.
-  model <- match.arg(model)
+  model   <- match.arg(model)
   scoring <- scoring[1]
   scoring_version <- scoring_version[1]
 
   # glm models will be plain text for max compatibility
-  file_ext  <- if(scoring == "glm") "csv" else scoring
-  file_name <- paste0(model, ".", file_ext)
+  file_ext   <- if(scoring == "glm") "csv" else scoring
+  file_name  <- paste0(model, ".", file_ext)
+
   # base url - repo containing model objects
   target_url <- paste(repo_url, scoring, scoring_version, file_name, sep = "/")
+
   # Add query param to end
   target_url <- paste0(target_url, "?raw=true")
 
@@ -208,24 +228,26 @@ install_scoring_model <- function(model =  c("en.large", "en", "multi.large", "m
   dl_path  <- file.path(pkg_path, "scoring", scoring, scoring_version)
   obj_path <- file.path(dl_path, file_name)
 
+  # should dl_path go to a library or the package dir? if it's in the package dir
+  # they will always have to reinstall all of the scoring models if upgraded
+
   # if model exists, return NULL - nothing to do
   if(file.exists(obj_path)) return(0)
 
   # model doesn't exist, download it into dl_path
   if(!dir.exists(dl_path)) {
     # directory doesn't exist, make directory & download
-    dir.create(dl_path, showWarnings = FALSE, recursive = TRUE)
+    dir.create(dl_path,
+               showWarnings = FALSE,
+               recursive = TRUE)
   }
 
   message("Downloading ", model, ": ", scoring, " ", scoring_version,  " from github")
 
-  # Windows needs some extra love
-  if(roperators::is.os_win()){
-    utils::download.file(target_url, obj_path, mode="wb")
-  } else{
-    utils::download.file(target_url, obj_path)
-  }
-
+  # you can always use wb to download bites
+  utils::download.file(url      = target_url,
+                       destfile = obj_path,
+                       mode     = "wb")
 
   return(1)
 }
@@ -335,25 +357,27 @@ check_sentiment.ai <- function(...){
 
   # activate the environment
   if(envname %in% conda_envs){
-    env_expr <- expression(reticulate::use_condaenv(envname, required = TRUE))
+    env_expr <- expression(
+      reticulate::use_condaenv(envname, required = TRUE)
+    )
   } else{
-    env_expr <- expression(reticulate::use_virtualenv(envname, required = TRUE))
+    env_expr <- expression(
+      reticulate::use_virtualenv(envname, required = TRUE)
+    )
   }
 
   # we need to check whether the environment is active, right??
   eval(expr  = env_expr,
        envir = r_envir)
 
-
   # pull out the python environment
   py_ver_def <- Sys.getenv("RETICULATE_PYTHON")
 
   # py config depends on OS - pick which one isn't NULL
-  py_path <- c(reticulate::py_discover_config()$exec_prefix,
-               reticulate::py_discover_config()$pythonhome)
+  py_path    <- c(reticulate::py_discover_config()$exec_prefix,
+                  reticulate::py_discover_config()$pythonhome)
 
   py_env_set <- vapply(py_path, normalizePath, character(1))
-
 
   # determine if environment is set correctly (if previous code returns silently)
   py_env_ok  <- any(endsWith(py_env_set, envname))

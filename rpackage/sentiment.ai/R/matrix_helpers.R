@@ -68,8 +68,8 @@ hash_match <- function(){
 #' @export
 cosine_match <- function(target, reference, keep_target_order=FALSE){
 
-  # fix global variable declaration
-  id__temp__ <- rn <- value <- NULL
+  # fix global variable declaration for using data.table (to pass CRAN checks)
+  id__temp__ <- rn <- value <- target_order <- similarity <- ..columns <- NULL
 
   # TODO: explore hashing the reference table
   # ie reduce to local search only

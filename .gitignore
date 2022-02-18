@@ -3,6 +3,7 @@ scratch/
 
 # local cache - will kill repo size if included!!!
 rpackage/sentiment.ai/inst/tfhub_modules/*
+rpackage/sentiment.ai/inst/scoring/**
 
 ##########
 # MAC OS #

@@ -115,10 +115,10 @@ sentiment_score <- function(x          = NULL,
 #' Sentiment Matching
 #'
 #' @inheritParams sentiment_score
-#' @param positive Custom positive words/terms to compare against
-#'        (e.g., "happy", "high quality", ...)
-#' @param negative Custom negative words/terms to compare against
-#'        (e.g., "unhappy", "low quality", ...)
+#' @param phrases A named list of examples phrases with each element of the list
+#'        being words/terms that are indications of the name of that element (
+#'        such as positive words/terms under the name "positive" and negative
+#'        words/terms under the name "negative", all within the same list)
 #'
 #' @description
 #' Provides score and explanation, returns a single vector, and runs relatively
@@ -155,8 +155,9 @@ sentiment_match <- function(x        = NULL,
                             batch_size = 100,
                             ...){
 
-  # fix global variable declaration
-  similarity <- text <- phrase <- id__temp__ <- rn <- word <- value <- sentiment <- NULL
+  # fix global variable declaration for using data.table (to pass CRAN checks)
+  similarity <- text <- phrase <- id__temp__ <- rn <-
+    word <- value <- sentiment <- target_order <- target <- NULL
 
   # what to do with:
   # text, batches
@@ -169,17 +170,16 @@ sentiment_match <- function(x        = NULL,
     return(NULL)
   }
 
-
   # replace missing values with index numbers (can't handle missing)
   na_index  <- as.character(which(is.na(x)))
   x_index   <- as.character(which(x == ""))
   bad_index <- c(na_index, x_index)
-  x_orig    <- x[as.numeric(bad_index)] #use this later
+  x_orig    <- x[as.numeric(bad_index)] # use this later
   x[which(is.na(x))] <- na_index
   x[which(x =="")]   <- x_index
 
   # temp_id for duplicated
-  temp_id <- 1:length(x)
+  temp_id   <- seq_along(x)
 
   # activate environment
   check_sentiment.ai(model = model, ...)
@@ -188,10 +188,10 @@ sentiment_match <- function(x        = NULL,
   message("Model Running...")
 
   # calculate text embeddings
-  text_embed  <- embed_text(x, batch_size, model)
+  text_embed   <- embed_text(x, batch_size, model)
 
   # make lookup table of reference embeddings
-  reference   <- embed_topics(phrases, model)
+  reference    <- embed_topics(phrases, model)
 
   # determine match_table between the embeddings
   match_table  <- cosine_match(target    = text_embed,
@@ -200,15 +200,19 @@ sentiment_match <- function(x        = NULL,
 
   match_table  <- match_table[rank == 1,
                               .(temp_id = target_order,
-                                text = target,
-                                phrase=reference,
+                                text    = target,
+                                phrase  = reference,
                                 similarity)]
 
-  match_table  <- reference$lookup[match_table, on = c("phrase"), mult = "first"]
+  match_table  <- reference$lookup[match_table,
+                                   on   = c("phrase"),
+                                   mult = "first"]
 
   # force order to be the same as input
   setkeyv(match_table, c("text", "temp_id"))
-  key_dt <- data.table(text = x, temp_id = temp_id, key = c("text", "temp_id"))
+  key_dt      <- data.table(text    = x,
+                            temp_id = temp_id,
+                            key     = c("text", "temp_id"))
 
   match_table <- match_table[key_dt,]
   setkeyv(match_table, c("temp_id"))
@@ -237,34 +241,27 @@ sentiment_match <- function(x        = NULL,
 embed_topics <- function(phrases = NULL,
                          model   = c("en.large", "multi.large")){
 
-  # CRAN checks will complain about global variable use within data.table!
+  # fix global variable declaration for using data.table (to pass CRAN checks)
   phrase <- NULL
 
-  # helper - make vector of repeating phrase labels per entry
-  # it's late so I'm doing this the non-R way
+  # make vector of repeating phrase labels per entry
   class_to_vec <- function(phrases){
-    labels  <- c("start", names(phrases))
-    lengths <- c(0, vapply(phrases, length, numeric(1)))
-    n_out   <- sum(lengths)
-    out     <- character(n_out)
 
-    for(i in 2:length(labels)){
-      i_len  <- lengths[i]
-      ii     <- i-1
-      ii_len <- lengths[ii]
-      start  <- ii_len+1
-      stop   <- i_len+ii_len
-      out[start : stop] <- rep(labels[i], i_len)
+    # make sure phrases has names
+    nms   <- names(phrases)
 
+    if(length(nms) == 0){
+      nms <- seq_along(phrases)
     }
-    return(out)
+
+    rep(nms, times = lengths(phrases))
   }
 
   # DEFAULT
   if(is.null(phrases) && model[1] %in% names(default_models)) {
     # if NULL then use default phrases
-    phrases <- list(positive = sentiment.ai::default$positive,
-                    negative = sentiment.ai::default$negative)
+    phrases  <- list(positive = sentiment.ai::default$positive,
+                     negative = sentiment.ai::default$negative)
 
     # return and combine pos/neg embeddings
     # rbind - must be matrix!
@@ -279,7 +276,6 @@ embed_topics <- function(phrases = NULL,
                                 model = model[1])
 
     mx_embed <- do.call(rbind, custom_embeddings)
-
   }
 
 
@@ -288,10 +284,10 @@ embed_topics <- function(phrases = NULL,
                         key    = "phrase")
 
   # de-dupe
-  lookup <- lookup[!duplicated(phrase),]
+  lookup  <- lookup[!duplicated(phrase), ]
+
   # RETURN
   return(list(embeddings = mx_embed, lookup = lookup))
-
 }
 
 #' Create Text Embedding Matrix
@@ -377,7 +373,7 @@ embed_text <- function(text,
   return(text_embed)
 }
 
-#' Apply Model for Sentiment Score
+# Apply Model for Sentiment Score
 #' @importFrom stats
 #'             predict
 #'             setNames
