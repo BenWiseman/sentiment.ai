@@ -3,32 +3,37 @@
 \name{matrix_similarity}
 \alias{matrix_similarity}
 \alias{cosine}
-\alias{rescale}
+\alias{cosine_match}
 \title{Cosine Similarity}
 \usage{
 cosine(x, y = NULL)
 
-rescale(x)
+cosine_match(target, reference, keep_target_order = FALSE)
 }
 \arguments{
 \item{x}{A numeric vector or matrix}
 
 \item{y}{A numeric vector or matrix of the same dimensions as x}
+
+\item{target}{numeric matrix of j values where each row is one observation. Use row names as ID}
+
+\item{reference}{numeric matrix of j values where each row is one observation. Use row names as ID}
+
+\item{keep_target_order}{logical include column indicating original row order of target matrix}
+}
+\value{
+data.table containing ranked (1 = top) pairwise similarities between target and reference
 }
 \description{
 Cosine Similarity
+
+cosine_match()
 }
 \examples{
 \dontrun{
-n <- 1000
+n <- 5
 y <- matrix(rnorm(n * 512), ncol = 512)
 x <- matrix(rnorm(n * 512), ncol = 512)
-
-microbenchmark::microbenchmark(
-  cosine(x, y),
-  text2vec::sim2(x, y),
-  times = 10
-)
 
 all.equal(cosine(x, y),
           text2vec::sim2(x, y))
