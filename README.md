@@ -3,7 +3,7 @@
 # sentiment.ai
 Package for using deep learning models (from tf hub) for easy sentiment analysis.
 
-**See detailed guide here**
+**See github.io page here**
 [https://benwiseman.github.io/sentiment.ai/](https://benwiseman.github.io/sentiment.ai/)
 
 
