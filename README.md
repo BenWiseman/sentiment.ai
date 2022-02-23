@@ -114,6 +114,8 @@ We use the default settings for `sentimentr`, the QDAP dictionary in `sentimentA
 
 **Note** that our testing and tuning was one using comments written in English. 
 
+![](/docs/media/glassdoor.PNG)
+
 ### Glassdoor
 
 Applied example, estimating whether the text from a glassdoor.com review is positive or negative. 
@@ -129,6 +131,7 @@ Taken from the airline tweet dataset from Kaggle. Classification is positive vs 
 
 Note: Azure Cognitive Services tune their sentiment model on product reviews, as such this is tilted in favor of Azure!
 
+![](/docs/media/airline.PNG)
 
 **Fierce.** It looks like we can be pretty confident that `sentiment.ai` is a pretty fab alternative to existing packages! Note that over time our sentiment scoring models will get better and better!
 
