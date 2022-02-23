@@ -11,6 +11,11 @@
 #' @param modules A list of modules needed for installing tensorflow. See
 #'        details for more information. Only change this argument if you know
 #'        what you are doing!
+#' @param fresh_install Whether to create the Python environment prior to
+#'        installing the modules or to install everything in an existing
+#'        environment (if one exists). Only change this argument if you know what
+#'        you are doing! If the environment does not already exist, will create
+#'        the environment first.
 #' @param restart_session Whether to restart the R session after finishing
 #'        installation. Only works on Rstudio.
 #' @param model path to tensorflow hub embedding model. default is both universal
@@ -94,6 +99,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                                 tensorflow        = "2.4.1",
                                                 tensorflow_hub    = "0.12.0",
                                                 `tensorflow-text` = "2.4.3"),
+                                 fresh_install   = TRUE,
                                  restart_session = TRUE,
                                  ...){
 
@@ -104,6 +110,14 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # if environment is missing, set it to r-sentiment-ai
   if(length(envname) == 0){
     envname <- "r-sentiment-ai"
+  }
+
+  # if method is default, figure out method using reticulate
+  if(method == "auto"){
+    method   <- py_install_method_detect(
+      envname = envname,
+      ...
+    )
   }
 
   # 1. parse tensorflow version name -----------------------------------------
@@ -124,8 +138,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
             call. = FALSE)
     gpu <- FALSE
   } else if(gpu){
-    message("gpu flag is TRUE; installation needs CUDA configured",
-            call. = FALSE)
+    message("gpu flag is TRUE; installation needs CUDA configured")
     names(modules)[names(modules) %in% tf_module] <- paste0(
       tf_module, "-", "gpu"
     )
@@ -140,6 +153,28 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   modules_vers <- paste0(names(modules), "==", modules)
 
   # 3. install everything ------------------------------------------------------
+
+  # if fresh install, create environment first
+  if(fresh_install){
+    switch(
+      EXPR       = method,
+      virtualenv = reticulate::virtualenv_create(
+        envname = envname,
+        version = python_version,
+        ...
+      ),
+      conda      = reticulate::conda_create(
+        envname        = envname,
+        python_version = python_version,
+        ...
+      )
+    )
+  } else{
+    message("Because 'fresh_install = FALSE', not creating environment before installing.\n",
+            "Only do this if you know what you are doing, as you might have conflicting\n",
+            "installations and/or reticulate might not be able to find the correct environment.")
+  }
+
   reticulate::py_install(
     packages       = modules_vers,
     envname        = envname,
@@ -414,4 +449,19 @@ check_sentiment.ai <- function(...){
   )
 
   return(TRUE)
+}
+
+# determine the python environment
+py_install_method_detect <- function(envname,
+                                     conda = "auto",
+                                     ...){
+
+  if(length(conda) == 0){
+    conda <- "auto"
+  }
+
+  reticulate:::py_install_method_detect(
+    envname = envname,
+    conda   = conda
+  )
 }

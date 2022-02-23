@@ -13,6 +13,7 @@ install_sentiment.ai(
   python_version = "3.7.10",
   modules = list(numpy = "1.19.5", sentencepiece = "0.1.95", tensorflow = "2.4.1",
     tensorflow_hub = "0.12.0", `tensorflow-text` = "2.4.3"),
+  fresh_install = TRUE,
   restart_session = TRUE,
   ...
 )
@@ -45,6 +46,12 @@ to install with a Python virtual environment.}
 \item{modules}{A list of modules needed for installing tensorflow. See
 details for more information. Only change this argument if you know
 what you are doing!}
+
+\item{fresh_install}{Whether to create the Python environment prior to
+installing the modules or to install everything in an existing
+environment (if one exists). Only change this argument if you know what
+you are doing! If the environment does not already exist, will create
+the environment first.}
 
 \item{restart_session}{Whether to restart the R session after finishing
 installation. Only works on Rstudio.}
