@@ -51,7 +51,7 @@ mod_match <- sentiment_match(x       = airline_tweets$text,
 pos_neg <- factor(airline_tweets$airline_sentiment,
                   levels = c("negative", "neutral", "positive"))
 pos_neg <- (as.numeric(pos_neg) - 1) / 2
-cosine(mod_match, pos_neg)
+cosine(mod_match$sentiment, pos_neg)
 
 # you could also calculate accuracy/kappa
 }
