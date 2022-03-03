@@ -8,12 +8,7 @@ Will check if they're there, if so return TRUE
 if not try download and return TRUE
 else return FALSE (and generate them - will take a few seconds!)}
 \usage{
-install_default_embeddings(model = c("en.large", "en", "multi.large", "multi"))
-}
-\arguments{
-\item{model}{\itemize{
-\item chr vector: need to install or make one at a time, allow loop!
-}}
+install_default_embeddings()
 }
 \description{
 Function to grab the default embeddings for sentiment_match()

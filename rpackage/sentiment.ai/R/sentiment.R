@@ -235,7 +235,10 @@ sentiment_match <- function(x        = NULL,
 # Y. HELPER FUNCTIONS ==========================================================
 
 #' read embedding file
-#'take json path, return single embedding object for specific model
+#' take json path, return single embedding object for specific model
+#' @param model character - whic model's default embeddings are needed
+#' @param file character - the filepath to the json object
+#' @param version PLACEHOLDER - may be necessary in future.
 read_embedding <- function(file, model = "en.large", version = NULL){
 
   # json matrices can't have rownames so need to:
@@ -243,7 +246,7 @@ read_embedding <- function(file, model = "en.large", version = NULL){
   # 2) restore the dim names from the json's rowname and columnnames fields
   # 3) return eme: a list of two embedding matrices with terms as rownames
 
-  x <- fromJSON(readLines(file))
+  x <- jsonlite::fromJSON(readLines(file))
 
   emb <- x[[model]]
   rownames(emb$positive) <- x$rownames$positive
@@ -260,12 +263,13 @@ read_embedding <- function(file, model = "en.large", version = NULL){
 #' If not, try downloading it
 #' If download works, return object
 #' Else return NULL (to be handles in embed_topics())
+#' @param model character - whic model's default embeddings are needed
 get_defualt_embedding <- function(model){
 
   emb <- NULL
 
   # to find the defaults for this version of sentiment.ai
-  version  <- packageDescription("sentiment.ai", fields = "Version")
+  version  <- utils::packageDescription("sentiment.ai", fields = "Version")
   pkg_path <- system.file(package = "sentiment.ai")
   emb_file <- file.path(pkg_path, "default_embeddings", paste0(version, ".json"))
 

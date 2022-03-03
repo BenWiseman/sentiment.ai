@@ -309,7 +309,6 @@ install_scoring_model <- function(model   =  c("en.large", "en", "multi.large", 
 #' Will check if they're there, if so return TRUE
 #' if not try download and return TRUE
 #' else return FALSE (and generate them - will take a few seconds!)
-#' @param model - chr vector: need to install or make one at a time, allow loop!
 install_default_embeddings <- function(){
   # for return status
   status <- 0
@@ -318,7 +317,7 @@ install_default_embeddings <- function(){
   repo_url <- "https://github.com/BenWiseman/sentiment.ai/raw/main/default_embeddings"
 
   # to get right version
-  version   <- packageDescription("sentiment.ai", fields = "Version")
+  version   <- utils::packageDescription("sentiment.ai", fields = "Version")
   file_name <- paste0(version, ".json")
 
   # base url - repo containing model objects
@@ -431,14 +430,14 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 #' @export
 check_sentiment.ai <- function(...){
 
-  if(is.null(sentiment.ai::sentiment.ai_embed$f)){
+  if(is.null(sentiment.ai::sentiment.env$embed)){
     message("Preparing model (this may take a while).\n",
             "Consider running init_sentiment.ai().")
     init_sentiment.ai(...)
   } else{
     # commented out for now - this may get annoying for users to see every time
     # ...especially if they *apply instead of passing in a vector for some reason!
-    # message("sentiment.ai_embed found in environment.\n",
+    # message("sentiment.env$embed found in environment.\n",
     #         "To change model, call init_sentiment.ai().")
   }
 
