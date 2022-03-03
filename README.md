@@ -101,15 +101,15 @@ example <- data.table(target = text,
 |I saw Adolf Hitler on my vacation in Argentina…	| -0.29 |	0	| 0.27 |
 |the resturant served human flesh | -0.32	| 0.25	| 0 |
 |the resturant is my favorite! |	0.8 |	0.5 |	0.34 |
-|the resturant is my favourite! |	0.78 |	0	0 |
+|the resturant is my favourite! |	0.78 |	0	| 0 |
 |this restront is my FAVRIT innit! |	0.63 |	0 |	0 |
 |the resturant was my absolute favorite until they gave me food poisoning	| -0.36 |	0	| 0.12 |
 |This fantastic app freezes all the time! |	-0.41 |	0.25 |	0.13 |
 |I learned so much on my trip to Hiroshima museum last year! |	0.64 |	0 |	0 |
 |What happened to the people of Hiroshima in 1945 |	-0.58 |	0 |	0 |
-|I had a blast on my trip to Nagasaki	0.73 |	-0.33 |	-0.13 |
+|I had a blast on my trip to Nagasaki	|0.73 |	-0.33 |	-0.13 |
 |The blast in Nagasaki |	-0.51 |	-0.5	| -0.2 |
-|I love watching scary horror movies	0.54 |	0	| -0.31 |
+|I love watching scary horror movies |	0.54 |	0	| -0.31 |
 |This package offers so much more nuance to sentiment analysis!	| 0.74 |	0	| 0 |
 |you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe! |	0.55 |	0.3 |	-0.05 |
 
