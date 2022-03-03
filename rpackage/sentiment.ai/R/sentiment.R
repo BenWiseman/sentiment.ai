@@ -237,35 +237,93 @@ sentiment_match <- function(x        = NULL,
 
 # Y. HELPER FUNCTIONS ==========================================================
 
+#' read embedding file
+#'take json path, return single embedding object for specific model
+read_embedding <- function(file, model = "en.large", version = NULL){
+
+  # json matrices can't have rownames so need to:
+  # 1) Get the correct embeddings for the given model - saved in json.rownames
+  # 2) restore the dim names from the json's rowname and columnnames fields
+  # 3) return eme: a list of two embedding matrices with terms as rownames
+
+  x <- fromJSON(readLines(file))
+
+  emb <- x[[model]]
+  rownames(emb$positive) <- x$rownames$positive
+  colnames(emb$positive) <- x$colnames$positive
+
+  rownames(emb$negative) <- x$rownames$negative
+  colnames(emb$negative) <- x$colnames$negative
+
+  return(emb)
+}
+
+#' get default embedding
+#' If it exists, return the object
+#' If not, try downloading it
+#' If download works, return object
+#' Else return NULL (to be handles in embed_topics())
+get_defualt_embedding <- function(model){
+
+  emb <- NULL
+
+  # to find the defaults for this version of sentiment.ai
+  version  <- packageDescription("sentiment.ai", fields = "Version")
+  pkg_path <- system.file(package = "sentiment.ai")
+  emb_file <- file.path(pkg_path, "default_embeddings", paste0(version, ".json"))
+
+  emb_exists <- file.exists(emb_file)
+
+  # not there? try downloading it
+  if(!emb_exists) emb_exists <- install_default_embeddings() #1 if successful, 0 if fail
+
+  # double check - has downloaded and is where it *should* be!
+  if(emb_exists & file.exists(emb_file)) emb <- read_embedding(emb_file, model=model)
+
+  # now return
+  return(emb)
+
+}
+
+
 # Create Pos/Neg Embeddings
 embed_topics <- function(phrases = NULL,
-                         model   = c("en.large", "multi.large")){
+                         model   = c("en.large", "multi.large", "en", "multi")){
 
   # fix global variable declaration for using data.table (to pass CRAN checks)
   phrase <- NULL
 
   # make vector of repeating phrase labels per entry
   class_to_vec <- function(phrases){
-
     # make sure phrases has names
     nms   <- names(phrases)
 
-    if(length(nms) == 0){
-      nms <- seq_along(phrases)
-    }
+    if(length(nms) == 0) nms <- seq_along(phrases)
 
     rep(nms, times = lengths(phrases))
   }
 
-  # DEFAULT
+  # DEFAULT - now needs to check
+  # not supplied phrases & names match default models
+  # and default pos/neg embedding has been installed. if not, make phrases pos/neg and embed_text on them
   if(is.null(phrases) && model[1] %in% names(default_models)) {
+
+    default_embeddings <- get_defualt_embedding(model[1])
+
     # if NULL then use default phrases
     phrases  <- list(positive = sentiment.ai::default$positive,
                      negative = sentiment.ai::default$negative)
 
+    # if defaults didn't exist, embed them
+    if(is.null(default_embeddings)){
+      default_embeddings <- lapply(X     = phrases,
+                                   FUN   = embed_text,
+                                   model = model[1])
+    }
+
     # return and combine pos/neg embeddings
     # rbind - must be matrix!
-    mx_embed <- do.call(rbind, sentiment.ai::default_embeddings[[model[1]]])
+    mx_embed <- do.call(rbind, default_embeddings)
 
   } else{
     # NOT DEFAULT, do custom
@@ -307,8 +365,8 @@ embed_text <- function(text,
 
   # INTERNAL FUNCTION NEEDED FOR sentiment_() #
 
-  if(is.null(sentiment.ai::sentiment.ai_embed$f)){
-    warning("Embedding model: sentiment.ai_embed not found!")
+  if(is.null(sentiment.ai::sentiment.env$embed)){
+    warning("Embedding model: sentiment.env$embed not found!")
     create_error_text(paste0("Initiating an instance now with model = ", model),
                       "",
                       "If you have not run install_sentiment.ai() yet, this will probably cause an error!")
@@ -352,7 +410,7 @@ embed_text <- function(text,
     this_inds  <- batches[[this_batch]]
 
     # make vectors into a list/data.frame (so can be added to data.table in :=)
-    this_embed <- sentiment.ai::sentiment.ai_embed$f(as_py_list(text[this_inds]))
+    this_embed <- sentiment.ai::sentiment.env$embed(as_py_list(text[this_inds]))
     this_embed <- data.table(t(as.matrix(this_embed)))
 
     if(is.null(text_embed)){

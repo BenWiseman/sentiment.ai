@@ -191,6 +191,10 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   install_scoring_model(scoring = "xgb")
   install_scoring_model(scoring = "glm")
 
+  # also pull precalculated embeddings
+  message("Instaling pre-calculated embeddings from Github")
+  install_default_embeddings()
+
   # restart session if needed
   if(restart_session && rstudioapi::hasFun("restartSession")){
     rstudioapi::restartSession()
@@ -230,6 +234,9 @@ install_scoring_model <- function(model   =  c("en.large", "en", "multi.large", 
                                   scoring = c("xgb", "glm"),
                                   scoring_version = "1.0",
                                   ...){
+
+  # for return status
+  status <- 0
 
   # passthrough optional repo_url
   opts <- list(...)
@@ -279,14 +286,86 @@ install_scoring_model <- function(model   =  c("en.large", "en", "multi.large", 
 
   message("Downloading ", model, ": ", scoring, " ", scoring_version,  " from github")
 
-  # you can always use wb to download bites
-  utils::download.file(url      = target_url,
-                       destfile = obj_path,
-                       mode     = "wb")
+  tryCatch({
+    # you can always use wb to download bites
+    utils::download.file(url      = target_url,
+                         destfile = obj_path,
+                         mode     = "wb")
+    status <- 1
 
-  return(1)
+  }, error=function(e){
+
+    message("Attempt to pull scoring models failed.\n",
+            "Unfortunately these are necessary and can't be bundled on CRAN!\n",
+            "The error was:\n", as.character(e))
+
+  })
+
+  return(status)
 }
 
+#' Function to grab the default embeddings for sentiment_match()
+#' Necessary to keep package size under 5Mb.
+#' Will check if they're there, if so return TRUE
+#' if not try download and return TRUE
+#' else return FALSE (and generate them - will take a few seconds!)
+#' @param model - chr vector: need to install or make one at a time, allow loop!
+install_default_embeddings <- function(){
+  # for return status
+  status <- 0
+
+  # base folder
+  repo_url <- "https://github.com/BenWiseman/sentiment.ai/raw/main/default_embeddings"
+
+  # to get right version
+  version   <- packageDescription("sentiment.ai", fields = "Version")
+  file_name <- paste0(version, ".json")
+
+  # base url - repo containing model objects
+  target_url <- paste(repo_url, file_name, sep = "/")
+
+  # Add query param to end
+  target_url <- paste0(target_url, "?raw=true")
+
+  # get download location: <pkg_dir>/data/en.large_def_emb.rds
+  # determining package name and base path
+  pkg_path <- system.file(package = "sentiment.ai")
+  dl_path  <- file.path(pkg_path, "default_embeddings")
+  obj_path <- file.path(dl_path, file_name)
+
+  # should dl_path go to a library or the package dir? if it's in the package dir
+  # they will always have to reinstall all of the scoring models if upgraded
+
+  # if model exists, return NULL - nothing to do
+  if(file.exists(obj_path)) return(0)
+
+  # model doesn't exist, download it into dl_path
+  if(!dir.exists(dl_path)) {
+    # directory doesn't exist, make directory & download
+    dir.create(dl_path,
+               showWarnings = FALSE,
+               recursive = TRUE)
+  }
+
+  message("Downloading precalculated default embeddings v.", version, " from github")
+
+  tryCatch({
+    # you can always use wb to download bites
+    utils::download.file(url      = target_url,
+                         destfile = obj_path,
+                         mode     = "wb")
+    status <- 1
+
+  }, error=function(e){
+
+    message("Attempt to pull pre-calculated embeddings failed.\n",
+            "This should only be a problem for speed as they can still be calculated on the fly!\n")
+
+  })
+
+  return(status)
+
+}
 # 2. INITIALIZE ================================================================
 
 #' @rdname setup
@@ -341,11 +420,11 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
              showWarnings = FALSE,
              recursive    = TRUE)
 
-  # create sentiment.ai_embed object and make it global IN the package
-  env   <- sentiment.ai::sentiment.ai_embed
-  env$f <- load_language_model(model, cache_dir)
+  # create sentiment.env object and make it global IN the package
+  env   <- sentiment.ai::sentiment.env
+  env$embed <- load_language_model(model, cache_dir)
 
-  env$f
+  env$embed
 }
 
 #' @rdname setup
@@ -460,8 +539,7 @@ py_install_method_detect <- function(envname,
     conda <- "auto"
   }
 
-  reticulate:::py_install_method_detect(
-    envname = envname,
-    conda   = conda
-  )
+  # is just reticulate:::py_install_method_detect
+  # all in local_from_reticulate.R as internal funcs
+  install_method_detect(envname = envname,conda   = conda)
 }

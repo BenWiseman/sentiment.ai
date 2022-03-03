@@ -44,10 +44,12 @@ Imports:
     utils,
     xgboost
 Suggests:
+    jsonlite,
     knitr,
     magrittr,
     microbenchmark,
     prettydoc,
+    rappdirs,
     rstudioapi,
     text2vec (>= 0.6)
 Collate: 
@@ -57,9 +59,10 @@ Collate:
     'choose_model.R'
     'data-default_data.R'
     'data-example_data.R'
-    'object-sentiment_ai_embed.R'
+    'object-sentiment_env.R'
     'matrix_helpers.R'
     'constants.R'
     'create_error_text.R'
     'utils-data-table.R'
     'globals.R'
+    'local_from_reticulate.R'

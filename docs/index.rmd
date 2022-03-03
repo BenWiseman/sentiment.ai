@@ -354,7 +354,7 @@ Assuming you're using RStudio, it can be helpful to go to `tools > global option
 
 You'll probably want to initialize the language embedding model first if you want to 1) not use the default models, and 2) want to re-apply sentiment scoring without the overhead of preparing the embedding model in memory. Pre-initializing with  `init_sentiment.ai()` is useful for making downstream sentiment scoring and matching run smoothly, especially on GPU. 
 
-**Technically** `init_sentiment.ai()` will give access to a function called `sentiment.ai_embed$f()` which uses the pre-trained tensorflow model to embed a vector of text. Power users, the curious, and the damned may want to look in (Helper Functions for an example of this magic)[#power-move]. 
+**Technically** `init_sentiment.ai()` will make an environment (`sentiment.env`) containing the `embed()` function (i.e. `sentiment.env$embed()`) which uses the pre-trained tensorflow model to embed a vector of text (also wrapped in the `embed_text()` function). Power users, the curious, and the damned may want to look in (Helper Functions for an example of this magic)[#power-move]. 
 
 
 `init_sentiment.ai()` has the following optional paramaters:
@@ -474,7 +474,7 @@ print(result)
 
 # Matrix Analysis
 
-### cosine()
+## cosine()
 
 A light equivilent of text2vec::sim2 that gives pairwise cosine similarity between each row of a matrix. 
 
@@ -495,7 +495,7 @@ cosine(x1, x2)
 ```
 
 
-### cosine_match()
+## cosine_match()
 
 This is a helper function to take two matrices, compute their `cosine` similarity, and give a pairwise ranked table. For example:
 
@@ -505,7 +505,7 @@ cosine_match(target = x1, reference = x2)
 
 If you filter that to only the rows where rank is 1, you'll have a table of the top matches between target and reference.
 
-### embed_text()
+## embed_text()
 
 As an added bonus of manually calling `init_sentiment.ai()` you can call `embed_text()` to turn a vector of text into a numeric embedding matrix (e.g if you want to cluster comments).
 
@@ -634,7 +634,10 @@ As above. I've only encountered this a few times, I **think** it's an issue of R
 
 You may see this message if that's going to be an issue: 
 
- `"The RETICULATE_PYTHON environment variable is set, which can be due to being in a project (regardless of whether the global/project Python options are set), having the global/project Python options set, or having RETICULATE_PYTHON in your .Renviron file or bash/zsh rc files."`
+ `"The RETICULATE_PYTHON environment variable is set, which can be due to being`
+ `in a project (regardless of whether the global/project Python options are set),` 
+ `having the global/project Python options set, or having RETICULATE_PYTHON in` 
+ `your .Renviron file or bash/zsh rc files."`
                   
                   
 ### Error messages about missing python modules
@@ -646,7 +649,8 @@ Either something went wrong in `install_sentiment.ai()` OR Reticulate isn't chan
 If you see a message like this: 
 
 `Preparing Model`  
-`Error in py_run_file_impl(file, local, convert) : AttributeError: module 'tensorflow.python.feature_column.feature_column_v2' has no attribute '_BaseFeaturesLayer'`
+`Error in py_run_file_impl(file, local, convert) :`
+`AttributeError: module 'tensorflow.python.feature_column.feature_column_v2' has no attribute '_BaseFeaturesLayer'`
 
 It may be due to a previously activated reticulate environment. e.g if you run `reticulate::py_config()` `reticulate` seems to set your environment to `r-reticulate` and won't let that change, which may mess with your tensorflow setup. Starting a new R session seems to fix that. 
  
