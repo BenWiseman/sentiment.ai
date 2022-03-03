@@ -39,6 +39,7 @@ Authors:
 Other contributors:
 \itemize{
   \item Fiona Lodge \email{fiona.lodge@kornferry.com} [contributor]
+  \item Veronica Ge \email{veronica.ge@kornferry.com} [artist]
   \item Yu-Ann Wang \email{yu-ann-wang@kornferry.com} [contributor]
   \item Korn Ferry Institute \email{KFInstituteRequests@KornFerry.com} [funder]
 }

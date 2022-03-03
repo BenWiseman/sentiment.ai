@@ -1,6 +1,6 @@
 Package: sentiment.ai
 Type: Package
-Title: Simplified sentiment analysis with AI
+Title: Simple Sentiment Analysis Using Deep Learning
 Version: 0.1.0
 Authors@R:
   c(person('Ben', 'Wiseman',

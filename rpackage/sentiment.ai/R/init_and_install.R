@@ -376,8 +376,8 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   pkg_name <- utils::packageName()
   pkg_path <- system.file(package = pkg_name)
 
-  # can reduce GPU out oof memory issues
-  Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = TRUE)
+  # can reduce GPU out of memory issues
+  Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = "true")
 
   # activating environment (what if the environment won't activate??)
   .activate_env(envname, silent = FALSE, r_envir = -2)
