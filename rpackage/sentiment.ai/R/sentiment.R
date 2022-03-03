@@ -141,7 +141,7 @@ sentiment_score <- function(x          = NULL,
 #' pos_neg <- factor(airline_tweets$airline_sentiment,
 #'                   levels = c("negative", "neutral", "positive"))
 #' pos_neg <- (as.numeric(pos_neg) - 1) / 2
-#' cosine(mod_match, pos_neg)
+#' cosine(mod_match$sentiment, pos_neg)
 #'
 #' # you could also calculate accuracy/kappa
 #' }
@@ -183,9 +183,6 @@ sentiment_match <- function(x        = NULL,
 
   # activate environment
   check_sentiment.ai(model = model, ...)
-
-  # indicate that the model is running?!
-  message("Model Running...")
 
   # calculate text embeddings
   text_embed   <- embed_text(x, batch_size, model)
