@@ -1,81 +1,17 @@
 ---
-image: "media/nnet_big.svg"
-title: sentiment.ai
-subtitle: Open Source AI-Based Sentiment Analysis
-output:
-  html_document:
-    toc: yes
-    toc_float:
-        collapsed: true
-        smooth_scroll: true
-    theme: flatly
-    code_folding: show
-    highlight: espresso
-    css: www/css/custom.css
-    includes:
-      in_header: header.html
-  word_document:
-    toc: yes
-editor_options:
-  chunk_output_type: console
-always_allow_html: true
+output: github_document
 ---
 
-<script>
-  $(document).ready(function() {
-    $('#TOC').parent().prepend('<div id=\"nav_logo\"><img src=\"media/sentimentai.png"></div>');
-  });
-</script>
+# sentiment.ai
+Package for using deep learning models (from tf hub) for easy sentiment analysis.
 
-
-
-```{css, echo=FALSE}
- #TOC::before {
-  font-size: 32px;
-  font-weight: 900;
-  text-align: center; 
-  content: "sentiment.ai";
-  display: block;
-  width: 200px;
-  height: 80px;
-  line-height: 80px;
-  margin: 10px 10px 10px 20px;
-  //background-image: url("media/nnetsmall.png");
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-}
-#TOC{
-    border:none;
-}
-
-
-```
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-require(reticulate)
-require(sentiment.ai)
-#sentiment.ai.init(model = "en.large")
-assign("depthtrigger", 4, data.table:::.global)
-```
-```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
-require(knitr)
-require(kableExtra)
-require(magrittr)
-require(formattable)
-require(data.table)
-
-
-colLight <- "#1cb1c4"
-colMed   <- "#2b8cbe"
-colDark  <- "#4158CD"
-colDarkest <- "#09001c"
-```
+**See github.io page here**
+[https://benwiseman.github.io/sentiment.ai/](https://benwiseman.github.io/sentiment.ai/)
 
 
 # Overview
 
-[Korn Ferry Institute](https://www.kornferry.com/institute)'s AITMI team made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
+(Korn Ferry Institute)[https://www.kornferry.com/institute]'s AITMI team made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
 use powerful, open source deep learning models to improve their sentiment analyses. Our approach is relatively simple and out performs the current best offerings on CRAN and even Microsoft's Azure Cognitive Services. Given that we felt the current norm for sentiment analysis isn't quite good enough, we decided to open-source our simplified interface to turn Universal Sentence Encoder embedding vectors into sentiment scores. 
 
 We've wrapped a lot of the underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
@@ -94,7 +30,7 @@ Currently only xgboost and glms (trained on the 512-D embeddings generated with 
 
 # Simple Example
 
-```{r example1, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+```r
 # Load the package
 require(sentiment.ai)
 require(SentimentAnalysis)
@@ -145,163 +81,26 @@ example <- data.table(target = text,
 ```
 
 
-```{r draw_kable, echo = FALSE, eval=TRUE, message=FALSE}
-ex_draw <- copy(example)
+| target |	sentiment.ai	| sentimentAnalysis |	sentimentr |
+|:------:|:-------------:| :----------------:|:----------:|
+|What a great car. It stopped working after a week. |-0.7	| 0.4 |	0.09 |
+|Steve Irwin working to save endangered species |	0.27 |	0.17 |	-0.09 |
+|Bob Ross teaching people how to paint	| 0.28	| 0	 | 0 |
+|I saw Adolf Hitler on my vacation in Argentina…	| -0.29 |	0	| 0.27 |
+|the resturant served human flesh | -0.32	| 0.25	| 0 |
+|the resturant is my favorite! |	0.8 |	0.5 |	0.34 |
+|the resturant is my favourite! |	0.78 |	0	0 |
+|this restront is my FAVRIT innit! |	0.63 |	0 |	0 |
+|the resturant was my absolute favorite until they gave me food poisoning	| -0.36 |	0	| 0.12 |
+|This fantastic app freezes all the time! |	-0.41 |	0.25 |	0.13 |
+|I learned so much on my trip to Hiroshima museum last year! |	0.64 |	0 |	0 |
+|What happened to the people of Hiroshima in 1945 |	-0.58 |	0 |	0 |
+|I had a blast on my trip to Nagasaki	0.73 |	-0.33 |	-0.13 |
+|The blast in Nagasaki |	-0.51 |	-0.5	| -0.2 |
+|I love watching scary horror movies	0.54 |	0	| -0.31 |
+|This package offers so much more nuance to sentiment analysis!	| 0.74 |	0	| 0 |
+|you remind me of the babe. What babe? The babe with the power! What power? The power of voodoo. Who do? You do. Do what? Remind me of the babe! |	0.55 |	0.3 |	-0.05 |
 
-ex_draw$sentiment.ai %<>% round(2)
-ex_draw$sentimentAnalysis %<>% round(2)
-ex_draw$sentimentr %<>% round(2)
-
-
-color_func <- function(x, col_high = colLight, col_low = colDarkest ){
-    out <- ifelse(x > 0,
-                  cell_spec(x, color = colLight, bold = TRUE),
-                  ifelse(x < 0,
-                         cell_spec(x, color = colDarkest, bold = TRUE),
-                         cell_spec(x, color = "#808080", bold = FALSE)))
-}
-
-ex_draw[, sentiment.ai := color_func(sentiment.ai)]
-
-ex_draw[, sentimentr := color_func(sentimentr)]
-
-ex_draw[, sentimentAnalysis := color_func(sentimentAnalysis)]
-
-
-ex_draw  %>%
- kableExtra::kable(escape = F) %>%
- kableExtra::kable_styling() %>%
- scroll_box(width = "100%", height = "600px")
-```
-
-
-# Benchmarks
-
-So, what impact does more robust detection and some broader context have? To test it, in real-world scenarios,
-we use two datasets/use cases:
-
-1) classifying whether review text from Glassdoor.com is from a `pro` or a `con`
-
-2) the popular airline tweet sentiment dataset.
-
-We use the default settings for `sentimentr`, the QDAP dictionary in `sentimentAnalysis`, and `en.large` in `sentiment.ai`. We prefer the use of Kappa to validate classification as it's a less forgiving metric than F1 scores. In both benchmarks `sentiment.ai` comes out on top by a decent margin! 
-
-**Note** that our testing and tuning was one using comments written in English. 
-
-### Glassdoor
-
-Applied example, estimating whether the text from a glassdoor.com review is positive or negative. 
-The validation set used here is the same data KFI used [in our 2020 SIOP workshop](https://benwiseman.github.io/Should-You-Outsource-AI/)
-
-Note: As a part of KFI's core purpose, `sentiment.ai`'s scoring models were tuned with extra work-related data, hence this is tilted in our favor! 
-
-```{r benchmark_glassdoor, message=FALSE, warning=FALSE, echo=FALSE}
-require(ggplot2)
-# retrieve benchmark/test data 
-
-our_scores    <- readRDS("../../docs/test/sentiment_ai_scores.rds")
-vshift_scores <- readRDS("../../docs/test/sentimentr_scores.rds")
-dict_scores   <- readRDS("../../docs/test/dict_scores.rds")
-azure_scores  <- fread("../../docs/test/azure_scores-12084-rows.csv")
-
-dict_scores$yhat   <- factor(round(scales::rescale(dict_scores$SentimentQDAP, to=0:1)), levels = c("0","1"))
-vshift_scores$yhat <- factor(round(scales::rescale(vshift_scores$ave_sentiment, to=0:1)), levels = c("0","1"))
-azure_scores$yhat  <- factor(round(scales::rescale(azure_scores$score, to=0:1)), levels = c("0","1"))
-azure_scores$y     <- factor(azure_scores$target, levels = c("0", "1"))
-
-gd_ai <- caret::confusionMatrix(data = our_scores$y_hat, reference = our_scores$y, positive = "1")
-gd_sa <- caret::confusionMatrix(data = dict_scores$yhat, reference = dict_scores$y, positive = "1")
-gd_sr <- caret::confusionMatrix(data = vshift_scores$yhat, reference = vshift_scores$y, positive = "1")
-gd_az <- caret::confusionMatrix(data = azure_scores$yhat, reference = azure_scores$y, positive = "1")
-
-# put into dataframe and plot!
-
-kappas <- list(sentiment.ai      = gd_ai$overall["Kappa"],
-               sentimentr        = gd_sr$overall["Kappa"],
-               sentimentAnalysis = gd_sa$overall["Kappa"],
-               azure             = gd_az$overall["Kappa"]) %>%
-          as.data.table(keep.rownames = TRUE) %>%
-          melt(measure.vars = c("sentiment.ai", "sentimentr", "sentimentAnalysis", "azure"),
-               variable.name = "Method",
-               value.name    = "Kappa")
-
-setorder(kappas, Kappa)
-kappas[, Method := factor(Method, levels = unique(Method))]
-
-
-plot_cols <- c(sentiment.ai      = "#2b8cbeCA",
-               sentimentr        = "#808080CA",
-               sentimentAnalysis = "#808080CA",
-               azure             = "#808080CA")
-
-ggplot(kappas) +
-  geom_bar(aes(x = Method, y = Kappa, fill = Method),
-           stat = "identity") + 
-  scale_fill_manual(values = plot_cols, guide = FALSE) + 
-  scale_y_continuous(expand = c(0,0)) +
-  theme_minimal() + 
-  theme(axis.title.x = element_blank(),
-        panel.grid.minor.y = element_blank())
-  
-```
- 
-
-### Airline Tweets
-
-Taken from the airline tweet dataset from Kaggle. Classification is positive vs negative 
-(neutral was omitted to remove concerns about cutoff values). 
-
-Note: Azure Cognitive Services tune their sentiment model on product reviews, as such this is tilted in favor of Azure!
-
-```{r benchmark_airline, message=FALSE, warning=FALSE, echo=FALSE}
-
-
-our_tweet_scores    <- readRDS("../../docs/test/sentimentai_tweet_scores.rds")
-vshift_tweet_scores <- readRDS("../../docs/test/sentimentr_tweet_scores.rds")
-dict_tweet_scores   <- readRDS("../../docs/test/dict_tweet_scores.rds")
-azure_tweet_scores  <- readRDS("../../docs/test/azure_tweet_scores.rds")
-
-dict_tweet_scores$yhat   <- factor(round(scales::rescale(dict_tweet_scores$SentimentQDAP, to=0:1)), 
-                                   levels = c("0","1"))
-vshift_tweet_scores$yhat <- factor(round(scales::rescale(vshift_tweet_scores$ave_sentiment, to=0:1)), 
-                             levels = c("0","1"))
-
-tw_ai <- caret::confusionMatrix(data = our_tweet_scores$y_hat, reference = our_tweet_scores$y, positive = "1")
-tw_sa <- caret::confusionMatrix(data = dict_tweet_scores$yhat, reference = dict_tweet_scores$y, positive = "1")
-tw_sr <- caret::confusionMatrix(data = vshift_tweet_scores$yhat, reference = vshift_tweet_scores$y, positive = "1")
-tw_az <- caret::confusionMatrix(data = azure_tweet_scores$yhat, reference = azure_tweet_scores$y, positive = "1")
-
-
-# put into dataframe and plot!
-
-kappas2 <- list(sentiment.ai      = tw_ai$overall["Kappa"],
-               sentimentr        = tw_sr$overall["Kappa"],
-               sentimentAnalysis = tw_sa$overall["Kappa"],
-               azure             = tw_az$overall["Kappa"]) %>%
-          as.data.table(keep.rownames = TRUE) %>%
-          melt(measure.vars = c("sentiment.ai", "sentimentr", "sentimentAnalysis", "azure"),
-               variable.name = "Method",
-               value.name    = "Kappa")
-
-setorder(kappas2, Kappa)
-kappas2[, Method := factor(Method, levels = unique(Method))]
-
-ggplot(kappas2) +
-  geom_bar(aes(x = Method, y = Kappa, fill = Method),
-           stat = "identity") + 
-  scale_fill_manual(values = plot_cols, guide = FALSE) + 
-  scale_y_continuous(expand = c(0,0)) +
-  theme_minimal() + 
-  theme(axis.title.x = element_blank(),
-        panel.grid.minor.y = element_blank())
-  
-```
-
-**Fierce.** It looks like we can be pretty confident that `sentiment.ai` is a pretty fab alternative to existing packages! Note that over time our sentiment scoring models will get better and better!
-
-<br>
-<hr> 
-<br>
 
 
 # Installation & Setup
@@ -327,7 +126,7 @@ convenience function to install that for you:
 
 
 
-```{r echo=TRUE, eval=FALSE}
+```r
 
 # Just leave this as default unless you have a good reason to change it. 
 # This is quite dependent on specific versions of python moduules
@@ -354,7 +153,7 @@ Assuming you're using RStudio, it can be helpful to go to `tools > global option
 
 You'll probably want to initialize the language embedding model first if you want to 1) not use the default models, and 2) want to re-apply sentiment scoring without the overhead of preparing the embedding model in memory. Pre-initializing with  `init_sentiment.ai()` is useful for making downstream sentiment scoring and matching run smoothly, especially on GPU. 
 
-**Technically** `init_sentiment.ai()` will make an environment (`sentiment.env`) containing the `embed()` function (i.e. `sentiment.env$embed()`) which uses the pre-trained tensorflow model to embed a vector of text (also wrapped in the `embed_text()` function). Power users, the curious, and the damned may want to look in (Helper Functions for an example of this magic)[#power-move]. 
+**Technically** `init_sentiment.ai()` will give access to a function called `sentiment.ai_embed$f()` which uses the pre-trained tensorflow model to embed a vector of text. Power users, the curious, and the damned may want to look in (Helper Functions for an example of this magic)[#power-move]. 
 
 
 `init_sentiment.ai()` has the following optional paramaters:
@@ -379,8 +178,7 @@ resource use (i.e. compute time and RAM)
 
 Example:
 
-```{r echo=TRUE, eval=FALSE}
-
+```r
 # NOTEL In most cases all you need is this:!!
 init_sentiment.ai()
 
@@ -423,7 +221,7 @@ The paramaters `sentiment_score()` takes are:
 Note that if `init_sentiment.ai()` has not been called before, the function will try to recover by calling it into the default environment. If you're using CUDA/GPU acceleration, you'll see a lot of work happening in the console as the model is compiled on the GPU. 
 
 For example:
-```{r, message=FALSE, warning=FALSE, error=FALSE}
+```r
 
 my_comments <- c("Will you marry me?", "Oh, you're breaking up with me...")
 
@@ -448,7 +246,7 @@ While there are default lists of positive and negative phrases, you can overwrit
 comments from your specific domain. The sentiment score is the same as calling `sentiment_score()` but you also get the most similar phrase, the category of that phrase, and the cosine similarity to the closest phrase. 
 
 For example:
-```{r, message=FALSE, warning=FALSE, error=FALSE}
+```r
 
 my_comments <- c("Will you marry me?", "Oh, you're breaking up with me...")
 
@@ -461,6 +259,12 @@ result <- sentiment_match(x = my_comments, phrases = my_categories)
 
 print(result)
 
+```
+
+```r
+##                                 text  sentiment phrase    class similarity
+## 1:                Will you marry me?  0.5393031 loving positive  0.1723714
+## 2: Oh, you're breaking up with me... -0.6585207    sad negative  0.1512707
 ```
 
 **Note** Cosine similarity is relative here & longer text will tend to have lower overall similarity to a specific phrase!
@@ -478,7 +282,7 @@ print(result)
 
 A light equivilent of text2vec::sim2 that gives pairwise cosine similarity between each row of a matrix. 
 
-```{r}
+```r
 
 x1 <- matrix(rnorm(4 * 6), 
              ncol = 6,
@@ -494,14 +298,43 @@ x2 <- matrix(rnorm(4 * 6),
 cosine(x1, x2)
 ```
 
+```r
+##            w          x           y           z
+## a -0.1776981 -0.1743733  0.04111033  0.88174300
+## b -0.5699782  0.6938432  0.21893192  0.05391341
+## c  0.5076042  0.0169079  0.04563749  0.38885764
+## d  0.2050958 -0.7644069 -0.74160285 -0.13175003
+```
+
 
 ## cosine_match()
 
 This is a helper function to take two matrices, compute their `cosine` similarity, and give a pairwise ranked table. For example:
 
-```{r}
+```r
 cosine_match(target = x1, reference = x2)
 ```
+
+```r
+##     target reference  similarity rank
+##  1:      a         w -0.17769814    4
+##  2:      b         w -0.56997820    4
+##  3:      c         w  0.50760421    1
+##  4:      d         w  0.20509577    1
+##  5:      a         x -0.17437331    3
+##  6:      b         x  0.69384318    1
+##  7:      c         x  0.01690790    4
+##  8:      d         x -0.76440688    4
+##  9:      a         y  0.04111033    2
+## 10:      b         y  0.21893192    2
+## 11:      c         y  0.04563749    3
+## 12:      d         y -0.74160285    3
+## 13:      a         z  0.88174300    1
+## 14:      b         z  0.05391341    3
+## 15:      c         z  0.38885764    2
+## 16:      d         z -0.13175003    2
+```
+
 
 If you filter that to only the rows where rank is 1, you'll have a table of the top matches between target and reference.
 
@@ -510,7 +343,7 @@ If you filter that to only the rows where rank is 1, you'll have a table of the 
 As an added bonus of manually calling `init_sentiment.ai()` you can call `embed_text()` to turn a vector of text into a numeric embedding matrix (e.g if you want to cluster comments).
 
 For example
-```{r, message=FALSE, warning=FALSE}
+```r
 
 # Note, there's some weird behavior when you do this with a single string! 
 test_target <- c("dogs", "cat", "IT", "computer")
@@ -520,12 +353,28 @@ test_ref    <- c("animals", "technology")
 target_mx <- embed_text(test_target)
 ref_mx    <- embed_text(test_ref)
 ref_mx[1:2, 1:4]
+```
 
+```r
+##                    [,1]       [,2]       [,3]          [,4]
+## animals    -0.042174224 0.01914462 0.07767479 -0.0362021662
+## technology  0.005067721 0.02222563 0.06019276  0.0006833972
+```
+
+
+```r
 # And slay.
 result <- cosine_match(target_mx, ref_mx)
 result[rank==1] # filtered to top match (with data.table's [] syntax)
 ```
 
+```r
+##      target  reference similarity rank
+## 1:     dogs    animals  0.8034535    1
+## 2:      cat    animals  0.6122806    1
+## 3:       IT technology  0.4383662    1
+## 4: computer technology  0.6668407    1
+```
 
 
 <br>
@@ -683,5 +532,3 @@ This is a bit unhappy, but it you call init_sentiment.ai() in the R console befo
 <hr> 
 <br>
 
-
-<script src="www/js/collapsible.js"></script>
