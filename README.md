@@ -1,5 +1,19 @@
 ![](https://github.com/BenWiseman/sentiment.ai/blob/main/repository-open-graph-template.png)
 
+<!-- [START BADGES] -->
+<!-- Please keep comment here to allow auto update -->
+<p align="center">
+  <a href="https://github.com/BenWiseman/sentiment.ai"><img src="https://img.shields.io/github/repo-size/BenWiseman/sentiment.ai" alt="Github size" /></a>
+  <a href="https://github.com/BenWiseman/sentiment.ai"><img src="https://img.shields.io/github/languages/count/BenWiseman/sentiment.ai" alt="Languages" /></a>
+  <a href="https://github.com/BenWiseman/sentiment.ai"><img src="https://img.shields.io/github/languages/top/BenWiseman/sentiment.ai" alt="Languages" /></a>
+  <a href="https://cran.r-project.org/"><img src="https://img.shields.io/cran/v/sentiment.ai?style=flat-square" alt="CRAN version" /></a>
+  <a href="https://cran.r-project.org/"><img src="https://img.shields.io/cran/l/sentiment.ai?style=flat-square" alt="MIT License" /></a>
+  <a href="https://benwiseman.github.io/sentiment.ai/"><img src="https://img.shields.io/maintenance/yes/2022" alt="MIT License" /></a>
+  
+</p>
+<!-- [END BADGES] -->
+
+
 # sentiment.ai
 Package for using deep learning models (from tf hub) for easy sentiment analysis.
 
