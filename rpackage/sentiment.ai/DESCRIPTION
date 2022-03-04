@@ -4,7 +4,7 @@ Title: Simple Sentiment Analysis Using Deep Learning
 Version: 0.1.0
 Authors@R:
   c(person('Ben', 'Wiseman',
-           role    = c('ccp', 'cre', 'aut'),
+           role    = c('cre', 'aut', 'ccp'),
            email   = 'benjamin.h.wiseman@gmail.com'),
     person('Steven', 'Nydick',
            role    = c('aut'),
@@ -16,17 +16,15 @@ Authors@R:
     person('Fiona', 'Lodge',
            role    = c('ctb'),
            email   = 'fiona.lodge@kornferry.com'),
-    person('Veronica', 'Ge',
-           role    = c('art'),
-           email   = 'veronica.ge@kornferry.com'),
     person('Yu-Ann', 'Wang',
            role    = c('ctb'),
            email   = 'yu-ann-wang@kornferry.com'),
+    person('Veronica', 'Ge',
+           role    = c('art'),
+           email   = 'veronica.ge@kornferry.com'),
     person('Korn Ferry Institute', 
            role = c('fnd'),
-           email = 'KFInstituteRequests@KornFerry.com')
-           )
-Maintainer: Ben Wiseman <benjamin.h.wiseman@gmail.com>
+           email = 'KFInstituteRequests@KornFerry.com'))
 Description: Easy way to do sentiment analysis with transfer learning from Google's Universal Sentence
   Encoder. Better performance than traditional dictionary based sentiment analysis! 
 License: MIT + file LICENSE
