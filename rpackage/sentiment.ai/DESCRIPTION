@@ -27,8 +27,12 @@ Authors@R:
            email = 'KFInstituteRequests@KornFerry.com')
            )
 Maintainer: Ben Wiseman <benjamin.h.wiseman@gmail.com>
-Description: Easy way to do sentiment analysis with transfer learning from Google's Universal Sentence
-  Encoder. Better performance than traditional dictionary based sentiment analysis! 
+Description: Sentiment Analysis via deep learning and gradient boosting models with a lot of the underlying hassle taken care of to make the process as simple as possible. 
+  In addition to out-performing traditional, lexicon-based sentiment analysis (see <https://benwiseman.github.io/sentiment.ai/#Benchmarks>),
+  it also allows the user to create embedding vectors for text which can be used in other analyses.
+  GPU acceleration is supported on Windows and Linux.
+URL: https://benwiseman.github.io/sentiment.ai/,
+     https://github.com/BenWiseman/sentiment.ai
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -48,6 +52,7 @@ Imports:
     utils,
     xgboost
 Suggests:
+    rmarkdown,
     knitr,
     magrittr,
     microbenchmark,
