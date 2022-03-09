@@ -11,7 +11,7 @@ Package for using deep learning models (from tf hub) for easy sentiment analysis
 
 # Overview
 
-(Korn Ferry Institute)[https://www.kornferry.com/institute]'s AITMI team made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
+[Korn Ferry Institute](https://www.kornferry.com/institute)'s AITMI team made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
 use powerful, open source deep learning models to improve their sentiment analyses. Our approach is relatively simple and out performs the current best offerings on CRAN and even Microsoft's Azure Cognitive Services. Given that we felt the current norm for sentiment analysis isn't quite good enough, we decided to open-source our simplified interface to turn Universal Sentence Encoder embedding vectors into sentiment scores. 
 
 We've wrapped a lot of the underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
