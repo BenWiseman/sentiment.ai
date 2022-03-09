@@ -4,7 +4,7 @@
 \name{sentiment.ai-package}
 \alias{sentiment.ai}
 \alias{sentiment.ai-package}
-\title{sentiment.ai: Simplified sentiment analysis with AI}
+\title{sentiment.ai: Simple Sentiment Analysis Using Deep Learning}
 \description{
 This package uses Google's Universal Sentence Encoder, simplifies all the
 difficulties, and turns it into a sentiment analysis package.
@@ -27,6 +27,14 @@ Effectivelly, if you have a reasonably powerful computer, you can use
 sentiment.ai as a more flexible, powerful, and modern approach to sentiment
 analysis.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://benwiseman.github.io/sentiment.ai/}
+  \item \url{https://github.com/BenWiseman/sentiment.ai}
+}
+
+}
 \author{
 \strong{Maintainer}: Ben Wiseman \email{benjamin.h.wiseman@gmail.com} [conceptor]
 
@@ -39,8 +47,8 @@ Authors:
 Other contributors:
 \itemize{
   \item Fiona Lodge \email{fiona.lodge@kornferry.com} [contributor]
-  \item Veronica Ge \email{veronica.ge@kornferry.com} [artist]
   \item Yu-Ann Wang \email{yu-ann-wang@kornferry.com} [contributor]
+  \item Veronica Ge \email{veronica.ge@kornferry.com} [artist]
   \item Korn Ferry Institute \email{KFInstituteRequests@KornFerry.com} [funder]
 }
 

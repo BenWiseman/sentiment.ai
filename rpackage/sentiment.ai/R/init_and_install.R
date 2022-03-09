@@ -20,7 +20,6 @@
 #'        installation. Only works on Rstudio.
 #' @param model path to tensorflow hub embedding model. default is both universal
 #'        sentence encoder  en (default) and multi
-#'
 #' @details
 #' Sets up environment specific for sentiment.ai. The packages that it currently
 #' needs are as follows:
@@ -86,6 +85,7 @@
 # 1. INSTALL ===================================================================
 
 #' @rdname setup
+#' @return NULL this function simply installs the required python dependencies and default scoring models and pre-calculated embedding vectors.
 #' @importFrom roperators "%ni%"
 #' @import tensorflow
 #' @import tfhub
@@ -368,6 +368,7 @@ install_default_embeddings <- function(){
 # 2. INITIALIZE ================================================================
 
 #' @rdname setup
+#' @return python function to embed text can be returned, but is not necessary. embed_text() does this for you.
 #' @export
 init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "multi"),
                               envname = "r-sentiment-ai"){
@@ -427,6 +428,7 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 }
 
 #' @rdname setup
+#' @return NULL this function checks if init_sentiment.ai() has been called successfully, if not, it is called.
 #' @export
 check_sentiment.ai <- function(...){
 

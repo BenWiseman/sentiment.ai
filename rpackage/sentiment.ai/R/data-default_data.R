@@ -21,6 +21,5 @@
 #'
 #' @format An object of class `"data.table"`
 #'
-#' @keywords datasets
 "default"
 

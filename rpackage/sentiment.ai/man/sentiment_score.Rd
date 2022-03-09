@@ -32,6 +32,9 @@ smaller numbers, but do not exhaust your system memory!}
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
 or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
 }
+\value{
+numeric vector of length(x) containing a re-scaled sentiment probabilities.
+}
 \description{
 This uses a simple model (xgboost or glm) to return a simple predictive score,
 where numbers closer to 1 are more positive and numbers closer to -1 are more

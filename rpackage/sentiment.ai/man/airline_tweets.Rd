@@ -18,4 +18,3 @@ sure that the model is running correctly. The current data is based on airline
 tweets with corresponding sentiment labels.
 }
 \keyword{datasets}
-\keyword{examples,}

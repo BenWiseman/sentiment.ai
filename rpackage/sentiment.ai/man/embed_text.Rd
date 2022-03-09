@@ -13,6 +13,9 @@ embed_text(text, batch_size = NULL, model = NULL)
 
 \item{model}{character - the embedding model to use (same as sentiment_score())}
 }
+\value{
+numeric matrix of length(text) x 512. Original text is stored in the row names attribute.
+}
 \description{
 turns charactewr vector into length(text)x512 embedding matrix.
 For power users. Requires init_sentiment.ai() to have been called!

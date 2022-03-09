@@ -62,6 +62,13 @@ or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
 \item{model}{path to tensorflow hub embedding model. default is both universal
 sentence encoder  en (default) and multi}
 }
+\value{
+NULL this function simply installs the required python dependencies and default scoring models and pre-calculated embedding vectors.
+
+python function to embed text can be returned, but is not necessary. embed_text() does this for you.
+
+NULL this function checks if init_sentiment.ai() has been called successfully, if not, it is called.
+}
 \description{
 Install and Setup sentiment.ai Algorithm
 }

@@ -30,6 +30,9 @@ smaller numbers, but do not exhaust your system memory!}
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
 or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
 }
+\value{
+data.table containing text, sentiment, phrase, class, and similarity.
+}
 \description{
 Provides score and explanation, returns a single vector, and runs relatively
 fast.

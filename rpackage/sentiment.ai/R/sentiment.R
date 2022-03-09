@@ -13,6 +13,9 @@
 #'        other versions might be supported in the future.
 #' @param batch_size Size of batches to use. Larger numbers will be faster than
 #'        smaller numbers, but do not exhaust your system memory!
+#'
+#' @return numeric vector of length(x) containing a re-scaled sentiment probabilities.
+#'
 #' @inheritParams install_sentiment.ai
 #'
 #' @description
@@ -119,6 +122,8 @@ sentiment_score <- function(x          = NULL,
 #'        being words/terms that are indications of the name of that element (
 #'        such as positive words/terms under the name "positive" and negative
 #'        words/terms under the name "negative", all within the same list)
+#'
+#'@return data.table containing text, sentiment, phrase, class, and similarity.
 #'
 #' @description
 #' Provides score and explanation, returns a single vector, and runs relatively
@@ -357,6 +362,7 @@ embed_topics <- function(phrases = NULL,
 #' @param text character vector to be embedded. Notye that longer comments take longer
 #' @param batch_size integer - how many to embed at once. Higher numbers are faster but use more memory.
 #' @param model character - the embedding model to use (same as sentiment_score())
+#' @return numeric matrix of length(text) x 512. Original text is stored in the row names attribute.
 #' @importFrom data.table data.table
 #'
 #' @export
@@ -481,6 +487,7 @@ find_sentiment_probs <- function(embeddings,
 #' as py list
 #' because R to Python conversion doesn't work with list is of length 1
 #' @param x character vector that is to be passed into tensorflowtext via reticulate
+#' @return List if x is length 1 else x
 #' @export
 as_py_list <- function(x){
 

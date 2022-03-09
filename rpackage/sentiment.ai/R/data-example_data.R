@@ -12,5 +12,4 @@
 #'         text processing and the "sentiment" column for checking positive
 #'         or negative predictions of the model.
 #'
-#' @keywords examples, datasets
 "airline_tweets"
