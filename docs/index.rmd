@@ -74,8 +74,8 @@ colDarkest <- "#09001c"
 <!-- [START BADGES] -->
 <!-- Please keep comment here to allow auto update -->
 <p align="center">
-  <a href="https://cran.r-project.org/"><img src="https://img.shields.io/cran/v/sentiment.ai?style=flat-square" alt="CRAN version" /></a>
-  <a href="https://cran.r-project.org/"><img src="https://img.shields.io/cran/l/sentiment.ai?style=flat-square" alt="MIT License" /></a>
+  <a href="https://CRAN.R-project.org/package=sentiment.ai"><img src="https://img.shields.io/cran/v/sentiment.ai?style=flat-square" alt="CRAN version" /></a>
+  <a href="https://CRAN.R-project.org/package=sentiment.ai"><img src="https://img.shields.io/cran/l/sentiment.ai?style=flat-square" alt="MIT License" /></a>
 </p>
 <!-- [END BADGES] -->
 
@@ -93,7 +93,7 @@ We've wrapped a lot of the underlying hassle up to make the process as simple as
 
 3) **Choose the context** for what negative and positive mean using the `sentiment_match()` function. For example, you could set `positive` to mean `"high quality"` and negative to mean `"low quality"` when looking at product reviews.
 
-4) **Power** Because it draws from language embedding models trained on billions of texts, news articles, and wikipedia entries, it is able to detect things such as *"I learned so much on my trip to Hiroshima museum last year!"* is associated with something positive and that *"What happeded to the people of Hiroshima in 1945"* is associated with something negative.
+4) **Power** Because it draws from language embedding models trained on billions of texts, news articles, and Wikipedia entries, it is able to detect things such as *"I learned so much on my trip to Hiroshima museum last year!"* is associated with something positive and that *"What happened to the people of Hiroshima in 1945"* is associated with something negative.
 
 5) **The power is yours** We've designed `sentiment.ai` such that the community can contribute sentiment models via [github](https://github.com/BenWiseman/sentiment.ai/tree/main/models). This way, it's easier for the community to work together to make sentiment analysis more reliable! 
 Currently only xgboost and glms (trained on the 512-D embeddings generated with tensorflow) are supported, however in a future update we will add functionality to allow arbitrary sentiment scoring models. 
@@ -185,11 +185,11 @@ ex_draw  %>%
 # Benchmarks
 
 So, what impact does more robust detection and some broader context have? To test it, in real-world scenarios,
-we use two datasets/use cases:
+we use two data sets/use cases:
 
 1) classifying whether review text from Glassdoor.com is from a `pro` or a `con`
 
-2) the popular airline tweet sentiment dataset.
+2) the popular airline tweet sentiment data set.
 
 We use the default settings for `sentimentr`, the QDAP dictionary in `sentimentAnalysis`, and `en.large` in `sentiment.ai`. We prefer the use of Kappa to validate classification as it's a less forgiving metric than F1 scores. In both benchmarks `sentiment.ai` comes out on top by a decent margin! 
 
@@ -255,7 +255,7 @@ ggplot(kappas) +
 
 ### Airline Tweets
 
-Taken from the airline tweet dataset from Kaggle. Classification is positive vs negative 
+Taken from the airline tweet data set from Kaggle. Classification is positive vs negative 
 (neutral was omitted to remove concerns about cutoff values). 
 
 Note: Azure Cognitive Services tune their sentiment model on product reviews, as such this is tilted in favor of Azure!
@@ -320,7 +320,7 @@ convenience function to install that for you:
 
 `install_sentiment.ai()` 
 
-**This only needs to be run the first time you install the package**. If you're feeling adventurous, you can modify the environment it will create with the following paramaters:
+**This only needs to be run the first time you install the package**. If you're feeling adventurous, you can modify the environment it will create with the following parameters:
 
 * `envname` - the name of the virtual environment
 
@@ -337,13 +337,13 @@ convenience function to install that for you:
 ```{r echo=TRUE, eval=FALSE}
 
 # Just leave this as default unless you have a good reason to change it. 
-# This is quite dependent on specific versions of python moduules
+# This is quite dependent on specific versions of python modules
 install_sentiment.ai()
 
 ```
 
 
-Assuming you're using RStudio, it can be helpful to go to `tools > global options > python > python interpreter` and set your new tensorflow-ready environment as the default interpreter. There'salso an option for automatically setting project-level environments, 
+Assuming you're using RStudio, it can be helpful to go to `tools > global options > python > python interpreter` and set your new tensorflow-ready environment as the default interpreter. There's also an option for automatically setting project-level environments, 
 
 **Note for GPU installations:** you'll need to make sure you have a compatible version of CUDA installed. 
 (Here is a helpful guide to pick your CUDA version)[https://www.tensorflow.org/install/source#gpu]
@@ -364,7 +364,7 @@ You'll probably want to initialize the language embedding model first if you wan
 **Technically** `init_sentiment.ai()` will make an environment (`sentiment.env`) containing the `embed()` function (i.e. `sentiment.env$embed()`) which uses the pre-trained tensorflow model to embed a vector of text (also wrapped in the `embed_text()` function). Power users, the curious, and the damned may want to look in (Helper Functions for an example of this magic)[#power-move]. 
 
 
-`init_sentiment.ai()` has the following optional paramaters:
+`init_sentiment.ai()` has the following optional parameters:
 
 ### `model`
 
@@ -392,7 +392,7 @@ Example:
 init_sentiment.ai()
 
 # To change the default behavior:
-# e.g. to initialise for use on multi lingual comments:
+# e.g. to initialize for use on multi lingual comments:
 # leave envname alone unless you have a good reason to change it! 
 init_sentiment.ai(model = "multi.large")
 
@@ -413,9 +413,9 @@ default is `envname = "r-sentiment-ai"` - only change this if you set a differen
 
 For most use cases, `sentiment_score()` is the function you'll use. 
 
-Returns a vector of sentiment scores. The scores are a rescaled probability of being positive (i.e 0 to 1 scaled as -1 to 1). These are calculated with a secondary scoring model which, by default is from xgboost (a simple GLM is available if for some reason xgboost doesn't work for you!).
+Returns a vector of sentiment scores. The scores are a re-scaled probability of being positive (i.e 0 to 1 scaled as -1 to 1). These are calculated with a secondary scoring model which, by default is from xgboost (a simple GLM is available if for some reason xgboost doesn't work for you!).
 
-The paramaters `sentiment_score()` takes are: 
+The parameters `sentiment_score()` takes are: 
 
 * `x` character vector to analyse.
 
@@ -425,7 +425,7 @@ The paramaters `sentiment_score()` takes are:
 
 * `scoring_version` (optional) "1.0" is the default and (currently) only option. In future this will allow you to use updated/improved models. 
 
-* `batch_szie` (optional) determines how many rows are processed at a time. On CPU this doesn't change much, but can be important if you installed the GPU version. Put simply, small bathes take longer but use less RAM/VRAM, large batches run faster on GPU but could exhaust memopry if too large. Default is 100 (works reliably on an RTX 2080)
+* `batch_szie` (optional) determines how many rows are processed at a time. On CPU this doesn't change much, but can be important if you installed the GPU version. Put simply, small bathes take longer but use less RAM/VRAM, large batches run faster on GPU but could exhaust memory if too large. Default is 100 (works reliably on an RTX 2080)
 
 Note that if `init_sentiment.ai()` has not been called before, the function will try to recover by calling it into the default environment. If you're using CUDA/GPU acceleration, you'll see a lot of work happening in the console as the model is compiled on the GPU. 
 
@@ -442,7 +442,7 @@ sentiment_score(my_comments)
 
 ## sentiment_match()
 
-Sometimes you want to classify comments too. For that, we added `sentiment_match()` which takes a list of positive and negative terms/phrases and returs a dataframe like so: 
+Sometimes you want to classify comments too. For that, we added `sentiment_match()` which takes a list of positive and negative terms/phrases and returns a dataframe like so: 
 
 
 
@@ -483,7 +483,7 @@ print(result)
 
 ## cosine()
 
-A light equivilent of text2vec::sim2 that gives pairwise cosine similarity between each row of a matrix. 
+A light equivalent of text2vec::sim2 that gives pairwise cosine similarity between each row of a matrix. 
 
 ```{r}
 
@@ -570,7 +570,7 @@ We want to continue making sentiment analysis easier and better, to that end fut
 Think you can make a better sentiment scoring model? Seeing as I'm far from the sharpest lighbulb out there, you probably can out do me! Simply train a model on text embeddings and add it to the models folder of this repo. Currently we only have support for xgb and glm models (xgb worked really well with minimal faff, and GLMs, saved as simple parameter weights, are super light weight). We will figure out a way to allow custom models, likely with a custom predict script in each model folder, but that's a tomorrow-problem for now.  
 
 
-The models directory contains models used to derrive sentiment after the neural nets have handles the embedding bit.
+The models directory contains models used to derive sentiment after the neural nets have handles the embedding bit.
 
 Directory structure is: model_type/version/<embedding name>.<ext>
 
