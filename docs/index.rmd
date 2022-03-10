@@ -388,12 +388,13 @@ Example:
 
 ```{r echo=TRUE, eval=FALSE}
 
-# NOTEL In most cases all you need is this:!!
+# NOTE In most cases all you need is this:!!
 init_sentiment.ai()
 
 # To change the default behavior:
 # e.g. to initialize for use on multi lingual comments:
 # leave envname alone unless you have a good reason to change it! 
+
 init_sentiment.ai(model = "multi.large")
 
 ```
