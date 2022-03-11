@@ -15,11 +15,11 @@ cosine_match(target, reference, keep_target_order = FALSE)
 
 \item{y}{A numeric vector or matrix of the same dimensions as x}
 
-\item{target}{numeric matrix of j values where each row is one observation. Use row names as ID}
+\item{target}{numeric matrix of j values where each row is one observation. Use row names as ID.}
 
-\item{reference}{numeric matrix of j values where each row is one observation. Use row names as ID}
+\item{reference}{numeric matrix of j values where each row is one observation. Use row names as ID.}
 
-\item{keep_target_order}{logical include column indicating original row order of target matrix}
+\item{keep_target_order}{logical include column indicating original row order of target matrix.}
 }
 \value{
 data.table containing ranked (1 = top) pairwise similarities between target and reference

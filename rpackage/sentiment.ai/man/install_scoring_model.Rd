@@ -13,7 +13,7 @@ install_scoring_model(
 }
 \arguments{
 \item{model}{The embedding model, one of c("en.large", "en", "multi.large",
-"multi")}
+"multi").}
 
 \item{scoring}{The scoring model, currently one of:
 \itemize{

@@ -46,7 +46,7 @@ rescale <- function(x){
   x / sqrt(sx)
 }
 
-#' ToDo add aproximate NN hash matching for speed on large data
+# ToDo add approximate NN hash matching for speed on large data
 hash_match <- function(){
    # RANN already has c++ ANN lookup
    # eg  test_nn <- nn2(centers, matrix(c(test, rnorm(512)), byrow = TRUE, nrow = 2), k = 1)
@@ -55,9 +55,9 @@ hash_match <- function(){
 
 #' cosine_match()
 #'
-#' @param target numeric matrix of j values where each row is one observation. Use row names as ID
-#' @param reference  numeric matrix of j values where each row is one observation. Use row names as ID
-#' @param keep_target_order logical include column indicating original row order of target matrix
+#' @param target numeric matrix of j values where each row is one observation. Use row names as ID.
+#' @param reference  numeric matrix of j values where each row is one observation. Use row names as ID.
+#' @param keep_target_order logical include column indicating original row order of target matrix.
 #'
 #' @return data.table containing ranked (1 = top) pairwise similarities between target and reference
 #'

@@ -1,3 +1,7 @@
+# sentiment.ai 0.1.1
+
+* Fixed typos. Note that `get_default_embedding` had a typo in the initial launch and was called `get_defualt_embedding`. Make sure to update your code if you used this function.
+
 # sentiment.ai 0.1.0
 
 INITIAL RELEASE 

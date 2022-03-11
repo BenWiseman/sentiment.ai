@@ -19,7 +19,7 @@
 #' @param restart_session Whether to restart the R session after finishing
 #'        installation. Only works on Rstudio.
 #' @param model path to tensorflow hub embedding model. default is both universal
-#'        sentence encoder  en (default) and multi
+#'        sentence encoder en (default) and multi.
 #' @details
 #' Sets up environment specific for sentiment.ai. The packages that it currently
 #' needs are as follows:
@@ -33,7 +33,7 @@
 #' | tensorflow-text | 2.4.3   |
 #' | sentencepiece   | 0.1.95  |
 #'
-#' Please do not change these if you do not know what you are doing.
+#' Please do not change these unless you know what you are doing.
 #'
 #' Note that it installs with like \code{tensorflow::install_tensorflow} and
 #' \code{pip = TRUE}
@@ -55,7 +55,7 @@
 #'    will have to restart R.
 #' 4. If you are in **any** project, at all! Currently (as of `reticulate` version
 #'    1.22), every project automatically sets the RETICULATE_PYTHON environment
-#'    variable, either through the Global or Project Options of by using heuristics.
+#'    variable, either through the Global or Project Options or by using heuristics.
 #'    If you are in an RStudio project, you **must** update Global/Project Options
 #'    with the specific version/environment of Python that you want to use, or
 #'    you will not be able to change it!
@@ -209,7 +209,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 #' Install a Scoring Model
 #'
 #' @param model The embedding model, one of c("en.large", "en", "multi.large",
-#'        "multi")
+#'        "multi").
 #' @param scoring The scoring model, currently one of:
 #'   - "xgb" does default xgboost
 #'   - "glm" does generalized linear model (if you can't run xgboost)
@@ -304,11 +304,11 @@ install_scoring_model <- function(model   =  c("en.large", "en", "multi.large", 
   return(status)
 }
 
-#' Function to grab the default embeddings for sentiment_match()
+#' Function to grab the default embeddings for `sentiment_match()`
 #' Necessary to keep package size under 5Mb.
-#' Will check if they're there, if so return TRUE
-#' if not try download and return TRUE
-#' else return FALSE (and generate them - will take a few seconds!)
+#' Will check if they're there, if so return TRUE.
+#' If they are not there, try download and return TRUE.
+#' Otherwise, return FALSE (and generate them - will take a few seconds!).
 install_default_embeddings <- function(){
   # for return status
   status <- 0
@@ -368,7 +368,8 @@ install_default_embeddings <- function(){
 # 2. INITIALIZE ================================================================
 
 #' @rdname setup
-#' @return python function to embed text can be returned, but is not necessary. embed_text() does this for you.
+#' @return python function to embed text can be returned, but is not necessary.
+#'         `embed_text()` does this for you.
 #' @export
 init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "multi"),
                               envname = "r-sentiment-ai"){
@@ -428,7 +429,8 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 }
 
 #' @rdname setup
-#' @return NULL this function checks if init_sentiment.ai() has been called successfully, if not, it is called.
+#' @return NULL this function checks if `init_sentiment.ai()` has been called
+#'         successfully, if not, it is called.
 #' @export
 check_sentiment.ai <- function(...){
 

@@ -14,12 +14,13 @@ sentiment_match(
 }
 \arguments{
 \item{x}{A plain text vector or column name if data is supplied.
-If you know what you're doing, you can also pass in a 512-D numeric embedding}
+If you know what you're doing, you can also pass in a 512-D numeric
+embedding.}
 
 \item{phrases}{A named list of examples phrases with each element of the list
-being words/terms that are indications of the name of that element (
-such as positive words/terms under the name "positive" and negative
-words/terms under the name "negative", all within the same list)}
+being words/terms that are indications of the name of that element
+(such as positive words/terms under the name "positive" and negative
+words/terms under the name "negative", all within the same list).}
 
 \item{model}{An embedding name from tensorflow-hub, some of which are
 "en" (english large or not) and "multi" (multi-lingual large or not).}
