@@ -15,7 +15,8 @@ sentiment_score(
 }
 \arguments{
 \item{x}{A plain text vector or column name if data is supplied.
-If you know what you're doing, you can also pass in a 512-D numeric embedding}
+If you know what you're doing, you can also pass in a 512-D numeric
+embedding.}
 
 \item{model}{An embedding name from tensorflow-hub, some of which are
 "en" (english large or not) and "multi" (multi-lingual large or not).}
@@ -43,7 +44,7 @@ or negative.
 }
 \details{
 Uses simple preditive models on embeddings to provide probability of positive
-score (rescaled to -1:1 for consistency with other packages)
+score (rescaled to -1:1 for consistency with other packages).
 }
 \examples{
 \dontrun{

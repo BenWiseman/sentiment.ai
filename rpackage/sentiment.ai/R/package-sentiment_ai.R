@@ -4,7 +4,7 @@
 #'
 #' Main Benefits:
 #' \itemize{
-#'   \item{Tolerates spelling mistakes}
+#'   \item{Tolerates spelling mitsakes}
 #'   \item{Not dependent on exactly matching a fixed dictionary}
 #'   \item{Requires less pre-processing}
 #'   \item{More powerful than dictionary-based methods}
@@ -16,7 +16,7 @@
 #'   \item{Can be slow on larger datasets (unless using GPU)}
 #' }
 #'
-#' Effectivelly, if you have a reasonably powerful computer, you can use
+#' Effectively, if you have a reasonably powerful computer, you can use
 #' sentiment.ai as a more flexible, powerful, and modern approach to sentiment
 #' analysis.
 "_PACKAGE"

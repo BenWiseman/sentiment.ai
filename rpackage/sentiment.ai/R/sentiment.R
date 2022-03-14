@@ -1,10 +1,11 @@
 #' Simple Sentiment Scores
 #'
 #' Uses simple preditive models on embeddings to provide probability of positive
-#' score (rescaled to -1:1 for consistency with other packages)
+#' score (rescaled to -1:1 for consistency with other packages).
 #'
 #' @param x A plain text vector or column name if data is supplied.
-#'        If you know what you're doing, you can also pass in a 512-D numeric embedding
+#'        If you know what you're doing, you can also pass in a 512-D numeric
+#'        embedding.
 #' @param model An embedding name from tensorflow-hub, some of which are
 #'        "en" (english large or not) and "multi" (multi-lingual large or not).
 #' @param scoring Model to use for scoring the embedding matrix (currently
@@ -119,11 +120,11 @@ sentiment_score <- function(x          = NULL,
 #'
 #' @inheritParams sentiment_score
 #' @param phrases A named list of examples phrases with each element of the list
-#'        being words/terms that are indications of the name of that element (
-#'        such as positive words/terms under the name "positive" and negative
-#'        words/terms under the name "negative", all within the same list)
+#'        being words/terms that are indications of the name of that element
+#'        (such as positive words/terms under the name "positive" and negative
+#'        words/terms under the name "negative", all within the same list).
 #'
-#'@return data.table containing text, sentiment, phrase, class, and similarity.
+#' @return data.table containing text, sentiment, phrase, class, and similarity.
 #'
 #' @description
 #' Provides score and explanation, returns a single vector, and runs relatively
@@ -239,10 +240,10 @@ sentiment_match <- function(x        = NULL,
 
 # Y. HELPER FUNCTIONS ==========================================================
 
-#' read embedding file
-#' take json path, return single embedding object for specific model
-#' @param model character - whic model's default embeddings are needed
-#' @param file character - the filepath to the json object
+#' Read embedding file.
+#' Take json path, return single embedding object for specific model.
+#' @param model character - which model's default embeddings are needed.
+#' @param file character - the filepath to the json object.
 #' @param version PLACEHOLDER - may be necessary in future.
 read_embedding <- function(file, model = "en.large", version = NULL){
 
@@ -264,12 +265,12 @@ read_embedding <- function(file, model = "en.large", version = NULL){
 }
 
 #' get default embedding
-#' If it exists, return the object
-#' If not, try downloading it
-#' If download works, return object
-#' Else return NULL (to be handles in embed_topics())
+#' If it exists, return the object.
+#' If not, try downloading it.
+#' If download works, return object.
+#' Else return `NULL` (to be handles in `embed_topics()`).
 #' @param model character - whic model's default embeddings are needed
-get_defualt_embedding <- function(model){
+get_default_embedding <- function(model){
 
   emb <- NULL
 
@@ -314,7 +315,7 @@ embed_topics <- function(phrases = NULL,
   # and default pos/neg embedding has been installed. if not, make phrases pos/neg and embed_text on them
   if(is.null(phrases) && model[1] %in% names(default_models)) {
 
-    default_embeddings <- get_defualt_embedding(model[1])
+    default_embeddings <- get_default_embedding(model[1])
 
     # if NULL then use default phrases
     phrases  <- list(positive = sentiment.ai::default$positive,
@@ -356,13 +357,13 @@ embed_topics <- function(phrases = NULL,
 
 #' Create Text Embedding Matrix
 #'
-#' @description turns charactewr vector into length(text)x512 embedding matrix.
-#' For power users. Requires init_sentiment.ai() to have been called!
+#' @description turns character vector into `length(text) x 512` embedding matrix.
+#' For power users. Requires `init_sentiment.ai()` to have been called!
 #'
-#' @param text character vector to be embedded. Notye that longer comments take longer
+#' @param text character vector to be embedded. Note that longer comments take longer.
 #' @param batch_size integer - how many to embed at once. Higher numbers are faster but use more memory.
-#' @param model character - the embedding model to use (same as sentiment_score())
-#' @return numeric matrix of length(text) x 512. Original text is stored in the row names attribute.
+#' @param model character - the embedding model to use (same as `sentiment_score()`).
+#' @return numeric matrix of `length(text) x 512`. Original text is stored in the row names attribute.
 #' @importFrom data.table data.table
 #'
 #' @export
@@ -486,8 +487,8 @@ find_sentiment_probs <- function(embeddings,
 
 #' as py list
 #' because R to Python conversion doesn't work with list is of length 1
-#' @param x character vector that is to be passed into tensorflowtext via reticulate
-#' @return List if x is length 1 else x
+#' @param x character vector that is to be passed into tensorflowtext via reticulate.
+#' @return List if x is length 1 else x.
 #' @export
 as_py_list <- function(x){
 

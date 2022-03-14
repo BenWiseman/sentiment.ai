@@ -60,14 +60,16 @@ installation. Only works on Rstudio.}
 or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
 
 \item{model}{path to tensorflow hub embedding model. default is both universal
-sentence encoder  en (default) and multi}
+sentence encoder en (default) and multi.}
 }
 \value{
 NULL this function simply installs the required python dependencies and default scoring models and pre-calculated embedding vectors.
 
-python function to embed text can be returned, but is not necessary. embed_text() does this for you.
+python function to embed text can be returned, but is not necessary.
+\code{embed_text()} does this for you.
 
-NULL this function checks if init_sentiment.ai() has been called successfully, if not, it is called.
+NULL this function checks if \code{init_sentiment.ai()} has been called
+successfully, if not, it is called.
 }
 \description{
 Install and Setup sentiment.ai Algorithm
@@ -85,7 +87,7 @@ needs are as follows:\tabular{lc}{
 }
 
 
-Please do not change these if you do not know what you are doing.
+Please do not change these unless you know what you are doing.
 
 Note that it installs with like \code{tensorflow::install_tensorflow} and
 \code{pip = TRUE}
@@ -107,7 +109,7 @@ version/environment is instantiated, you will not be able to change it and
 will have to restart R.
 \item If you are in \strong{any} project, at all! Currently (as of \code{reticulate} version
 1.22), every project automatically sets the RETICULATE_PYTHON environment
-variable, either through the Global or Project Options of by using heuristics.
+variable, either through the Global or Project Options or by using heuristics.
 If you are in an RStudio project, you \strong{must} update Global/Project Options
 with the specific version/environment of Python that you want to use, or
 you will not be able to change it!

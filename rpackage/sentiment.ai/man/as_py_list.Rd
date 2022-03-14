@@ -8,10 +8,10 @@ because R to Python conversion doesn't work with list is of length 1}
 as_py_list(x)
 }
 \arguments{
-\item{x}{character vector that is to be passed into tensorflowtext via reticulate}
+\item{x}{character vector that is to be passed into tensorflowtext via reticulate.}
 }
 \value{
-List if x is length 1 else x
+List if x is length 1 else x.
 }
 \description{
 as py list

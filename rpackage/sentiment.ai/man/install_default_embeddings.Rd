@@ -2,18 +2,18 @@
 % Please edit documentation in R/init_and_install.R
 \name{install_default_embeddings}
 \alias{install_default_embeddings}
-\title{Function to grab the default embeddings for sentiment_match()
+\title{Function to grab the default embeddings for \code{sentiment_match()}
 Necessary to keep package size under 5Mb.
-Will check if they're there, if so return TRUE
-if not try download and return TRUE
-else return FALSE (and generate them - will take a few seconds!)}
+Will check if they're there, if so return TRUE.
+If they are not there, try download and return TRUE.
+Otherwise, return FALSE (and generate them - will take a few seconds!).}
 \usage{
 install_default_embeddings()
 }
 \description{
-Function to grab the default embeddings for sentiment_match()
+Function to grab the default embeddings for \code{sentiment_match()}
 Necessary to keep package size under 5Mb.
-Will check if they're there, if so return TRUE
-if not try download and return TRUE
-else return FALSE (and generate them - will take a few seconds!)
+Will check if they're there, if so return TRUE.
+If they are not there, try download and return TRUE.
+Otherwise, return FALSE (and generate them - will take a few seconds!).
 }

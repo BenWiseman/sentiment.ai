@@ -7,16 +7,16 @@
 embed_text(text, batch_size = NULL, model = NULL)
 }
 \arguments{
-\item{text}{character vector to be embedded. Notye that longer comments take longer}
+\item{text}{character vector to be embedded. Note that longer comments take longer.}
 
 \item{batch_size}{integer - how many to embed at once. Higher numbers are faster but use more memory.}
 
-\item{model}{character - the embedding model to use (same as sentiment_score())}
+\item{model}{character - the embedding model to use (same as \code{sentiment_score()}).}
 }
 \value{
-numeric matrix of length(text) x 512. Original text is stored in the row names attribute.
+numeric matrix of \verb{length(text) x 512}. Original text is stored in the row names attribute.
 }
 \description{
-turns charactewr vector into length(text)x512 embedding matrix.
-For power users. Requires init_sentiment.ai() to have been called!
+turns character vector into \verb{length(text) x 512} embedding matrix.
+For power users. Requires \code{init_sentiment.ai()} to have been called!
 }
