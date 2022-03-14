@@ -107,3 +107,6 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# source packages
+rpackage/*.tar.gz

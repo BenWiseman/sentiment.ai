@@ -1,3 +1,9 @@
+# sentiment.ai 0.1.1
+
+Patch for case when no conda binary is present
+updated default python to 3.8.10 for virtualenv and conda compatibility
+
+
 # sentiment.ai 0.1.0
 
 INITIAL RELEASE 

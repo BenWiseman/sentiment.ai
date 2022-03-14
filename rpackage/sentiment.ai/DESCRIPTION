@@ -1,7 +1,7 @@
 Package: sentiment.ai
 Type: Package
 Title: Simple Sentiment Analysis Using Deep Learning
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
   c(person('Ben', 'Wiseman',
            role    = c('cre', 'aut', 'ccp'),
