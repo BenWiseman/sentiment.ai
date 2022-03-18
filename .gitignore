@@ -110,3 +110,5 @@ vignettes/*.pdf
 
 # source packages
 rpackage/*.tar.gz
+rpackage/*.Rcheck
+

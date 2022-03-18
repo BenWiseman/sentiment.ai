@@ -1,7 +1,10 @@
 # sentiment.ai 0.1.1
 
+added silent argument in initsentiment.ai
 
-Patch for case when no conda binary is presen
+using method = "auto" in init_sentiment.ai() now uses py_discover_config
+
+Patch for case when no conda binary is present
 
 updated default python to 3.8.10 for virtualenv and conda compatibility
 

@@ -1,3 +1,4 @@
+#' setup
 #' Install and Setup sentiment.ai Algorithm
 #'
 #' @inheritParams reticulate::py_install
@@ -26,7 +27,7 @@
 #'
 #' | Module          | Version |
 #' | :-------------- | :-----: |
-#' | python          | 3.7.10  |
+#' | python          | 3.8.10  |
 #' | numpy           | 1.19.5  |
 #' | tensorflow      | 2.4.1   |
 #' | tensorflow_hub  | 0.12.0  |
@@ -81,6 +82,7 @@
 #'
 #' # if you run into an issue, follow the instructions/see the note and retry!
 #' }
+#' @name setup
 
 # 1. INSTALL ===================================================================
 
@@ -88,6 +90,7 @@
 # internal func for virtualenv - may need user to install specific python version
 # create env if possible else install py if needed./
 # create env in same method as install py fails for some reason - so moved out of this func
+# install python if needed for virtualenv
 check_virtualenv_py <- function(envname, version, ...){
 
   tryCatch(
@@ -404,12 +407,14 @@ install_default_embeddings <- function(){
 # 2. INITIALIZE ================================================================
 
 #' @rdname setup
+#' @param silent logical - do you want to suppress console logging? Can't affect tensorflow/GPU/python/c++ output, unfortunately.
 #' @return python function to embed text can be returned, but is not necessary.
 #'         `embed_text()` does this for you.
 #' @export
 init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "multi"),
                               envname = "r-sentiment-ai",
-                              method =  c("auto", "virtualenv", "conda")){
+                              method  =  c("auto", "virtualenv", "conda"),
+                              silent  = FALSE){
 
 
   method = match.arg(method)
@@ -422,7 +427,7 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = "true")
 
   # activating environment (what if the environment won't activate??)
-  .activate_env(envname, silent = FALSE, r_envir = -2, method=method)
+  .activate_env(envname, silent = silent, r_envir = -2, method=method)
 
   # 2. preparing model ---------------------------------------------------------
 
@@ -430,7 +435,7 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
   load_language_model <- NULL
 
   # load things (including load_language_model)
-  message("Preparing Model")
+  if(!silent) message("Preparing Model")
   reticulate::source_python(
     system.file("get_embedder.py", package = pkg_name)
   )
@@ -463,7 +468,16 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
 
   # create sentiment.env object and make it global IN the package
   env   <- sentiment.ai::sentiment.env
-  env$embed <- load_language_model(model, cache_dir)
+  # allow silent/less log text!
+  if(!silent){
+    # do it with all the details
+    env$embed <- load_language_model(model, cache_dir)
+  } else{
+    # just give reduced message that it'll take a while
+    message("Loading language model...")
+    env$embed <- suppressMessages(load_language_model(model, cache_dir))
+  }
+
 
   env$embed
 }
@@ -496,18 +510,39 @@ check_sentiment.ai <- function(...){
                           r_envir = -1,
                           method  = c("auto", "virtualenv", "conda")){
 
-  #TODO: add method argument
-
+  method = match.arg(method)
   # pull the environment lists
   venv_envs  <- character(0)
   conda_envs <- character(0)
 
-  # change env method based on where envname is found
-  tryCatch(venv_envs  <-  reticulate::virtualenv_list(), error = function(e) message(e))
-  if(method == "auto" && envname %in% venv_envs) method = "virtualenv"
-  # priority to conda (not better, just most popular)
-  tryCatch(conda_envs <- reticulate::conda_list()$name, error = function(e) message(e))
-  if(method == "auto" && envname %in% conda_envs) method = "conda"
+  # If problem finding envs for specified method or auto tell user!
+  # if the specified method is broken, show error text else only if silent is FALSE
+  tryCatch(venv_envs  <- reticulate::virtualenv_list(), error = function(e) if(method != "auto") message(e) else if(!silent) message(e))
+  tryCatch(conda_envs <- reticulate::conda_list()$name, error = function(e) if(method != "auto") message(e) else if(!silent) message(e))
+
+  # use py_install_method_detect but give note that default behavior is different!
+
+  # exception handle
+  auto_failover <- function(e){
+    message(e)
+    if(!silent) message("Attempting failover which will prioritise conda if available.")
+    # change env method based on where envname is found
+    if(method == "auto" && envname %in% venv_envs) assign(method, value = "virtualenv", pos = -2, inherits = TRUE)
+    # priority to conda (not better, just most popular)
+    if(method == "auto" && envname %in% conda_envs) assign(method, value = "conda", pos = -2, inherits = TRUE)
+  }
+
+  # find method
+  if(method == "auto"){
+    # Find preferred install method
+    tryCatch(method <- suppressWarnings(py_install_method_detect()),
+             error = function(e) auto_failover(e))
+
+    # sanity check
+    if(method == "auto") stop("py_install_method_detect failed and environment could not be found!")
+    # let user know if they're venv or conda
+    if(!silent) message("Attempting to activate ", method, " environment...")
+   }
 
   all_envs   <- c(venv_envs, conda_envs)
 
@@ -560,9 +595,9 @@ check_sentiment.ai <- function(...){
                   "are set), having the global/project Python options set, or having",
                   "RETICULATE_PYTHON in your .Renviron file or bash/zsh rc files.")
       } else{
-        # doesn't work with MS open (should we check this?)
-        text <- c("In testing, this happened when using Microsoft R Open and reticulate 1.6/tensorflow 2.2.",
-                  "You can double check those dependencies and that the environment is loading.")
+        text <- c("RETICULATE_PYTHON environment variable is not set, so that shouldn't be the problem.",
+                  "Double check reticulate/python are installed correctly, that the corrdct dependencies are installed, and that the environment is loading.",
+                  "In testing, this also happened when using Microsoft R Open and reticulate 1.6.")
       }
 
       head_text <- "Internal error when checking that the environment is active."
@@ -570,7 +605,7 @@ check_sentiment.ai <- function(...){
                      "If you have difficulties with environments in RStudio, go to tools>Global Options>Python.",
                      "From there you can force RStudio to use the proper environment if reticulate isn't working.")
 
-      create_error_text(head_text, text, "", tail_text)
+      create_error_text(head_text, text, "", tail_text, "")
       stop("env ", envname, " is not active. try restarting R and/or changing default environment.",
            call. = FALSE)
     }
