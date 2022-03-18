@@ -1,5 +1,5 @@
 #' setup
-#' Install and Setup sentiment.ai Algorithm
+#' @description Install and Setup sentiment.ai package
 #'
 #' @inheritParams reticulate::py_install
 #' @param method Installation method. By default, "auto" automatically finds a
@@ -82,46 +82,12 @@
 #'
 #' # if you run into an issue, follow the instructions/see the note and retry!
 #' }
-#' @name setup
+
 
 # 1. INSTALL ===================================================================
 
 
-# internal func for virtualenv - may need user to install specific python version
-# create env if possible else install py if needed./
-# create env in same method as install py fails for some reason - so moved out of this func
-# install python if needed for virtualenv
-check_virtualenv_py <- function(envname, version, ...){
-
-  tryCatch(
-    reticulate::virtualenv_create(
-      envname = envname,
-      version = version,
-      ...
-    ),
-    error = function(e){
-
-      message(e)
-      # check if pyenv_python error happens
-      if(grepl('Try installing it with install_python', e)){
-
-        inst_promt <- readline(paste0("Python ", version, " is missing. Install now? [Y/n]:\n"))
-
-        if(grepl("^Y", inst_promt, ignore.case = TRUE)){
-          # install python and try again
-          reticulate::install_python(version = version)
-
-        }
-      } else{
-       stop(e)
-      }
-
-    }
-  )
-
-}
-
-
+# install environment and dependencies\
 
 #' @rdname setup
 #' @return NULL this function simply installs the required python dependencies and default scoring models and pre-calculated embedding vectors.
@@ -627,3 +593,40 @@ py_install_method_detect <- function(envname,
   # all in local_from_reticulate.R as internal funcs
   install_method_detect(envname = envname,conda   = conda)
 }
+
+
+
+# internal func for virtualenv - may need user to install specific python version
+# create env if possible else install py if needed./
+# create env in same method as install py fails for some reason - so moved out of this func
+# install python if needed for virtualenv
+check_virtualenv_py <- function(envname, version, ...){
+
+  tryCatch(
+    reticulate::virtualenv_create(
+      envname = envname,
+      version = version,
+      ...
+    ),
+    error = function(e){
+
+      message(e)
+      # check if pyenv_python error happens
+      if(grepl('Try installing it with install_python', e)){
+
+        inst_promt <- readline(paste0("Python ", version, " is missing. Install now? [Y/n]:\n"))
+
+        if(grepl("^Y", inst_promt, ignore.case = TRUE)){
+          # install python and try again
+          reticulate::install_python(version = version)
+
+        }
+      } else{
+        stop(e)
+      }
+
+    }
+  )
+
+}
+
