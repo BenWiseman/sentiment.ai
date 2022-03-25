@@ -3,22 +3,27 @@
 
 
 [![CRAN version](https://img.shields.io/cran/v/sentiment.ai?style=flat-square)](https://cran.r-project.org/package=roperators)
-[![License](https://img.shields.io/cran/l/sentiment.ai?style=flat-square)](https://cran.r-project.org/package=sentiment.ai)
 [![GitHub commits](https://img.shields.io/github/last-commit/BenWiseman/sentiment.ai)](https://GitHub.com/BenWiseman/sentiment.ai/commit/)
 [![Lines of Code](https://img.shields.io/tokei/lines/github/BenWiseman/sentiment.ai)]()
 [![Repo Size](https://img.shields.io/github/repo-size/BenWiseman/sentiment.ai)]()
 [![Languages](https://img.shields.io/github/languages/count/BenWiseman/sentiment.ai)]()
 [![Top Language](https://img.shields.io/github/languages/top/BenWiseman/sentiment.ai)]()
-  <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FBenWiseman%2Fsentiment.ai&count_bg=%23AB6EE5&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" hidden/></a>
+[![License](https://img.shields.io/cran/l/sentiment.ai?style=flat-square)](https://cran.r-project.org/package=sentiment.ai)
+
+  
 <!---
- ([![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=green)](https://cran.r-project.org/package=sentiment.ai))
--->
+[![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=green)](https://cran.r-project.org/package=sentiment.ai)
+[![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+--->
 
 # sentiment.ai
-Package for using deep learning models (from tf hub) for easy sentiment analysis.
+New package for using pre-trained deep learning models (from tf hub) embed text and predict sentiment minus the hassle! In benchmarks, we are head-and-shoulders above traditional lexical sentiment analysis and even go toe-to-toe with Azure Cognitive Services (only we're free!) while also making it easy to work with text embeddings for other analyses. What's more, the community can contribute sentiment scoring models such that the power of `sentiment.ai` can grow over time! 
 
 **See github.io page here**
 [https://benwiseman.github.io/sentiment.ai/](https://benwiseman.github.io/sentiment.ai/)
+
+## Contributors:
+![GitHub Contributors Image](https://contrib.rocks/image?repo=BenWiseman/sentiment.ai)
 
 
 # Overview
@@ -583,5 +588,10 @@ This is a bit unhappy, but it you call init_sentiment.ai() in the R console befo
 <hr> 
 <br>
 
+ [![GitHub issues-closed](https://img.shields.io/github/issues-closed/BenWiseman/sentiment.ai.svg)](https://GitHub.com/BenWiseman/sentiment.ai/issues?q=is%3Aissue+is%3Aclosed) 
+ [![GitHub pull-requests closed](https://img.shields.io/github/issues-pr-closed/BenWiseman/sentiment.ai.svg)](https://GitHub.com/BenWiseman/sentiment.ai/pull/) 
+  <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FBenWiseman%2Fsentiment.ai&count_bg=%23AB6EE5&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=visits&edge_flat=false" hidden/></a>
+  
 
-<script src="www/js/collapsible.js"></script>
+
+
