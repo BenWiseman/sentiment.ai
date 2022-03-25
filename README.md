@@ -9,6 +9,7 @@
 [![Repo Size](https://img.shields.io/github/repo-size/BenWiseman/sentiment.ai)]()
 [![Languages](https://img.shields.io/github/languages/count/BenWiseman/sentiment.ai)]()
 [![Top Language](https://img.shields.io/github/languages/top/BenWiseman/sentiment.ai)]()
+  <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FBenWiseman%2Fsentiment.ai&count_bg=%23AB6EE5&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" hidden/></a>
 <!---
  ([![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=green)](https://cran.r-project.org/package=sentiment.ai))
 -->
