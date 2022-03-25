@@ -73,12 +73,15 @@ colDarkest <- "#09001c"
 ```
 <!-- [START BADGES] -->
 <!-- Please keep comment here to allow auto update -->
-<p align="center">
+<p align="left">
   <a href="https://CRAN.R-project.org/package=sentiment.ai"><img src="https://img.shields.io/cran/v/sentiment.ai?style=flat-square" alt="CRAN version" /></a>
   <a href="https://CRAN.R-project.org/package=sentiment.ai"><img src="https://img.shields.io/cran/l/sentiment.ai?style=flat-square" alt="MIT License" /></a>
 </p>
 <!-- [END BADGES] -->
 
+<!---
+ ([![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=green)](https://cran.r-project.org/package=sentiment.ai))
+-->
 
 # Overview
 
