@@ -2,10 +2,9 @@
 
 
 
-[![CRAN version](https://img.shields.io/cran/v/sentiment.ai?style=flat-square)](https://cran.r-project.org/package=roperators)
+[![CRAN version](https://img.shields.io/cran/v/sentiment.ai?style=flat-square)](https://cran.r-project.org/package=sentiment.ai)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=green)](https://cran.r-project.org/package=sentiment.ai)
 [![GitHub commits](https://img.shields.io/github/last-commit/BenWiseman/sentiment.ai)](https://GitHub.com/BenWiseman/sentiment.ai/commit/)
-[![Lines of Code](https://img.shields.io/tokei/lines/github/BenWiseman/sentiment.ai)]()
 [![Repo Size](https://img.shields.io/github/repo-size/BenWiseman/sentiment.ai)]()
 [![Languages](https://img.shields.io/github/languages/count/BenWiseman/sentiment.ai)]()
 [![Top Language](https://img.shields.io/github/languages/top/BenWiseman/sentiment.ai)]()
@@ -13,7 +12,7 @@
 
   
 <!---
-
+[![Hits-of-Code](https://hitsofcode.com/<service>/<user>/<repo>)](https://hitsofcode.com/github/BenWiseman/sentiment.ai/view)()
 [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 --->
 
