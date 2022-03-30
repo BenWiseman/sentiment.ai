@@ -3,7 +3,7 @@
 
 
 [![CRAN version](https://img.shields.io/cran/v/sentiment.ai?style=flat-square)](https://cran.r-project.org/package=sentiment.ai)
-[![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=green)](https://cran.r-project.org/package=sentiment.ai)
+[![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=brightgreen)](https://cran.r-project.org/package=sentiment.ai)
 [![GitHub commits](https://img.shields.io/github/last-commit/BenWiseman/sentiment.ai)](https://GitHub.com/BenWiseman/sentiment.ai/commit/)
 [![Repo Size](https://img.shields.io/github/repo-size/BenWiseman/sentiment.ai)]()
 [![Languages](https://img.shields.io/github/languages/count/BenWiseman/sentiment.ai)]()
