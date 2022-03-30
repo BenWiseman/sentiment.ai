@@ -81,6 +81,7 @@ colDarkest <- "#09001c"
 <!-- [END BADGES] -->
 
 <!---
+<meta property="og:image" content="media/banner.png" />
  ([![metacran downloads](https://cranlogs.r-pkg.org/badges/last-month/sentiment.ai?color=green)](https://cran.r-project.org/package=sentiment.ai))
 -->
 
@@ -365,7 +366,7 @@ Assuming you're using RStudio, it can be helpful to go to `tools > global option
 
 You'll probably want to initialize the language embedding model first if you want to 1) not use the default models, and 2) want to re-apply sentiment scoring without the overhead of preparing the embedding model in memory. Pre-initializing with  `init_sentiment.ai()` is useful for making downstream sentiment scoring and matching run smoothly, especially on GPU. 
 
-**Technically** `init_sentiment.ai()` will make an environment (`sentiment.env`) containing the `embed()` function (i.e. `sentiment.env$embed()`) which uses the pre-trained tensorflow model to embed a vector of text (also wrapped in the `embed_text()` function). Power users, the curious, and the damned may want to look in (Helper Functions for an example of this magic)[#power-move]. 
+**Technically** `init_sentiment.ai()` will make an environment (`sentiment.env`) containing the `embed()` function (i.e. `sentiment.env$embed()`) which uses the pre-trained tensorflow model to embed a vector of text (also wrapped in the `embed_text()` function). Power users, the curious, and the damned may want to look in [Helper Functions for an example of this magic](#Matrix Analysis). 
 
 
 `init_sentiment.ai()` has the following optional parameters:
