@@ -48,13 +48,14 @@ Currently only xgboost and glms (trained on the 512-D embeddings generated with 
 # Simple Example
 
 ```r
-# Load the package
+# Load the packages
 require(sentiment.ai)
 require(SentimentAnalysis)
 require(sentimentr)
+require(data.table)
 
 # Only if it's your first ever time
-# sentiment.ai.install()
+# install_sentiment.ai()
 
 # Initiate the model
 # This will create the sentiment.ai.embed model
