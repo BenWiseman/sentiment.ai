@@ -7,3 +7,6 @@
 #'
 #' @export
 sentiment.env <- new.env()
+# make flags for non-tf hub embedding models
+sentiment.env$openai <- FALSE
+sentiment.env$parallel <- 0

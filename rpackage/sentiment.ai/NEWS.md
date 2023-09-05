@@ -1,3 +1,10 @@
+# sentiment.ai 0.2.0
+
+* Support for openAI/Ada embeddings
+* python modules can now be set to "latest" for compatibility with other py interpreters
+* Seemingly fixed tensorflow-text bug on apple silicone 
+
+
 # sentiment.ai 0.1.1
 
 added silent argument in initsentiment.ai

@@ -103,12 +103,21 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                                 sentencepiece     = "0.1.95",
                                                 tensorflow        = "2.4.1",
                                                 tensorflow_hub    = "0.12.0",
-                                                `tensorflow-text` = "2.4.3"),
+                                                `tensorflow-text` = "2.4.3",
+                                                openai            = "latest"),
                                  fresh_install   = TRUE,
                                  restart_session = TRUE,
                                  ...){
 
   # STILL HAVE INSTALL ISSUES ... SHOULD DO SOMETHING ABOUT THIS ???
+  # Apple silicone warning
+  if(roperators::is.os_arm() && roperators::is.os_mac()){
+    warning("Apple Silicone detected. Unfortunately Tensorflow-text is not available for apple silicone yet.\n
+            As a work-around, you can use the openai to do the embeddings. \n
+            To do this, skip installing,and in the call to init_sentiment.ai set the environment to be r-reticulate (bypass tensorflow install) and the model to 'text-embedding-ada-002'. ")
+  }
+
+
 
   method <- match.arg(method)
 
@@ -154,8 +163,23 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # make sure that all modules have length 1
   stopifnot(all(lengths(modules) == 1))
 
-  # paste name with the version (should we check to make sure this is done OK?)
-  modules_vers <- paste0(names(modules), "==", modules)
+  # TODO: find a permanent solution for apple silicone
+  # Remove tensorflow-text for Apple Silicon
+  if (roperators::is.os_arm() && roperators::is.os_mac()) {
+    modules[["tensorflow-text"]] <- NULL
+  }
+
+
+  # Handle NULL or empty versions
+  modules_vers <- sapply(names(modules), function(name) {
+    version <- modules[[name]]
+    if (is.null(version) || version == "" || version =="latest") {
+      return(name)
+    } else {
+      return(paste0(name, "==", version))
+    }
+  })
+
 
   # 3. install everything ------------------------------------------------------
 
@@ -372,15 +396,35 @@ install_default_embeddings <- function(){
 }
 # 2. INITIALIZE ================================================================
 
+
+#' Initialize sentiment.ai Environment
 #' @rdname setup
-#' @param silent logical - do you want to suppress console logging? Can't affect tensorflow/GPU/python/c++ output, unfortunately.
-#' @return python function to embed text can be returned, but is not necessary.
-#'         `embed_text()` does this for you.
+#'
+#' @description Initializes the sentiment.ai environment by setting up the Python environment and loading the specified model.
+#' This function must be called before using any other functions in the package that require a model.
+#'
+#' @param model character vector specifying the model to use. Options include "en.large", "multi.large", "en", "multi", and "text-embedding-ada-002".
+#' @param envname character string specifying the name of the Python environment to use.
+#' @param method character string specifying the method to use for Python environment management. Options are "auto", "virtualenv", and "conda".
+#' @param silent logical flag indicating whether to suppress console logging. Note: This does not affect TensorFlow, GPU, Python, or C++ output.
+#' @param api_key character string specifying the API key for OpenAI, if using an OpenAI model.
+#' @param api_base character string specifying the base URL for the OpenAI API.
+#'
+#' @return Python function for text embedding. This is stored in the package environment and does not need to be explicitly used.
+#'
+#' @importFrom reticulate py_run_string source_python
+#' @importFrom utils packageName system.file
+#'
 #' @export
-init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "multi"),
-                              envname = "r-sentiment-ai",
-                              method  =  c("auto", "virtualenv", "conda"),
-                              silent  = FALSE){
+init_sentiment.ai <- function(model       = c("en.large", "multi.large", "en", "multi", "text-embedding-ada-002"),
+                              envname     = "r-sentiment-ai",
+                              method      =  c("auto", "virtualenv", "conda"),
+                              silent      = FALSE,
+                              api_key     = NULL,
+                              api_base    = "https://api.openai.com",
+                              api_version = "v1",
+                              api_type    = NULL,
+                              api_engine  = "text-davinci-002"){
 
 
   method = match.arg(method)
@@ -432,17 +476,35 @@ init_sentiment.ai <- function(model   = c("en.large", "multi.large", "en", "mult
              showWarnings = FALSE,
              recursive    = TRUE)
 
+
   # create sentiment.env object and make it global IN the package
-  env   <- sentiment.ai::sentiment.env
-  # allow silent/less log text!
-  if(!silent){
-    # do it with all the details
-    env$embed <- load_language_model(model, cache_dir)
-  } else{
-    # just give reduced message that it'll take a while
-    message("Loading language model...")
-    env$embed <- suppressMessages(load_language_model(model, cache_dir))
+  env <- sentiment.ai::sentiment.env
+  env$parallel <- test_parallel_support()
+
+  if(env$parallel >= 2) message(env$parallel, " CPU cores available for parallel processing")
+  else message("No parallel processing support found on CPU")
+
+  # if using openai
+  if (!is.null(api_key) && model %in% c(names(openai_models), openai_models)) {
+    # If API key is provided, use OpenAI
+    #env$embed <- py_run_string("load_openai_embedding('text-embedding-ada-002', your_api_key, your_api_base)")
+    env$embed  <- load_openai_embedding(model, api_key, api_base, api_version, api_type, api_engine)
+    env$openai <- TRUE # create flag
+
+  } else {
+    # Default to  TF Hub
+    # allow silent/less log text!
+    if(!silent){
+      # do it with all the details
+      env$embed <- load_hub_embedding(model, cache_dir)
+    } else{
+      # just give reduced message that it'll take a while
+      message("Loading language model...")
+      env$embed <- suppressMessages(load_hub_embedding(model, cache_dir))
+    }
   }
+
+
 
 
   env$embed
@@ -592,6 +654,27 @@ py_install_method_detect <- function(envname,
   # is just reticulate:::py_install_method_detect
   # all in local_from_reticulate.R as internal funcs
   install_method_detect(envname = envname,conda   = conda)
+}
+
+
+
+# check if parallel support is working
+test_parallel_support <- function() {
+  cl <- tryCatch({
+    makeCluster(parallel::detectCores() - 1)
+  }, error = function(e) NULL)
+
+  if (is.null(cl)) {
+    return(FALSE)
+  }
+
+  test_result <- tryCatch({
+    parLapply(cl, 1:2, function(x) x + 1)
+    parallel::detectCores()
+  }, error = function(e) 0)
+
+  stopCluster(cl)
+  return(test_result)
 }
 
 

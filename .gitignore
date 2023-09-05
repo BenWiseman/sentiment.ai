@@ -1,5 +1,6 @@
 # for messing around
 scratch/
+scratchcode.R
 
 # local cache - will kill repo size if included!!!
 rpackage/sentiment.ai/inst/tfhub_modules/*
