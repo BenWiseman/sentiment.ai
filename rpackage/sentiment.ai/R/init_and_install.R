@@ -505,9 +505,7 @@ init_sentiment.ai <- function(model       = c("en.large", "multi.large", "en", "
   }
 
 
-
-
-  env$embed
+  invisible(NULL)
 }
 
 #' @rdname setup

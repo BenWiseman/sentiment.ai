@@ -7,7 +7,9 @@ import requests
 try:
     import tensorflow_text as text
 except ImportError:
-    print("TensorFlow Text is not available. Are you using Apple Silicone? Proceeding without it.")
+    print(" ")
+    
+
 from tensorflow_hub import load as hub_load
 
 # LOAD embedding from tfhub

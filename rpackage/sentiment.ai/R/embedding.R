@@ -179,7 +179,7 @@ embed_text <- function(text,
                        api_base      ="https://api.openai.com",
                        api_version   = "v1",
                        api_type      = NULL,
-                       api_engine    = "text-davinci-002",
+                       api_engine    = "text-embedding-ada-002",
                        request_limit = 3000,
                        token_limit   = 300000
                        ) {
@@ -205,7 +205,7 @@ embed_text <- function(text,
   if (sentiment.ai::sentiment.env$openai) {
     if(sentiment.env$parallel > 2) {
       # will use n-1 threads to ping API
-      text_embed <- openai_embed_parallel(text, request_limit, token_limit)
+      text_embed <- openai_embed(text, request_limit, token_limit)
     } else {
       # don't try to run in parallel if that won't work
       text_embed <- openai_embed(text, request_limit, token_limit)
@@ -268,7 +268,7 @@ openai_embed <- function(text, request_limit=3000, token_limit=300000) {
     }
 
     # Embed function remains the same as in your original code
-    message(text[index])
+    #message(text[index])
     this_embed <- matrix(unlist(embed_function(text[index])), ncol=1)
 
     # Assuming this_embed is a list of numerical vectors
@@ -376,6 +376,30 @@ load_openai_embedding <- function(model_name,
     )
 
     url <- paste0(api_base, "/", api_version, "/embeddings")
+
+    # override for azure instance
+    if(!is.null(api_type) && tolower(api_type)=="azure"){
+      # check if version is a date
+      dversion <- grepl("[0-9]{4}-[0-9]{2}-[0-9]{2}", api_version)
+      if(!dversion){
+        # fallback onto recent version
+        api_version <- "2023-05-15"
+      }
+
+      # Debugging prints
+      headers <- httr::add_headers(
+        'api-key' = paste('Bearer', api_key),
+        'Content-Type' = 'application/json'
+      )
+
+      data <- list(input = text)
+
+      # POST https://{your-resource-name}.openai.azure.com/openai/deployments/{deployment-id}/embeddings?api-version={api-version}
+      url <- paste0(api_base, "/openai/deployments/", model_name, "/embeddings?api-version=", api_version)
+      print(url)
+
+    }
+
 
     response <- httr::POST(url, headers, body = data, encode = "json")
 
