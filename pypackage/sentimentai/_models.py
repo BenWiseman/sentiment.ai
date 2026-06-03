@@ -3,9 +3,9 @@
 Each backend pairs an embedder with an `.xgb` scoring model trained on that
 embedder's vector space (downloaded on first use; see install.py).
 
-macro-F1 values below are from the v2 subsample bake-off (2026-06-03) and are
-PROVISIONAL — they get replaced by full-data figures, and the multilingual
-backend is pending a cross-lingual validation. Do not treat as final.
+Lineup LOCKED 2026-06-03: multilingual-by-default (e5), OpenAI as the optional paid
+tier, legacy USE models opt-in only (require TensorFlow). macro-F1 values are from the
+v2 subsample bake-off and are PROVISIONAL pending the full-data run.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -17,38 +17,42 @@ class Backend:
     hf_id: str | None      # HuggingFace id (on-device); None for API backends
     dim: int
     kind: str              # "sentence-transformers" | "openai" | "tfhub-legacy"
-    needs_tf: bool
+    needs_tf: bool         # True => legacy, opt-in (install_sentiment.ai(legacy=TRUE))
+    prefix: str            # text prefix the embedder expects (e5 wants "query: ")
     f1: float | None       # provisional subsample macro-F1
     note: str
 
 
 BACKENDS: dict[str, Backend] = {
-    "bge-small": Backend(
-        "bge-small", "BAAI/bge-small-en-v1.5", 384,
-        "sentence-transformers", False, 0.824,
-        "DEFAULT — tiny, ~4x faster, on-device, no TensorFlow"),
-    "bge-base": Backend(
-        "bge-base", "BAAI/bge-base-en-v1.5", 768,
-        "sentence-transformers", False, 0.836,
-        "best on-device accuracy"),
+    "e5-small": Backend(
+        "e5-small", "intfloat/multilingual-e5-small", 384,
+        "sentence-transformers", False, "query: ", 0.813,
+        "DEFAULT — tiny, fast, ~100 languages, no TensorFlow"),
+    "e5-base": Backend(
+        "e5-base", "intfloat/multilingual-e5-base", 768,
+        "sentence-transformers", False, "query: ", 0.860,
+        "best on-device — ties OpenAI, ~100 languages, no TensorFlow"),
     "openai": Backend(
         "openai", None, 1536,
-        "openai", False, 0.861,
+        "openai", False, "", 0.861,
         "text-embedding-3-small — best overall, paid API, text leaves device"),
-    "multilingual": Backend(
-        "multilingual", "sentence-transformers/paraphrase-multilingual-mpnet-base-v2", 768,
-        "sentence-transformers", False, None,
-        "50+ languages, no TensorFlow (cross-lingual validation pending)"),
-    # --- legacy: opt-in, requires TensorFlow. Kept only to reproduce pre-v2 results. ---
-    "use": Backend(
-        "use", "universal-sentence-encoder/4", 512,
-        "tfhub-legacy", True, None, "legacy USE (TensorFlow)"),
-    "use-large": Backend(
-        "use-large", "universal-sentence-encoder-large/5", 512,
-        "tfhub-legacy", True, None, "legacy USE-large (TensorFlow)"),
+    # --- legacy: opt-in, requires TensorFlow. install_sentiment.ai(legacy=TRUE). ---
+    # Each has a strictly-better TF-free migration target (see note).
+    "en.large": Backend(
+        "en.large", "universal-sentence-encoder-large/5", 512,
+        "tfhub-legacy", True, "", None, "legacy USE-en-large (TF) -> migrate to e5-base"),
+    "en": Backend(
+        "en", "universal-sentence-encoder/4", 512,
+        "tfhub-legacy", True, "", None, "legacy USE-en (TF) -> migrate to e5-small"),
+    "multi.large": Backend(
+        "multi.large", "universal-sentence-encoder-multilingual-large/3", 512,
+        "tfhub-legacy", True, "", None, "legacy USE-multi-large (TF) -> migrate to e5-base"),
+    "multi": Backend(
+        "multi", "universal-sentence-encoder-multilingual/3", 512,
+        "tfhub-legacy", True, "", None, "legacy USE-multi (TF) -> migrate to e5-small"),
 }
 
-DEFAULT_MODEL = "bge-small"
+DEFAULT_MODEL = "e5-small"
 
 
 def resolve(model: str) -> Backend:

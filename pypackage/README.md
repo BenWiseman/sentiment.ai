@@ -16,11 +16,10 @@ strictly less machinery, no bridge, and xgboost runs multithreaded here.
 
 | `model=` | macro-F1 | dim | notes |
 |---|---|---|---|
-| `bge-small` *(default)* | 0.824 | 384 | tiny, ~4× faster, on-device, no TF |
-| `bge-base` | 0.836 | 768 | best on-device |
+| `e5-small` *(default)* | 0.813 | 384 | tiny, fast, ~100 languages, no TF |
+| `e5-base` | 0.860 | 768 | best on-device — ties OpenAI, ~100 languages, no TF |
 | `openai` | 0.861 | 1536 | best overall, paid API |
-| `multilingual` | TBD | 768 | 50+ langs, no TF (validation pending) |
-| `use` / `use-large` | legacy | 512 | opt-in, **requires TensorFlow** |
+| `en` / `en.large` / `multi` / `multi.large` | legacy | 512 | opt-in, **requires TensorFlow** |
 
 Numbers are subsample figures and get replaced by full-data results.
 
@@ -30,7 +29,7 @@ Numbers are subsample figures and get replaced by full-data results.
 import sentimentai as sa
 sa.sentiment_score(["I love this", "this is terrible"])   # -> [~+1, ~-1]
 sa.sentiment_match(texts, phrases={"positive": [...], "negative": [...]})
-sa.embed_text(texts, model="bge-small")
+sa.embed_text(texts, model="e5-small")
 ```
 
 ## R ↔ Python parity map
@@ -41,7 +40,7 @@ sa.embed_text(texts, model="bge-small")
 | `sentiment_score()` | `sentiment_score()` | stub |
 | `sentiment_match()` | `sentiment_match()` | stub |
 | `install_sentiment.ai()` / `init_sentiment.ai()` | `ensure_model()` | stub (no reticulate dance) |
-| `default_models`, `model="en.large"` | `BACKENDS`, `model="bge-small"` | done (registry) |
+| `default_models`, `model="en.large"` | `BACKENDS`, `model="e5-small"` | done (registry) |
 
 ## Layout
 
