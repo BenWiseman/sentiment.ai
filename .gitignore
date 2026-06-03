@@ -4,7 +4,10 @@ scratchcode.R
 
 # local cache - will kill repo size if included!!!
 rpackage/sentiment.ai/inst/tfhub_modules/*
+# big .xgb scorers download on first use; the small mlp/logistic JSON heads ship + track.
 rpackage/sentiment.ai/inst/scoring/**
+!rpackage/sentiment.ai/inst/scoring/**/
+!rpackage/sentiment.ai/inst/scoring/**/*.json
 
 ##########
 # MAC OS #
