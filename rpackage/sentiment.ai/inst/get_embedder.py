@@ -3,12 +3,14 @@ import openai
 import os
 import re
 import requests
+import certifi
 
 try:
     import tensorflow_text as text
 except ImportError:
     print(" ")
     
+os.environ['SSL_CERT_FILE'] = certifi.where()
 
 from tensorflow_hub import load as hub_load
 
@@ -23,7 +25,8 @@ def load_hub_embedding(hub_model = "https://tfhub.dev/google/universal-sentence-
     
     cache_dir - should be in hub_load. Need to specify where to save models (not in temp!)
     '''
-    
+    print(ssl.get_default_verify_paths())
+
     # Sometimes OSX will be a bastard with downlaods. Hack/workaround to save user some hassle!
     ssl._create_default_https_context = ssl._create_unverified_context
     

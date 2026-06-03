@@ -17,6 +17,7 @@
                                  python_version = '3.10.11',
                                  modules = list(numpy             = 'latest',
                                                 sentencepiece     = 'latest',
+                                                sentence-transformers= 'latest',
                                                 tensorflow        = 'latest',
                                                 tensorflow_hub    = 'latest',
                                                 `tensorflow-text` = 'latest',
@@ -26,6 +27,14 @@
 
             ")
   }
+
+  # Soft depreciation message,
+  message("sentiment.ai has been updated! There are now more powerful models to use.
+  I reccommend setting model to:
+  'paraphrase' for better on-device classification or
+  'oai_3_small' if you have an API ket for OpenAI and want to spend a little money for the best classifications.
+  'use' will still work and is still the default, so your existing scripts can work as expected."
+  )
 
 
 

@@ -99,23 +99,33 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  method  = c("auto", "virtualenv", "conda"),
                                  gpu     = FALSE,
                                  python_version = "3.8.10",
-                                 modules = list(numpy             = "1.19.5",
+                                 modules = list(certifi           = "latest",
+                                                numpy             = "1.19.5",
                                                 sentencepiece     = "0.1.95",
                                                 tensorflow        = "2.4.1",
                                                 tensorflow_hub    = "0.12.0",
                                                 `tensorflow-text` = "2.4.3",
-                                                openai            = "latest"),
+                                                openai            = "latest",
+                                                sentence_transformers = "latest"),
                                  fresh_install   = TRUE,
                                  restart_session = TRUE,
                                  ...){
 
-  # STILL HAVE INSTALL ISSUES ... SHOULD DO SOMETHING ABOUT THIS ???
   # Apple silicone warning
   if(roperators::is.os_arm() && roperators::is.os_mac()){
-    warning("Apple Silicone detected. Unfortunately Tensorflow-text is not available for apple silicone yet.\n
-            As a work-around, you can use the openai to do the embeddings. \n
-            To do this, skip installing,and in the call to init_sentiment.ai set the environment to be r-reticulate (bypass tensorflow install) and the model to 'text-embedding-ada-002'. ")
-  }
+    # warning("Apple Silicone detected. Unfortunately Tensorflow-text is not available for apple silicone yet.\n",
+    #         "Will attempt to install in Python 3.9.6 with latest packages\n",
+    #         "If all else fails, skip installing, and in the call to init_sentiment.ai set the environment to be r-reticulate (bypass tensorflow install) and the model to 'oai-3-small' to use openai embeddings. ")
+
+    python_version <- "3.9.6"
+    modules <- list(certifi           = "latest",
+                    numpy             = "latest",
+                    sentencepiece     = "latest",
+                    tensorflow        = "latest",
+                    `tensorflow-hub`  = "latest",
+                    openai            = "latest",
+                    `sentence-transformers` = "latest")
+    }
 
 
 
@@ -128,7 +138,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 
   # if method is default, figure out method using reticulate
   if(method == "auto"){
-    method   <- py_install_method_detect(
+    method   <- reticulate:::py_install_method_detect(
       envname = envname,
       ...
     )
@@ -161,9 +171,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # 2. parse other module names and versions -----------------------------------
 
   # make sure that all modules have length 1
-  stopifnot(all(lengths(modules) == 1))
-
-  # TODO: find a permanent solution for apple silicone
+  stopifnot(all(lengths(modules) == 1))  # TODO: find a permanent solution for apple silicone
   # Remove tensorflow-text for Apple Silicon
   if (roperators::is.os_arm() && roperators::is.os_mac()) {
     modules[["tensorflow-text"]] <- NULL
@@ -221,8 +229,8 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   install_scoring_model(scoring = "glm")
 
   # also pull precalculated embeddings
-  message("Instaling pre-calculated embeddings from Github")
-  install_default_embeddings()
+  #message("Instaling pre-calculated embeddings from Github")
+  #install_default_embeddings()
 
   # restart session if needed
   if(restart_session && rstudioapi::hasFun("restartSession")){

@@ -1,7 +1,12 @@
 # sentiment.ai 0.2.0
 
+* New, more powerful default models that explicitly categorize neutral statements 
+returning scores as -1, 0, 1. Set version argument to 1 to use original models. 
+
 * Support for openAI/Ada embeddings
-* python modules can now be set to "latest" for compatibility with other py interpreters
+
+* python modules can now be set to "latest" for compatibility with other python interpreters
+
 * Seemingly fixed tensorflow-text bug on apple silicone 
 
 
