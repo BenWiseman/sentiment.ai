@@ -267,8 +267,8 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 #' and improved models!
 #'
 #' @importFrom roperators "%ni%"
-install_scoring_model <- function(model   =  c("en.large", "en", "multi.large", "multi"),
-                                  scoring = c("xgb", "glm"),
+install_scoring_model <- function(model   =  DEFAULT_MODEL,
+                                  scoring = c("mlp", "logistic", "xgb", "glm"),
                                   scoring_version = "1.0",
                                   ...){
 
@@ -284,13 +284,13 @@ install_scoring_model <- function(model   =  c("en.large", "en", "multi.large", 
     repo_url <- opts$repo_url
   }
 
-  # Remove match.arg not used - give flexibility.
-  model   <- match.arg(model)
+  # accept any model handle (no match.arg straitjacket -- e5 names, etc.)
+  model   <- model[1]
   scoring <- scoring[1]
   scoring_version <- scoring_version[1]
 
-  # glm models will be plain text for max compatibility
-  file_ext   <- if(scoring == "glm") "csv" else scoring
+  # file extension per scoring type: glm=csv, mlp/logistic=json (ship in package), else <scoring>
+  file_ext   <- switch(scoring, glm = "csv", mlp = "json", logistic = "json", scoring)
   file_name  <- paste0(model, ".", file_ext)
 
   # base url - repo containing model objects
@@ -424,7 +424,7 @@ install_default_embeddings <- function(){
 #' @importFrom utils packageName system.file
 #'
 #' @export
-init_sentiment.ai <- function(model       = c("en.large", "multi.large", "en", "multi", "text-embedding-ada-002"),
+init_sentiment.ai <- function(model       = DEFAULT_MODEL,
                               envname     = "r-sentiment-ai",
                               method      =  c("auto", "virtualenv", "conda"),
                               silent      = FALSE,
@@ -458,58 +458,50 @@ init_sentiment.ai <- function(model       = c("en.large", "multi.large", "en", "
     system.file("get_embedder.py", package = pkg_name)
   )
 
-  # pull out model link
-  model <- choose_model(model)
-
-  # parse cache folder
-  # (needed or it will save to temp, which will through a fit after restart due to
-  # "OSError: SavedModel file does not exist at: path/to/temp/dir")
-
-  # pulling out the directory/name/version
-  model_dir  <- gsub(x           = model,
-                     pattern     = ".*\\/(.*\\/)(.*$)",
-                     replacement = "\\1\\2")
-  model_dir  <- strsplit(x     = model_dir,
-                         split = "/")[[1]]
-
-  model_name <- model_dir[1]
-  model_ver  <- model_dir[2]
-
-  # for setting generic cache folder (hopefuly works!)
-  cache_dir  <- file.path(pkg_path, "tfhub_modules")
-
-  # make sure the directory has been created
-  # (for manual DL, need to create each level of name, version???)
-  dir.create(path         = cache_dir,
-             showWarnings = FALSE,
-             recursive    = TRUE)
-
+  # resolve the user-facing model name -> backend class + backend id
+  model_name <- model[1]
+  cls        <- model_class(model_name)
+  model_id   <- choose_model(model_name)
 
   # create sentiment.env object and make it global IN the package
   env <- sentiment.ai::sentiment.env
   env$parallel <- test_parallel_support()
+  env$openai   <- FALSE
+  env$st       <- FALSE
 
   if(env$parallel >= 2) message(env$parallel, " CPU cores available for parallel processing")
   else message("No parallel processing support found on CPU")
 
-  # if using openai
-  if (!is.null(api_key) && model %in% c(names(openai_models), openai_models)) {
-    # If API key is provided, use OpenAI
-    #env$embed <- py_run_string("load_openai_embedding('text-embedding-ada-002', your_api_key, your_api_base)")
-    env$embed  <- load_openai_embedding(model, api_key, api_base, api_version, api_type, api_engine)
-    env$openai <- TRUE # create flag
+  # 3-way backend dispatch -----------------------------------------------------
+  if(cls == "openai"){
+    if(is.null(api_key))
+      stop("model '", model_name, "' is an OpenAI model and needs an api_key.", call. = FALSE)
+    env$embed  <- load_openai_embedding(model_id, api_key, api_base, api_version, api_type, api_engine)
+    env$openai <- TRUE
+
+  } else if(cls == "legacy"){
+    # legacy Universal Sentence Encoder -- requires TensorFlow (opt-in). Fail with a
+    # directed message rather than a raw reticulate ImportError when TF is absent.
+    if(!requireNamespace("tensorflow", quietly = TRUE) ||
+       !requireNamespace("tfhub", quietly = TRUE)){
+      repl <- if(model_name %in% c("en", "multi")) "e5-small" else "e5-base"
+      stop("'", model_name, "' is a legacy TensorFlow model. ",
+           "Run install_sentiment.ai(legacy = TRUE) to enable it, or use the modern ",
+           "default '", repl, "' (no TensorFlow required).", call. = FALSE)
+    }
+    Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = "true")
+    cache_dir <- file.path(pkg_path, "tfhub_modules")
+    dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
+    env$embed <- if(silent) suppressMessages(load_hub_embedder(model_id, cache_dir))
+                 else load_hub_embedder(model_id, cache_dir)
 
   } else {
-    # Default to  TF Hub
-    # allow silent/less log text!
-    if(!silent){
-      # do it with all the details
-      env$embed <- load_hub_embedding(model, cache_dir)
-    } else{
-      # just give reduced message that it'll take a while
-      message("Loading language model...")
-      env$embed <- suppressMessages(load_hub_embedding(model, cache_dir))
-    }
+    # default: sentence-transformers (e5). The "query: " prefix (or "") is applied
+    # inside the embedder so production matches how the scorer was trained.
+    prefix <- model_prefix[model_name]; if(is.na(prefix)) prefix <- ""
+    if(!silent) message("Loading sentence-transformers model: ", model_id)
+    env$embed <- load_st_embedder(model_id, prefix)
+    env$st    <- TRUE
   }
 
 

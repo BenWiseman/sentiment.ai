@@ -201,6 +201,14 @@ embed_text <- function(text,
     batch_size <- length(text)
   }
 
+  # sentence-transformers (v2 default): env$embed returns an (n, dim) matrix
+  # directly (already row = text, col = dim) -- no transpose needed.
+  if (isTRUE(sentiment.ai::sentiment.env$st)) {
+    text_embed <- as.matrix(sentiment.ai::sentiment.env$embed(as_py_list(text)))
+    rownames(text_embed) <- text
+    return(text_embed)
+  }
+
   # if open ai was set in init_sentiment.ai()
   if (sentiment.ai::sentiment.env$openai) {
     if(sentiment.env$parallel > 2) {

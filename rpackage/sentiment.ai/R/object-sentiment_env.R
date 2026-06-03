@@ -7,6 +7,7 @@
 #'
 #' @export
 sentiment.env <- new.env()
-# make flags for non-tf hub embedding models
+# backend flags: openai = API; st = sentence-transformers (v2 default); else legacy TF-Hub
 sentiment.env$openai <- FALSE
+sentiment.env$st <- FALSE
 sentiment.env$parallel <- 0

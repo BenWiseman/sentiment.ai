@@ -59,8 +59,8 @@
 #'             chr
 #' @export
 sentiment_score <- function(x          = NULL,
-                            model      = names(default_models),
-                            scoring    = c("xgb", "glm"),
+                            model      = DEFAULT_MODEL,
+                            scoring    = c("mlp", "logistic", "xgb", "glm"),
                             scoring_version = "1.0",
                             batch_size = 100,
                             ...){
@@ -95,20 +95,23 @@ sentiment_score <- function(x          = NULL,
     #  apply embedding
     text_embed  <- embed_text(x, batch_size, model)
 
-  } else if(is.matrix(x) && ncol(x)==512){
-    # x looks like embedding already - no need to init the embedder
-    # ! assumes user knows what they're doing!
+  } else if(is.matrix(x)){
+    # x is a precomputed embedding matrix; validate its width against the model
+    exp_dim <- model_dims[[model]]
+    if(!is.null(exp_dim) && ncol(x) != exp_dim){
+      stop(sprintf("embedding matrix has %d columns but model '%s' expects %d",
+                   ncol(x), model, exp_dim), call. = FALSE)
+    }
     x[na_index] <- 0 # not passing NA to python!
     text_embed  <- x
   }
 
 
-  # find sentiment probabilities
-  probs  <- find_sentiment_probs(embeddings = text_embed,
+  # score the embeddings -> [-1, 1] (3-class softprob collapses to P(pos)-P(neg))
+  scores <- find_sentiment_score(embeddings = text_embed,
                                  scoring    = scoring,
                                  scoring_version = scoring_version,
                                  model      = model)
-  scores <- (probs - .5) * 2
 
   # add back nas
   scores[na_index] <- NA
@@ -244,43 +247,74 @@ sentiment_match <- function(x        = NULL,
 #' @importFrom stats
 #'             predict
 #'             setNames
-find_sentiment_probs <- function(embeddings,
+find_sentiment_score <- function(embeddings,
                                  scoring,
                                  scoring_version,
                                  model){
 
-  # NOTE: scoring/scoring_version/model are limited and will BREAK if not
-  #       specified correctly
-
-  # find the scoring object (ONLY WORKS FOR CERTAIN scoring/scoring_version)
-  score_dir <- file.path(system.file("scoring", package = utils::packageName()),
-                         scoring,
-                         scoring_version)
-
-  # create a silly vector of 0s ??
-  probs      <- numeric(512)
+  # locate the scoring object: inst/scoring/<scoring>/<version>/<model>.{xgb,csv}
+  score_dir  <- file.path(system.file("scoring", package = utils::packageName()),
+                          scoring,
+                          scoring_version)
   model_path <- file.path(score_dir, model[1])
 
-  if(scoring == "glm"){
-
-    # pulling out the weights (too large if serialized!)
-    # Simple CSV of param name & value to named number vec for multiplication
-    csv     <- utils::read.csv(paste0(model_path, ".csv"))
-    names   <- csv[,1]
-    weights <- csv[,2]
-    names(weights) <- names
-
-
-    # add intercept to embeddings and calculating probs
-    embeddings <- cbind(1, embeddings)
-    probs      <- c(1 / (1 + exp(-embeddings %*% weights)))
-  } else if(scoring == "xgb"){
-    xgb_model  <- xgboost::xgb.load(paste0(model_path, ".xgb"))
-    probs      <- predict(object  = xgb_model,
-                          newdata = embeddings)
+  # v2 default: a pure-R JSON head (MLP or multinomial logistic) that ships inside
+  # the package and returns the [-1, 1] score directly via score_json_head().
+  if(scoring %in% c("mlp", "logistic")){
+    return(score_json_head(embeddings, paste0(model_path, ".json")))
   }
 
-  setNames(object = probs,
-           nm     = rownames(embeddings))
+  n          <- nrow(embeddings)
+
+  if(scoring == "glm"){
+    # legacy logistic GLM: CSV of (param, weight); yields P(positive)
+    csv     <- utils::read.csv(paste0(model_path, ".csv"))
+    weights <- csv[, 2]
+    names(weights) <- csv[, 1]
+    p_pos   <- c(1 / (1 + exp(-cbind(1, embeddings) %*% weights)))
+    score   <- (p_pos - 0.5) * 2
+
+  } else {  # xgb
+    xgb_model <- xgboost::xgb.load(paste0(model_path, ".xgb"))
+    preds     <- predict(object = xgb_model, newdata = embeddings)
+
+    if(length(preds) == n * 3L){
+      # v2 three-class multi:softprob -> columns [neg, neutral, pos].
+      # Collapse to a single [-1, 1] score = P(pos) - P(neg); neutral pulls to 0.
+      probs <- matrix(preds, ncol = 3, byrow = TRUE)
+      score <- probs[, 3] - probs[, 1]
+    } else {
+      # legacy binary classifier: preds = P(positive)
+      score <- (preds - 0.5) * 2
+    }
+  }
+
+  setNames(object = score, nm = rownames(embeddings))
+}
+
+# Pure-R forward pass for a JSON scoring head (MLP or multinomial logistic).
+# Returns the [-1, 1] score = P(pos) - P(neg). No xgboost, no Python; the head
+# ships inside the package (a few KB-MB of weights + a temperature). Classes are
+# ordered [neg, neutral, pos]; weight matrices follow the torch convention [out, in].
+#' @importFrom jsonlite fromJSON
+score_json_head <- function(embeddings, path){
+  h <- jsonlite::fromJSON(path, simplifyVector = TRUE,
+                          simplifyDataFrame = FALSE, simplifyMatrix = TRUE)
+
+  if(identical(h$type, "mlp")){
+    z  <- embeddings
+    nL <- length(h$layers)
+    for(i in seq_len(nL)){
+      z <- sweep(z %*% t(h$layers[[i]]$W), 2, h$layers[[i]]$b, `+`)
+      if(i < nL) z[z < 0] <- 0          # ReLU on hidden layers only
+    }
+  } else {                              # multinomial logistic
+    z <- sweep(embeddings %*% t(h$coef), 2, h$intercept, `+`)
+  }
+
+  if(!is.null(h$T)) z <- z / h$T         # temperature scaling
+  z <- z - apply(z, 1, max)              # numerically stable softmax
+  p <- exp(z); p <- p / rowSums(p)       # columns: [neg, neutral, pos]
+  setNames(object = p[, 3] - p[, 1], nm = rownames(embeddings))
 }
 
