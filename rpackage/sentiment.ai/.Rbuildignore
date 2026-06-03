@@ -7,3 +7,9 @@ save_default_data.R
 ^LICENSE\.md$
 ^inst/tfhub_modules/*
 ^\.github$
+# xgb scorers are ~20MB each (over CRAN's 5MB) -> download on first use, never ship.
+# The small mlp/logistic JSON heads DO ship.
+^inst/scoring/.*\.xgb$
+^bakeoff$
+^planning$
+^pubs$

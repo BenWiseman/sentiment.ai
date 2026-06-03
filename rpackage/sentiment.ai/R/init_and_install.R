@@ -441,8 +441,10 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
   pkg_name <- utils::packageName()
   pkg_path <- system.file(package = pkg_name)
 
-  # can reduce GPU out of memory issues
-  Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = "true")
+  # Guard the OpenMP collision: R's xgboost and the Python torch backend (reticulate)
+  # each link their own libomp into one process and abort without this. (The legacy
+  # TF GPU-growth flag now lives in the legacy branch where it's actually relevant.)
+  if(Sys.getenv("KMP_DUPLICATE_LIB_OK") == "") Sys.setenv("KMP_DUPLICATE_LIB_OK" = "TRUE")
 
   # activating environment (what if the environment won't activate??)
   .activate_env(envname, silent = silent, r_envir = -2, method=method)
