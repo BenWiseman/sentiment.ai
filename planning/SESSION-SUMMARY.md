@@ -7,7 +7,9 @@ not the gold-plated everything. Here's exactly where it stands.
 
 | commit | what |
 |---|---|
-| `cd8dd6e` | OpenMP guard (`KMP_DUPLICATE_LIB_OK`) + `.Rbuildignore` the 60 MB dev xgb scorers |
+| `1ed6b2e` | **MLP scoring heads** (placeholders) — the default `scoring="mlp"` path now has weights |
+| `35c09bd` | track wired **logistic heads** (placeholders) + `.gitignore` negation so JSON heads ship + this handoff |
+| `cd8dd6e` | OpenMP guard (`KMP_DUPLICATE_LIB_OK`) + `.Rbuildignore` the ~20 MB dev xgb scorers |
 | `48c1529` | **backend wiring**: 3-way dispatch + non-tree head + ST routing |
 | `613e12f` / `8e7b4a6` | foundation (TF→Suggests, e5 registry, resolver) + reviews/roadmaps |
 
@@ -19,49 +21,60 @@ not the gold-plated everything. Here's exactly where it stands.
 - `embed_text`: ST branch (returns `(n, dim)` directly, no transpose) + `env$st` flag.
 - `find_sentiment_score`: 3-class `softprob → P(pos) − P(neg)`; **`score_json_head`** —
   a pure-R MLP/logistic forward pass (matrix mults + ReLU + temperature + softmax) so
-  the head ships as a few-KB JSON with **no xgboost, no Python in the scoring path**.
+  the head ships as a few-KB/MB JSON with **no xgboost, no Python in the scoring path**.
   Default `scoring = "mlp"`. The 512-dim hardcode is gone (`model_dims`).
 - `install_scoring_model`: dropped the `match.arg` that rejected `e5-small`; `.json`
   extension for the head types.
 - NAMESPACE: `import(tensorflow)/import(tfhub)` removed. `globals.R`, OpenMP guard.
 
-**Proven working end-to-end** (real text → e5-base embed, zero TF → wired
-`find_sentiment_score` → `score_json_head` logistic head):
-```
-+0.992  I love this, it is wonderful
--0.999  this is awful, I hate it
--0.205  the meeting is scheduled for 3pm   (near-neutral)
-+0.907  pretty good would recommend
--1.000  honestly the worst experience ever
-```
-And the forward-pass math is independently unit-verified on a synthetic head.
+**Both heads proven working end-to-end** (real e5 test embeddings → `score_json_head`,
+zero TF, zero Python in the scoring path):
+- logistic head, real text: `+0.992` "I love this" … `-1.000` "the worst experience ever".
+- **mlp head** (the default), real labelled e5 embeddings → class-mean scores **monotonic**
+  on both encoders (neg `-0.69` < neu `+0.30` < pos `+0.80`), 90% directional accuracy on
+  non-neutral items.
+The forward-pass math is also independently unit-verified on a synthetic head.
 
 ## ⚠️ The heads in the box are PLACEHOLDERS — swap them
+`inst/scoring/{mlp,logistic}/1.0/{e5-small,e5-base}.json` are **subsample-trained**
+(mlp F1 ~0.84/0.88, logistic ~0.81/0.86). They exist to *prove the wiring works*, not to
+ship. Regenerate from the training session's **full-data, temperature-scaled** heads:
+- the torch-free regen script is `bakeoff/mlp_quick.py` in the training repo (sklearn
+  `MLPClassifier`, used because the torch path swap-thrashes this box) and `logi_quick*.py`.
+- JSON format `score_json_head` expects: `{type, dim, T, layers:[{W,b}…] | coef+intercept,
+  classes:[-1,0,1]}` (torch `[out,in]` weight convention; file named `<model>.json`).
 
-`inst/scoring/logistic/1.0/{e5-small,e5-base}.json` are **subsample-trained** logistic
-heads (e5-small 0.810, e5-base 0.856) — they exist to *prove the wiring works*, not to
-ship. **Replace with your other session's tuned, full-data, temperature-scaled heads**
-(e5-small mlp 0.871, e5-base mlp 0.908; logistic ties on the big encoders):
-- drop `mlp_e5-small.json`, `mlp_e5-base.json` → `inst/scoring/mlp/1.0/`
-- drop the tuned logistic JSONs → `inst/scoring/logistic/1.0/` (overwrite the placeholders)
-- the JSON format `score_json_head` expects: `{type, dim, T, layers:[{W,b}…] | coef+intercept, classes:[-1,0,1]}` (torch `[out,in]` weight convention).
+The default `sentiment_score("good")` (scoring="mlp") now resolves to a real head.
 
-Once the **mlp** heads are in, a no-arg `sentiment_score("good")` uses the intended
-default. Until then, `scoring = "logistic"` runs on the placeholders.
+## 🟥 A SECOND, uncommitted stream is in the tree — I did NOT touch it
+While working I found a large body of **uncommitted** v2 work that is **not mine** (my own
+summary lists provenance + tests as not-done, so this is the parallel hardening session):
+- a full `testthat` suite (~22 files: legacy-gate, e5-prefix, scoring-parity, no-tf-default…)
+- `R/model_meta.R` (provenance/license/revision registry), `inst/NOTICE.md`, `NEWS.md`
+- reworked `R/local_from_reticulate.R` + `inst/get_embedder.py` (the embedder/python-env layer)
+- 7 `planning/repo-review-*.md` docs
 
-## 🧱 Env wall I hit (flagged, did not force)
-- **This Mac swap-thrashes on torch training + 1 GB CSV loads** — every full-data head
-  job stalled at 0% CPU. That's why the shipped weights come from your other session,
-  not regenerated here. (The lightweight subsample/sklearn path ran fine.)
-- The **public-API** `sentiment_score()` path needs the reticulate `r-sentiment-ai` env
-  to contain `sentence-transformers`. The *scoring* path is proven; the env-managed
-  `init → embed` step needs your reticulate setup (or `RETICULATE_PYTHON` → a python
-  with sentence-transformers). `install_sentiment.ai()` still hard-pins TF in its default
-  module list — the `legacy = FALSE/TRUE` split is **not yet wired** (deliberately left).
+I left all of it exactly as-is rather than sweep it into my commits. **It's yours/that
+session's to review and commit.** My commits add only new files (the JSON heads) + a
+`.gitignore` negation, so they don't overlap it.
 
-## 📋 Deliberately left for you (the sink-line we agreed)
-- `install_sentiment.ai(legacy=)` — strip TF from the default install, gate TF behind `TRUE`.
-- `sentiment_provenance()` + the `serve_prefix == scorer_prefix` assertion (senior panel's #1).
+## 🧱 The two remaining checklist items are BLOCKED on that stream (flagged, not forced)
+1. **`install_sentiment.ai(legacy=)`** — strip TF from the default install, gate it behind
+   `TRUE`. This is a *substantial* rework of the install function (default `modules` hard-pins
+   the TF trio; a whole TF-version-parse block; TF-centric docs + `@import tensorflow`) and it
+   is tightly coupled to the embedder/python-env layer the parallel session is **actively
+   reworking** (`local_from_reticulate.R`, `get_embedder.py`). Doing it now means coding
+   against their unseen, moving interface → I stopped. *(The runtime is already TF-free and
+   verified; this is install-time polish.)*
+2. **`sentiment_provenance()`** + the `serve_prefix == scorer_prefix` assertion (the senior
+   panel's #1). The natural backbone for this is the parallel session's `model_meta.R`, and
+   the heads don't yet record their training prefix in the JSON. Writing a second provenance
+   path would duplicate/conflict → I stopped.
+
+Both are genuinely valuable; both should be done **on top of** the parallel stream once it
+lands, not racing it.
+
+## 📋 Also deliberately left (the sink-line we agreed)
 - Remove the `@import tensorflow`/`@import tfhub` roxygen in `init_and_install.R` so the
   NAMESPACE stays TF-free after a re-`roxygenize` (I edited NAMESPACE directly for now).
 - Docs/roxygen v1-copy sweep ("16 languages / tfhub / 512-D"); `R CMD check --as-cran`.
