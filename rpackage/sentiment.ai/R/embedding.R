@@ -170,6 +170,12 @@ hub_embed <- function(text, batch_size = NULL) {
 #' @param api_type optional character specifying type of API instance, e.g. "azure"
 #' @param api_engine optional to change openai engine, e.g. "gpt-35-turbo"
 #' @return numeric matrix of `length(text) x length(embedding)`. Original text is stored in the row names attribute.
+#' @examples
+#' \dontrun{
+#' init_sentiment.ai(model = "e5-small")
+#' emb <- embed_text(c("I love this", "this is terrible"))
+#' dim(emb)   # 2 x 384 for e5-small; the "query: " prefix is added internally
+#' }
 #' @importFrom data.table data.table
 #' @export
 embed_text <- function(text,
@@ -372,9 +378,11 @@ openai_embed_parallel <- function(text, request_limit=3000, token_limit=300000) 
 #' @return A function (`embed_function`) that takes a text string and returns its embedding.
 #'
 #' @examples
-#' # this allows a user-friendly embedding function
-#' embed_text <- load_openai_embedding("text-embedding-ada-002", "your_api_key_here")
-#' result <- embed_text("some text")
+#' \dontrun{
+#' # build a standalone OpenAI embedding function
+#' embed_fn <- load_openai_embedding("text-embedding-3-small", "your_api_key_here")
+#' result  <- embed_fn("some text")
+#' }
 load_openai_embedding <- function(model_name,
                                   api_key,
                                   api_base = "https://api.openai.com",
@@ -439,7 +447,7 @@ load_openai_embedding <- function(model_name,
 
 #' as py list
 #' because R to Python conversion doesn't work with list is of length 1
-#' @param x character vector that is to be passed into tensorflowtext via reticulate.
+#' @param x character vector to pass to the Python embedder via reticulate.
 #' @return List if x is length 1 else x.
 #' @export
 as_py_list <- function(x){

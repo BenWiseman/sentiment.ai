@@ -14,22 +14,23 @@ sentiment_match(
 }
 \arguments{
 \item{x}{A plain text vector or column name if data is supplied.
-If you know what you're doing, you can also pass in a 512-D numeric
-embedding.}
+If you know what you're doing, you can also pass in a pre-computed
+numeric embedding matrix.}
 
 \item{phrases}{A named list of examples phrases with each element of the list
 being words/terms that are indications of the name of that element
 (such as positive words/terms under the name "positive" and negative
 words/terms under the name "negative", all within the same list).}
 
-\item{model}{An embedding name from tensorflow-hub, some of which are
-"en" (english large or not) and "multi" (multi-lingual large or not).}
+\item{model}{character; embedding model handle (default \code{"e5-small"}). See
+\code{\link{init_sentiment.ai}} for the options. This is NOT a
+tensorflow-hub name.}
 
 \item{batch_size}{Size of batches to use. Larger numbers will be faster than
 smaller numbers, but do not exhaust your system memory!}
 
-\item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
-or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
+\item{...}{Additional arguments passed to \code{\link[reticulate:conda_install]{conda_install()}}
+or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
 }
 \value{
 data.table containing text, sentiment, phrase, class, and similarity.
@@ -40,24 +41,22 @@ fast.
 }
 \examples{
 \dontrun{
-envname   <- "r-sentiment-ai"
+# one-time setup (TensorFlow-free), then load the default e5-small model
+# install_sentiment.ai(envname = "r-sentiment-ai")
+init_sentiment.ai(model = "e5-small")
 
-# make sure to install sentiment ai (install_sentiment.ai)
-# install_sentiment.ai(envname = envname,
-#                      method  = "conda")
+# default poles
+mod_match <- sentiment_match(airline_tweets$text)
 
-# running the model
-mod_match <- sentiment_match(x       = airline_tweets$text,
-                             model   = "en.large",
-                             envname = envname)
+# or define what positive / negative mean for your domain (tunable poles)
+mod_match <- sentiment_match(airline_tweets$text,
+                             phrases = list(positive = c("great service", "on time"),
+                                            negative = c("lost my bag", "rude staff")))
 
-# checking performance
 pos_neg <- factor(airline_tweets$airline_sentiment,
                   levels = c("negative", "neutral", "positive"))
 pos_neg <- (as.numeric(pos_neg) - 1) / 2
 cosine(mod_match$sentiment, pos_neg)
-
-# you could also calculate accuracy/kappa
 }
 
 }

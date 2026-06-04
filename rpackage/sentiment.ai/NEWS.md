@@ -3,11 +3,12 @@
 `sentiment.ai` 1.0 makes the package fast, modern, and install-clean by default. The big
 change: **TensorFlow is no longer required.** The default sentiment pipeline now runs on a
 no-TensorFlow, on-device embedder (**e5-small**), and the legacy TensorFlow Universal
-Sentence Encoder path is preserved as an explicit opt-in. The new default **beats the old
-TensorFlow USE default it replaces** on a clean install (0.832 → 0.842 macro-F1), and for
-users who want top accuracy, an on-device **e5-base** option **matches paid OpenAI embeddings
-on a free, on-device, multilingual, zero-TensorFlow model** (0.890 vs 0.897; paired-bootstrap
-95% CI on ΔF1 includes 0). If you only ever called `sentiment_score()` / `sentiment_match()`
+Sentence Encoder path is preserved as an explicit opt-in. In development testing the new
+default **matches — and slightly improves on — the old TensorFlow USE default it replaces**
+on a clean install (0.832 → 0.842 macro-F1), and for users who want top accuracy, an
+on-device **e5-base** option **matches paid OpenAI embeddings on a free, on-device,
+multilingual, zero-TensorFlow model** (0.890 vs 0.897; paired-bootstrap 95% CI on ΔF1
+includes 0). If you only ever called `sentiment_score()` / `sentiment_match()`
 with the defaults, you get a cleaner install and a stronger default — and your existing USE
 scripts still work.
 
@@ -175,7 +176,7 @@ INITIAL RELEASE
 see [github page](https://benwiseman.github.io/sentiment.ai/) for details 
 
 [Korn Ferry Institute](https://www.kornferry.com/institute)'s AITMI team made `sentiment.ai` for researchers and tinkerers who want a straight-forward way to
-use powerful, open source deep learning models to improve their sentiment analyses. Our approach is relatively simple and out performs the current best offerings on CRAN and even Microsoft's Azure Cognitive Services. Given that we felt the current norm for sentiment analysis isn't quite good enough, we decided to open-source our simplified interface to turn Universal Sentence Encoder embedding vectors into sentiment scores. 
+use powerful, open source deep learning models to improve their sentiment analyses. Our approach is relatively simple and aims to improve on traditional lexicon-based sentiment analysis. We decided to open-source our simplified interface to turn Universal Sentence Encoder embedding vectors into sentiment scores. 
 
 We've wrapped a lot of the underlying hassle up to make the process as simple as possible. In addition to just being cool, this approach solves several problems with traditional sentiment analysis, namely: 
 

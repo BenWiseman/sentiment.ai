@@ -5,7 +5,7 @@
 \alias{sentiment.env}
 \title{Sentiment AI Embedding Environment}
 \format{
-An object of class \code{environment} of length 0.
+An object of class \code{environment} of length 5.
 }
 \usage{
 sentiment.env

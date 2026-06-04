@@ -1,7 +1,9 @@
 """Model registry — the embedding backends and their matching trained scorers.
 
-Each backend pairs an embedder with an `.xgb` scoring model trained on that
-embedder's vector space (downloaded on first use; see install.py).
+Each backend pairs an embedder with a small JSON scoring head (mlp or logistic)
+trained on that embedder's vector space and shipped inside the wheel
+(sentimentai/scoring/). The embedder downloads on first use; the head does not.
+No xgboost, no TensorFlow at score time.
 
 Lineup LOCKED 2026-06-03: multilingual-by-default (e5), OpenAI as the optional paid
 tier, legacy USE models opt-in only (require TensorFlow). macro-F1 values are from the

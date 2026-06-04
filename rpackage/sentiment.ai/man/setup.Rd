@@ -10,19 +10,24 @@ install_sentiment.ai(
   envname = "r-sentiment-ai",
   method = c("auto", "virtualenv", "conda"),
   gpu = FALSE,
-  python_version = "3.8.10",
-  modules = list(numpy = "1.19.5", sentencepiece = "0.1.95", tensorflow = "2.4.1",
-    tensorflow_hub = "0.12.0", `tensorflow-text` = "2.4.3"),
+  legacy = FALSE,
+  python_version = NULL,
+  modules = NULL,
   fresh_install = TRUE,
   restart_session = TRUE,
   ...
 )
 
 init_sentiment.ai(
-  model = c("en.large", "multi.large", "en", "multi"),
+  model = DEFAULT_MODEL,
   envname = "r-sentiment-ai",
   method = c("auto", "virtualenv", "conda"),
-  silent = FALSE
+  silent = FALSE,
+  api_key = NULL,
+  api_base = "https://api.openai.com",
+  api_version = "v1",
+  api_type = NULL,
+  api_engine = "text-davinci-002"
 )
 
 check_sentiment.ai(...)
@@ -35,19 +40,22 @@ if that is unset, then the \code{r-reticulate} environment will be used.}
 
 \item{method}{Installation method. By default, "auto" automatically finds a
 method that will work in the local environment. Change the default to
-force a specific installation method. Note that the "virtualenv"
-method may not available on Windows due to a tensorflow issue. Note
-also that since this command runs without privilege the "system"
-method is available only on Windows.}
+force a specific installation method ("virtualenv" or "conda").}
 
-\item{gpu}{Whether GPU should be enabled when installing TensorFlow}
+\item{gpu}{logical; only relevant when \code{legacy = TRUE}: enables GPU for the
+legacy TensorFlow stack (ignored on macOS). The default e5 backend uses
+PyTorch, which selects its own device automatically.}
+
+\item{legacy}{logical; if TRUE, also install the opt-in TensorFlow / TF-Hub stack
+for the legacy Universal Sentence Encoder models. Default FALSE -- v2 is
+TensorFlow-free (sentence-transformers + e5).}
 
 \item{python_version}{The requested Python version. Ignored when attempting
 to install with a Python virtual environment.}
 
-\item{modules}{A list of modules needed for installing tensorflow. See
-details for more information. Only change this argument if you know
-what you are doing!}
+\item{modules}{Named list of Python modules to install. Defaults to \code{NULL},
+which selects the correct set for \code{legacy}. Only change this if you
+know what you are doing.}
 
 \item{fresh_install}{Whether to create the Python environment prior to
 installing the modules or to install everything in an existing
@@ -58,43 +66,60 @@ the environment first.}
 \item{restart_session}{Whether to restart the R session after finishing
 installation. Only works on Rstudio.}
 
-\item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
-or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
+\item{...}{Additional arguments passed to \code{\link[reticulate:conda_install]{conda_install()}}
+or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
 
-\item{model}{path to tensorflow hub embedding model. default is both universal
-sentence encoder en (default) and multi.}
+\item{model}{character; embedding model handle for \code{init_sentiment.ai}:
+\code{"e5-small"} (default, 384-d, multilingual, on-device, no TensorFlow),
+\code{"e5-base"} (768-d), \code{"openai"} (text-embedding-3-small, paid API),
+or a legacy Universal Sentence Encoder model (\code{"en"}, \code{"en.large"},
+\code{"multi"}, \code{"multi.large"}) which requires
+\code{install_sentiment.ai(legacy = TRUE)}.}
 
-\item{silent}{logical - do you want to suppress console logging? Can't affect tensorflow/GPU/python/c++ output, unfortunately.}
+\item{silent}{logical flag indicating whether to suppress console logging. Note:
+this does not affect Python or native (C++) output.}
+
+\item{api_key}{character string specifying the API key for OpenAI, if using the
+\code{"openai"} model.}
+
+\item{api_base}{character string specifying the base URL for the OpenAI API.}
+
+\item{api_version}{character string specifying the OpenAI API version.}
+
+\item{api_type}{optional character; set to "azure" for an Azure OpenAI endpoint.}
+
+\item{api_engine}{optional character; Azure deployment/engine name (Azure only).}
 }
 \value{
 NULL this function simply installs the required python dependencies and default scoring models and pre-calculated embedding vectors.
 
-python function to embed text can be returned, but is not necessary.
-\code{embed_text()} does this for you.
+Python function for text embedding. This is stored in the package environment and does not need to be explicitly used.
 
 NULL this function checks if \code{init_sentiment.ai()} has been called
 successfully, if not, it is called.
 }
 \description{
 Install and Setup sentiment.ai package
+
+Initializes the sentiment.ai environment by setting up the Python environment and loading the specified model.
+This function must be called before using any other functions in the package that require a model.
 }
 \details{
-Sets up environment specific for sentiment.ai. The packages that it currently
-needs are as follows:\tabular{lc}{
-   Module \tab Version \cr
-   python \tab 3.8.10 \cr
-   numpy \tab 1.19.5 \cr
-   tensorflow \tab 2.4.1 \cr
-   tensorflow_hub \tab 0.12.0 \cr
-   tensorflow-text \tab 2.4.3 \cr
-   sentencepiece \tab 0.1.95 \cr
+\code{install_sentiment.ai()} sets up the Python environment for the backend. The
+default (v2) stack is TensorFlow-free:\tabular{lc}{
+   Module \tab Default \cr
+   python \tab 3.10 \cr
+   numpy \tab latest \cr
+   sentencepiece \tab latest \cr
+   sentence-transformers \tab latest \cr
+   openai \tab latest \cr
 }
 
 
-Please do not change these unless you know what you are doing.
-
-Note that it installs with like \code{tensorflow::install_tensorflow} and
-\code{pip = TRUE}
+With \code{legacy = TRUE} it additionally installs \code{tensorflow} and
+\code{tensorflow-hub} (plus \code{tensorflow-text} off Apple Silicon) for the
+Universal Sentence Encoder models. Installation uses \code{reticulate::py_install}
+with \code{pip = TRUE}.
 }
 \note{
 Setting environments with \code{reticulate} is notoriously difficult. If the
@@ -131,12 +156,14 @@ allowable Python versions/environments.
 }
 \examples{
 \dontrun{
-install_sentiment.ai(envname = "r-sentiment-ai",
-                     method  = "conda",
-                     python_version = "3.8.10")
-init_sentiment.ai(model   = "en.large",
-                  envname = "r-sentiment-ai")
-check_sentiment.ai()
+# TensorFlow-free default: on-device multilingual e5
+install_sentiment.ai(envname = "r-sentiment-ai")
+init_sentiment.ai(model = "e5-small", envname = "r-sentiment-ai")
+sentiment_score("I love this!")
+
+# opt-in legacy Universal Sentence Encoder (installs TensorFlow)
+# install_sentiment.ai(legacy = TRUE)
+# init_sentiment.ai(model = "en.large")
 
 # if you run into an issue, follow the instructions/see the note and retry!
 }

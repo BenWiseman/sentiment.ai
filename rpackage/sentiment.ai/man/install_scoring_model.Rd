@@ -5,8 +5,8 @@
 \title{Install a Scoring Model}
 \usage{
 install_scoring_model(
-  model = c("en.large", "en", "multi.large", "multi"),
-  scoring = c("xgb", "glm"),
+  model = DEFAULT_MODEL,
+  scoring = c("mlp", "logistic", "xgb", "glm"),
   scoring_version = "1.0",
   ...
 )
@@ -26,7 +26,7 @@ install_scoring_model(
 \item{...}{Additional options to the function, including:
 \itemize{
 \item repo_url: OPTIONAL custom github repo blob url for external scoring models.
-The default repo_url is "https://github.com/BenWiseman/sentiment.ai/blob/main/models"
+The default repo_url is "https://github.com/BenWiseman/sentiment.ai/blob/main/scoring"
 }}
 }
 \value{

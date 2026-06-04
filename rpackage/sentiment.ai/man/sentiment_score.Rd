@@ -6,8 +6,8 @@
 \usage{
 sentiment_score(
   x = NULL,
-  model = names(default_models),
-  scoring = c("xgb", "glm"),
+  model = DEFAULT_MODEL,
+  scoring = c("mlp", "logistic", "xgb", "glm"),
   scoring_version = "1.0",
   batch_size = 100,
   ...
@@ -15,14 +15,17 @@ sentiment_score(
 }
 \arguments{
 \item{x}{A plain text vector or column name if data is supplied.
-If you know what you're doing, you can also pass in a 512-D numeric
-embedding.}
+If you know what you're doing, you can also pass in a pre-computed
+numeric embedding matrix.}
 
-\item{model}{An embedding name from tensorflow-hub, some of which are
-"en" (english large or not) and "multi" (multi-lingual large or not).}
+\item{model}{character; embedding model handle (default \code{"e5-small"}). See
+\code{\link{init_sentiment.ai}} for the options. This is NOT a
+tensorflow-hub name.}
 
-\item{scoring}{Model to use for scoring the embedding matrix (currently
-either "xgb" or "glm").}
+\item{scoring}{scoring head to use: \code{"mlp"} (default) or \code{"logistic"}
+-- small pure-R JSON heads bundled in the package (no xgboost, no
+TensorFlow at score time). \code{"xgb"}/\code{"glm"} are still accepted for
+legacy heads but are not the default.}
 
 \item{scoring_version}{The scoring version to use, currently only 1.0, but
 other versions might be supported in the future.}
@@ -30,17 +33,17 @@ other versions might be supported in the future.}
 \item{batch_size}{Size of batches to use. Larger numbers will be faster than
 smaller numbers, but do not exhaust your system memory!}
 
-\item{...}{Additional arguments passed to \code{\link[reticulate:conda-tools]{conda_install()}}
-or \code{\link[reticulate:virtualenv-tools]{virtualenv_install()}}.}
+\item{...}{Additional arguments passed to \code{\link[reticulate:conda_install]{conda_install()}}
+or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
 }
 \value{
-numeric vector of length(x) containing a re-scaled sentiment probabilities.
+numeric vector, one score per element of \code{x}, rescaled to
+\code{[-1, 1]} (about 1 = positive, about -1 = negative).
 }
 \description{
-This uses a simple model (xgboost or glm) to return a simple predictive score,
-where numbers closer to 1 are more positive and numbers closer to -1 are more
-negative. This can be used to determine whether the sentiment is positive
-or negative.
+Uses a small bundled scoring head (a multilayer perceptron by default) over text
+embeddings to return a score where numbers closer to 1 are more positive and
+numbers closer to -1 are more negative.
 }
 \details{
 Uses simple preditive models on embeddings to provide probability of positive
@@ -48,32 +51,18 @@ score (rescaled to -1:1 for consistency with other packages).
 }
 \examples{
 \dontrun{
-envname <- "r-sentiment-ai"
+# one-time setup (TensorFlow-free), then load the default e5-small model
+# install_sentiment.ai(envname = "r-sentiment-ai")
+init_sentiment.ai(model = "e5-small")
 
-# make sure to install sentiment ai (install_sentiment.ai)
-# install_sentiment.ai(envname = envname,
-#                      method  = "conda")
+sentiment_score(c("I love this!", "this is terrible"))
 
-# running the model
-mod_xgb <- sentiment_score(x       = airline_tweets$text,
-                           model   = "en.large",
-                           scoring = "xgb",
-                           envname = envname)
-mod_glm <- sentiment_score(x       = airline_tweets$text,
-                           model   = "en.large",
-                           scoring = "glm",
-                           envname = envname)
-
-# checking performance
+# score a column of text and compare to known labels
+scores  <- sentiment_score(airline_tweets$text)            # e5-small + mlp
 pos_neg <- factor(airline_tweets$airline_sentiment,
                   levels = c("negative", "neutral", "positive"))
 pos_neg <- (as.numeric(pos_neg) - 1) / 2
-cosine(mod_xgb, pos_neg)
-cosine(mod_glm, pos_neg)
-
-# you could also calculate accuracy/kappa
-
-
+cosine(scores, pos_neg)
 }
 
 }

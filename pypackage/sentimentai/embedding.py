@@ -31,7 +31,7 @@ def _load_st(hf_id: str):
     except ImportError as exc:                    # pragma: no cover - env-dependent
         raise ImportError(
             "the default on-device backend needs `sentence-transformers` "
-            "(pip install 'sentiment-ai').") from exc
+            "(pip install --pre sentimentai-py).") from exc
     return SentenceTransformer(hf_id)
 
 

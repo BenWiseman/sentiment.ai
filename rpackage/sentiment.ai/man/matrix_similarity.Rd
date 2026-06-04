@@ -32,8 +32,9 @@ cosine_match()
 \examples{
 \dontrun{
 n <- 5
-y <- matrix(rnorm(n * 512), ncol = 512)
-x <- matrix(rnorm(n * 512), ncol = 512)
+d <- 384  # embedding width (e.g. e5-small)
+y <- matrix(rnorm(n * d), ncol = d)
+x <- matrix(rnorm(n * d), ncol = d)
 
 all.equal(cosine(x, y),
           text2vec::sim2(x, y))

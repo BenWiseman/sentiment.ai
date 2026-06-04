@@ -1,22 +1,21 @@
 #' @description
-#' This package uses Google's Universal Sentence Encoder, simplifies all the
-#' difficulties, and turns it into a sentiment analysis package.
+#' sentiment.ai turns text into sentiment scores using a small, on-device
+#' multilingual embedding model (default \code{multilingual-e5-small}: no
+#' TensorFlow, no API key) plus a small bundled scoring head. You can also opt into
+#' a larger on-device model (\code{e5-base}), a paid API (\code{openai}), or the
+#' legacy Universal Sentence Encoder models (which require TensorFlow).
 #'
-#' Main Benefits:
+#' Main benefits:
 #' \itemize{
-#'   \item{Tolerates spelling mitsakes}
+#'   \item{Tolerates spelling mistakes}
 #'   \item{Not dependent on exactly matching a fixed dictionary}
 #'   \item{Requires less pre-processing}
-#'   \item{More powerful than dictionary-based methods}
+#'   \item{More flexible than dictionary-based methods}
+#'   \item{Multilingual and runs on-device with no TensorFlow}
 #' }
 #'
-#' Main Drawbacks:
-#' \itemize{
-#'   \item{Requires a lot of RAM}
-#'   \item{Can be slow on larger datasets (unless using GPU)}
-#' }
-#'
-#' Effectively, if you have a reasonably powerful computer, you can use
-#' sentiment.ai as a more flexible, powerful, and modern approach to sentiment
-#' analysis.
+#' Scores run from about \code{1} (positive) to about \code{-1} (negative). See
+#' \code{\link{sentiment_score}} to get started, and
+#' \code{\link{sentiment_provenance}} to see exactly which model and scoring head
+#' produced a score.
 "_PACKAGE"

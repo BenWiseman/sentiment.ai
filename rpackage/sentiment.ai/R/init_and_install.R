@@ -4,14 +4,13 @@
 #' @inheritParams reticulate::py_install
 #' @param method Installation method. By default, "auto" automatically finds a
 #'        method that will work in the local environment. Change the default to
-#'        force a specific installation method. Note that the "virtualenv"
-#'        method may not available on Windows due to a tensorflow issue. Note
-#'        also that since this command runs without privilege the "system"
-#'        method is available only on Windows.
-#' @param gpu Whether GPU should be enabled when installing TensorFlow
-#' @param modules A list of modules needed for installing tensorflow. See
-#'        details for more information. Only change this argument if you know
-#'        what you are doing!
+#'        force a specific installation method ("virtualenv" or "conda").
+#' @param gpu logical; only relevant when \code{legacy = TRUE}: enables GPU for the
+#'        legacy TensorFlow stack (ignored on macOS). The default e5 backend uses
+#'        PyTorch, which selects its own device automatically.
+#' @param modules Named list of Python modules to install. Defaults to \code{NULL},
+#'        which selects the correct set for \code{legacy}. Only change this if you
+#'        know what you are doing.
 #' @param fresh_install Whether to create the Python environment prior to
 #'        installing the modules or to install everything in an existing
 #'        environment (if one exists). Only change this argument if you know what
@@ -19,25 +18,28 @@
 #'        the environment first.
 #' @param restart_session Whether to restart the R session after finishing
 #'        installation. Only works on Rstudio.
-#' @param model path to tensorflow hub embedding model. default is both universal
-#'        sentence encoder en (default) and multi.
+#' @param model character; embedding model handle for \code{init_sentiment.ai}:
+#'        \code{"e5-small"} (default, 384-d, multilingual, on-device, no TensorFlow),
+#'        \code{"e5-base"} (768-d), \code{"openai"} (text-embedding-3-small, paid API),
+#'        or a legacy Universal Sentence Encoder model (\code{"en"}, \code{"en.large"},
+#'        \code{"multi"}, \code{"multi.large"}) which requires
+#'        \code{install_sentiment.ai(legacy = TRUE)}.
 #' @details
-#' Sets up environment specific for sentiment.ai. The packages that it currently
-#' needs are as follows:
+#' \code{install_sentiment.ai()} sets up the Python environment for the backend. The
+#' default (v2) stack is TensorFlow-free:
 #'
-#' | Module          | Version |
-#' | :-------------- | :-----: |
-#' | python          | 3.8.10  |
-#' | numpy           | 1.19.5  |
-#' | tensorflow      | 2.4.1   |
-#' | tensorflow_hub  | 0.12.0  |
-#' | tensorflow-text | 2.4.3   |
-#' | sentencepiece   | 0.1.95  |
+#' | Module                | Default |
+#' | :-------------------- | :-----: |
+#' | python                | 3.10    |
+#' | numpy                 | latest  |
+#' | sentencepiece         | latest  |
+#' | sentence-transformers | latest  |
+#' | openai                | latest  |
 #'
-#' Please do not change these unless you know what you are doing.
-#'
-#' Note that it installs with like \code{tensorflow::install_tensorflow} and
-#' \code{pip = TRUE}
+#' With \code{legacy = TRUE} it additionally installs \code{tensorflow} and
+#' \code{tensorflow-hub} (plus \code{tensorflow-text} off Apple Silicon) for the
+#' Universal Sentence Encoder models. Installation uses \code{reticulate::py_install}
+#' with \code{pip = TRUE}.
 #'
 #' @note
 #' Setting environments with \code{reticulate} is notoriously difficult. If the
@@ -73,12 +75,14 @@
 #'
 #' @examples
 #' \dontrun{
-#' install_sentiment.ai(envname = "r-sentiment-ai",
-#'                      method  = "conda",
-#'                      python_version = "3.8.10")
-#' init_sentiment.ai(model   = "en.large",
-#'                   envname = "r-sentiment-ai")
-#' check_sentiment.ai()
+#' # TensorFlow-free default: on-device multilingual e5
+#' install_sentiment.ai(envname = "r-sentiment-ai")
+#' init_sentiment.ai(model = "e5-small", envname = "r-sentiment-ai")
+#' sentiment_score("I love this!")
+#'
+#' # opt-in legacy Universal Sentence Encoder (installs TensorFlow)
+#' # install_sentiment.ai(legacy = TRUE)
+#' # init_sentiment.ai(model = "en.large")
 #'
 #' # if you run into an issue, follow the instructions/see the note and retry!
 #' }
@@ -383,17 +387,19 @@ install_default_embeddings <- function(){
 #' @description Initializes the sentiment.ai environment by setting up the Python environment and loading the specified model.
 #' This function must be called before using any other functions in the package that require a model.
 #'
-#' @param model character vector specifying the model to use. Options include "en.large", "multi.large", "en", "multi", and "text-embedding-ada-002".
-#' @param envname character string specifying the name of the Python environment to use.
-#' @param method character string specifying the method to use for Python environment management. Options are "auto", "virtualenv", and "conda".
-#' @param silent logical flag indicating whether to suppress console logging. Note: This does not affect TensorFlow, GPU, Python, or C++ output.
-#' @param api_key character string specifying the API key for OpenAI, if using an OpenAI model.
+#' @param silent logical flag indicating whether to suppress console logging. Note:
+#'        this does not affect Python or native (C++) output.
+#' @param api_key character string specifying the API key for OpenAI, if using the
+#'        \code{"openai"} model.
 #' @param api_base character string specifying the base URL for the OpenAI API.
+#' @param api_version character string specifying the OpenAI API version.
+#' @param api_type optional character; set to "azure" for an Azure OpenAI endpoint.
+#' @param api_engine optional character; Azure deployment/engine name (Azure only).
 #'
 #' @return Python function for text embedding. This is stored in the package environment and does not need to be explicitly used.
 #'
 #' @importFrom reticulate py_run_string source_python
-#' @importFrom utils packageName system.file
+#' @importFrom utils packageName
 #'
 #' @export
 init_sentiment.ai <- function(model       = DEFAULT_MODEL,
