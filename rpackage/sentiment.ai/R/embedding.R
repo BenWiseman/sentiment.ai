@@ -54,7 +54,7 @@ get_default_embedding <- function(model){
 
 # Create Pos/Neg Embeddings
 embed_topics <- function(phrases = NULL,
-                         model   = c("en.large", "multi.large", "en", "multi")){
+                         model   = DEFAULT_MODEL){
 
   # fix global variable declaration for using data.table (to pass CRAN checks)
   phrase <- NULL
@@ -69,27 +69,21 @@ embed_topics <- function(phrases = NULL,
     rep(nms, times = lengths(phrases))
   }
 
-  # DEFAULT - now needs to check
-  # not supplied phrases & names match default models
-  # and default pos/neg embedding has been installed. if not, make phrases pos/neg and embed_text on them
+  # DEFAULT pole dictionary. v2 embeds it live with the e5 backend -- the old
+  # pre-computed Universal Sentence Encoder embeddings are a different vector space --
+  # caching the result in the package env so the ~900 default terms are embedded only
+  # once per session (no network, no stale download).
   if(is.null(phrases) && model[1] %in% names(default_models)) {
 
-    default_embeddings <- get_default_embedding(model[1])
-
-    # if NULL then use default phrases
-    phrases  <- list(positive = sentiment.ai::default$positive,
-                     negative = sentiment.ai::default$negative)
-
-    # if defaults didn't exist, embed them
-    if(is.null(default_embeddings)){
-      default_embeddings <- lapply(X     = phrases,
-                                   FUN   = embed_text,
-                                   model = model[1])
+    phrases   <- list(positive = sentiment.ai::default$positive,
+                      negative = sentiment.ai::default$negative)
+    cache_key <- paste0("default_emb_", model[1])
+    embeds    <- get0(cache_key, envir = sentiment.ai::sentiment.env, inherits = FALSE)
+    if(is.null(embeds)){
+      embeds <- lapply(X = phrases, FUN = embed_text, model = model[1])
+      assign(cache_key, embeds, envir = sentiment.ai::sentiment.env)
     }
-
-    # return and combine pos/neg embeddings
-    # rbind - must be matrix!
-    mx_embed <- do.call(rbind, default_embeddings)
+    mx_embed <- do.call(rbind, embeds)
 
   } else{
     # NOT DEFAULT, do custom
