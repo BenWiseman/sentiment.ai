@@ -4,13 +4,15 @@ TensorFlow-free sentiment analysis from sentence embeddings. The Python sibling 
 the R package [`sentiment.ai`](../rpackage), sharing the **same trained scorer
 artifacts** and the **same public API**.
 
-> **Status: scaffold.** The package structure, model registry, and API signatures
-> are in place; the function bodies are stubs (`NotImplementedError`). They get
-> populated once the R v2 package is locked, so the two stay 1:1.
+> **Status: working pre-release (0.1.0).** The engine is implemented and verified
+> end-to-end (e5 embed → numpy scoring head → score in `[-1, 1]`); the forward pass
+> matches the R package's `score_json_head` to machine epsilon (max diff `4.4e-16`).
+> The shipped e5 heads are **placeholders** pending full-data weights — treat scores as
+> indicative until the v1.0 weights land.
 
-Why a Python package: the v2 engine is already Python (sentence-transformers +
-xgboost). The R package reaches it through `reticulate`; Python calls it directly —
-strictly less machinery, no bridge, and xgboost runs multithreaded here.
+Why a Python package: the v2 engine is already Python (sentence-transformers + a tiny
+numpy scoring head). The R package reaches it through `reticulate`; Python calls it
+directly — strictly less machinery, no bridge, **no TensorFlow, and no xgboost at serve**.
 
 ## Models (provisional bake-off macro-F1, 2026-06-03)
 
@@ -36,10 +38,11 @@ sa.embed_text(texts, model="e5-small")
 
 | R (`sentiment.ai`) | Python (`sentimentai`) | status |
 |---|---|---|
-| `embed_text()` | `embed_text()` | stub |
-| `sentiment_score()` | `sentiment_score()` | stub |
-| `sentiment_match()` | `sentiment_match()` | stub |
-| `install_sentiment.ai()` / `init_sentiment.ai()` | `ensure_model()` | stub (no reticulate dance) |
+| `embed_text()` | `embed_text()` | done (e5 / openai; legacy TF raises) |
+| `sentiment_score()` | `sentiment_score()` | done (mlp / logistic heads) |
+| `sentiment_match()` | `sentiment_match()` | done (tunable phrase poles) |
+| `score_json_head()` | `_scoring.score()` | done — verified bit-identical to R |
+| `install_sentiment.ai()` / `init_sentiment.ai()` | `ensure_model()` | done (no reticulate dance) |
 | `default_models`, `model="en.large"` | `BACKENDS`, `model="e5-small"` | done (registry) |
 
 ## Layout
@@ -50,11 +53,13 @@ pypackage/
 ├── sentimentai/
 │   ├── __init__.py     public API re-exports
 │   ├── _models.py      backend registry (done)
-│   ├── embedding.py    embed_text()        (stub)
-│   ├── sentiment.py    sentiment_score/match (stub)
-│   └── install.py      ensure_model()      (stub)
-└── tests/test_smoke.py registry/import tests pass; functional tests skipped
+│   ├── embedding.py    embed_text()        (e5 / openai)
+│   ├── sentiment.py    sentiment_score / sentiment_match
+│   ├── _scoring.py     numpy scoring head  (verified vs R)
+│   ├── install.py      ensure_model()
+│   └── scoring/        JSON heads shipped in the wheel
+└── tests/               parity (vs R golden) + smoke/registry tests
 ```
 
-Model weights are **not** shipped in the wheel — the embedder (HuggingFace) and the
-matching `.xgb` scorer (GitHub Releases) download on first use, same pattern as R.
+The small JSON scoring heads **ship inside the wheel** (`sentimentai/scoring/`); only the
+on-device embedder downloads from HuggingFace on first use. No `.xgb`, no TensorFlow.

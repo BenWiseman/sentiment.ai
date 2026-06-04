@@ -1,8 +1,9 @@
 """sentiment.ai (Python) — TensorFlow-free sentiment from sentence embeddings.
 
-Python sibling of the R package `sentiment.ai`. Same trained scorer artifacts,
-same public API. This is a SCAFFOLD: the registry and signatures are in place;
-function bodies are populated once the R v2 package is locked, for 1:1 parity.
+Python sibling of the R package `sentiment.ai`. Same trained scorer artifacts (the
+small JSON heads ship in the wheel) and the same public API. The scoring forward pass
+is verified bit-for-bit against R `score_json_head`, so the two bindings agree by
+construction. e5 runs on-device with no TensorFlow and no xgboost at serve.
 """
 from ._version import __version__
 from ._models import BACKENDS, DEFAULT_MODEL, Backend, resolve

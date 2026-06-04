@@ -19,7 +19,16 @@ def test_public_api_present():
         assert callable(getattr(sentimentai, fn))
 
 
-@pytest.mark.skip(reason="scaffold — implement with R v2 parity")
+def _have_embedder():
+    try:
+        import sentence_transformers  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
+@pytest.mark.skipif(not _have_embedder(), reason="needs sentence-transformers (on-device embedder)")
 def test_sentiment_score_roundtrip():
-    s = sentimentai.sentiment_score(["I love this", "this is terrible"])
+    # real end-to-end: e5 embed -> numpy head -> [-1, 1]
+    s = sentimentai.sentiment_score(["I love this, it is wonderful", "this is awful, I hate it"])
     assert s[0] > 0 > s[1]
