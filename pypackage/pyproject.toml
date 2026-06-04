@@ -3,8 +3,8 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sentiment-ai"
-version = "0.1.0"  # pre-release: engine + e5 heads working; heads are placeholders pending full-data weights
+name = "sentimentai-py"
+version = "0.1.0a1"  # ALPHA pre-release: engine works; e5 heads are placeholders pending full-data weights
 description = "Simple, tunable sentiment analysis from sentence embeddings — TensorFlow-free. Python sibling of the R package sentiment.ai."
 readme = "README.md"
 requires-python = ">=3.9"
