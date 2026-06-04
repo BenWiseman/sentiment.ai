@@ -2145,19 +2145,23 @@ scoring head is <code>&quot;mlp&quot;</code> (default) or
 </div>
 <div id="sentiment_match" class="section level2">
 <h2><code>sentiment_match()</code></h2>
-<p>The same score, plus a nearest-phrase explanation against
-<strong>tunable poles</strong> — you decide what positive and negative
-mean for your domain:</p>
+<p>The <strong>same calibrated <code>sentiment</code></strong> as
+<code>sentiment_score()</code>, plus a nearest-phrase explanation
+against <strong>tunable poles</strong> — you decide what the poles mean
+for your domain. The poles only shape the explanation
+(<code>phrase</code> / <code>class</code> / <code>similarity</code>),
+never the score:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>my_categories <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">positive =</span> <span class="fu">c</span>(<span class="st">&quot;excited&quot;</span>, <span class="st">&quot;loving&quot;</span>, <span class="st">&quot;content&quot;</span>, <span class="st">&quot;happy&quot;</span>),</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>                      <span class="at">negative =</span> <span class="fu">c</span>(<span class="st">&quot;lame&quot;</span>, <span class="st">&quot;lonely&quot;</span>, <span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>))</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">sentiment_match</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>),</span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                <span class="at">phrases =</span> my_categories)</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;                                 text  sentiment phrase     pole</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1                Will you marry me?       0.54  loving positive</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 2 Oh, you&#39;re breaking up with me...      -0.66     sad negative</span></span></code></pre></div>
-<p>Pass any set of poles, not just positive/negative, to do arbitrary
-category matching.</p>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;                                text sentiment phrase    class similarity</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1                Will you marry me?      0.54 loving positive       0.82</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 2 Oh, you&#39;re breaking up with me...     -0.66    sad negative       0.79</span></span></code></pre></div>
+<p>Pass any set of poles, not just positive/negative, for arbitrary
+category matching, or omit <code>phrases</code> to use the bundled
+balanced 40/40 default poles.</p>
 </div>
 <div id="sentiment_provenance" class="section level2">
 <h2><code>sentiment_provenance()</code></h2>

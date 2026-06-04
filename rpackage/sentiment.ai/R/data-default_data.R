@@ -1,25 +1,26 @@
-#' Default sentiment matching dictionary
+#' A large example sentiment-matching dictionary
 #'
-#' This is a default sentiment matching dictionary with over 100 pairs of
-#' positive:negative examples. Feel free to use as-is or use as an example to
-#' create your own. The main point is that there needs to be a corresponding
-#' negative for each positive.
+#' A broad dictionary of positive and negative example phrases (468 positive,
+#' 470 negative). This is **not** the out-of-the-box default for
+#' [sentiment_match()] -- that uses a curated, balanced 40/40 pole set
+#' (`inst/default_poles.json`). Pass this object as `phrases` when you want a
+#' wider, finer-grained set of poles, or use it as a template to build your own.
+#' The main point is that there needs to be a corresponding negative for each
+#' positive.
 #'
 #' @examples
-#' # For Example
+#' # Use the large dictionary instead of the built-in 40/40 default poles:
+#' # sentiment_match(x, phrases = default)
+#'
+#' # Or roll your own -- each positive needs a corresponding negative:
 #' pos <- c("good apples", "fresh", "delicious")
 #' neg <- c("bad apples", "not fresh", "not delicious")
-#'
-#' # If positive was:
-#' c("good", "fresh", "delicious")
-#'
-#' # Then "These were some good apples" would be seen as closer to a negative example!
 #'
 #' @docType data
 #'
 #' @usage data(default)
 #'
-#' @format An object of class `"data.table"`
+#' @format A named `list` with two character vectors, `positive` and `negative`.
 #'
 "default"
 

@@ -27,7 +27,10 @@ import sentimentai as sa
 sa.sentiment_score(["I love this", "this is terrible"])
 # array([ 0.9, -0.9])   # about 1 = positive, about -1 = negative
 
-# define what positive / negative mean for your domain (tunable poles)
+# same calibrated score, plus a nearest-phrase explanation (text/sentiment/phrase/
+# class/similarity). Pass tunable poles to define what they mean for your domain,
+# or omit `phrases` for the bundled balanced 40/40 defaults — the score is identical
+# to sentiment_score() either way; poles only shape the explanation.
 sa.sentiment_match(["great value", "broke instantly"],
                    phrases={"positive": ["high quality"], "negative": ["low quality"]})
 

@@ -323,12 +323,11 @@ names**: `text, sentiment, phrase, class, similarity`. [SHAPE]
    Python must reproduce: rows that were NA or `""` get `NaN` sentiment/similarity and
    `None`/`NaN` phrase/class, with original text preserved.
 3. **`phrases`.** [MATCH on meaning]
-   - `None` + a built-in model ⇒ use the package **default poles**
-     (`default$positive` / `default$negative`), reusing pre-computed default
-     embeddings when available (R: `get_default_embedding()` downloads a versioned
-     JSON; falls back to embedding the default phrases on the fly). Python may skip
-     the pre-computed-JSON optimization and **always embed the default phrases**
-     (slower, identical result) — this is [MAY-DIFFER] on *path*, [MATCH] on *result*.
+   - `None` + a built-in model ⇒ use the **shared default poles**, bundled in both
+     packages as `default_poles.json` (a curated, balanced 40/40 set, byte-identical
+     across R and Python). Both packages embed them **live on-device** and cache the
+     result for the session — there is no pre-computed default-embedding download on
+     either side (the old `get_default_embedding()` path is gone). [MATCH on poles + result]
    - Provided ⇒ a `dict[str, list[str]]` (e.g. `{"positive": [...], "negative": [...]}`,
      or any domain poles like `{"high quality": [...], "low quality": [...]}`). Embed
      each pole's phrases, build a `(phrase, class)` lookup, **de-dup on `phrase`**.

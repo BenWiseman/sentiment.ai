@@ -118,8 +118,9 @@ Key arguments: `x` (text or a pre-computed embedding matrix), `model` (default
 
 ## `sentiment_match()`
 
-Same score, plus a nearest-phrase explanation against **tunable poles** — you define
-what positive and negative mean for your domain:
+The **same calibrated `sentiment`** as `sentiment_score()`, plus a nearest-phrase
+explanation against **tunable poles** — you define what the poles mean for your domain.
+The poles only shape the explanation (`phrase` / `class` / `similarity`), never the score:
 
 ```r
 my_categories <- list(positive = c("excited", "loving", "content", "happy"),
@@ -127,14 +128,14 @@ my_categories <- list(positive = c("excited", "loving", "content", "happy"),
 
 result <- sentiment_match(my_comments, phrases = my_categories)
 print(result)
-#>                                 text  sentiment phrase    pole
-#> 1                Will you marry me?       0.54  loving positive
-#> 2 Oh, you're breaking up with me...      -0.66     sad negative
+#>                                text sentiment phrase    class similarity
+#> 1                Will you marry me?      0.54 loving positive       0.82
+#> 2 Oh, you're breaking up with me...     -0.66    sad negative       0.79
 ```
 
-You can pass any set of poles (not just positive/negative) to do arbitrary category
-matching. Cosine similarity is relative, so longer text tends to match any single
-phrase less strongly.
+Pass any set of poles (not just positive/negative) for arbitrary category matching, or
+omit `phrases` to use the bundled balanced 40/40 default poles. Cosine similarity is
+relative, so longer text tends to match any single phrase less strongly.
 
 ## `sentiment_provenance()`
 

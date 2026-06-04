@@ -116,11 +116,15 @@ sentiment_score <- function(x          = NULL,
 #'        (such as positive words/terms under the name "positive" and negative
 #'        words/terms under the name "negative", all within the same list).
 #'
-#' @return data.table containing text, sentiment, phrase, class, and similarity.
+#' @return data.table with one row per input: \code{text}, \code{sentiment},
+#'         \code{phrase}, \code{class}, and \code{similarity}.
 #'
 #' @description
-#' Provides score and explanation, returns a single vector, and runs relatively
-#' fast.
+#' Returns the same calibrated \code{sentiment} as \code{\link{sentiment_score}}, plus a
+#' nearest-phrase explanation against tunable poles: for each input it reports the closest
+#' example \code{phrase}, that phrase's pole (\code{class}), and the cosine
+#' \code{similarity}. The poles only shape the explanation -- the \code{sentiment} value
+#' does not depend on them.
 #'
 #' @examples
 #' \dontrun{
@@ -148,6 +152,8 @@ sentiment_score <- function(x          = NULL,
 sentiment_match <- function(x        = NULL,
                             phrases  = NULL,
                             model    = names(default_models),
+                            scoring    = c("mlp", "logistic", "xgb", "glm"),
+                            scoring_version = "1.0",
                             batch_size = 100,
                             ...){
 
@@ -160,6 +166,7 @@ sentiment_match <- function(x        = NULL,
 
   # setup everything (don't use arg.match for model ...)
   model           <- model[1]
+  scoring         <- match.arg(scoring)
 
   # if x is missing, return NOTHING
   if(is.null(x)){
@@ -210,8 +217,12 @@ sentiment_match <- function(x        = NULL,
   match_table <- match_table[key_dt,]
   setkeyv(match_table, c("temp_id"))
 
-  # filter to top match, join to sentiment table (and add word:sentiment)
-  sentiments <- sentiment_score(text_embed)
+  # filter to top match, join to sentiment table (and add word:sentiment).
+  # the sentiment column IS the calibrated head score -- pass model/scoring/version
+  # through so the head matches the embedding space (a non-default model embeds at a
+  # different width than the default head would expect).
+  sentiments <- sentiment_score(text_embed, model = model,
+                                scoring = scoring, scoring_version = scoring_version)
   match_table[, sentiment := sentiments]
 
   # add back nas

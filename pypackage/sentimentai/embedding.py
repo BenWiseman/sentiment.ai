@@ -57,7 +57,7 @@ def _embed_openai(texts: list[str], api_key: "str | None" = None,
 def embed_text(
     text: "str | Sequence[str]",
     model: str = DEFAULT_MODEL,
-    batch_size: int = 64,
+    batch_size: int = 100,
     **kwargs,
 ) -> np.ndarray:
     """Embed ``text`` into an ``(n, dim)`` float64 matrix.
@@ -70,7 +70,10 @@ def embed_text(
 
     if backend.kind == "sentence-transformers":
         st = _load_st(backend.hf_id)
-        prefixed = [backend.prefix + t for t in texts]          # e5 expects "query: "
+        prefix = backend.prefix                                  # e5 expects "query: "
+        # idempotent, like R: don't double-prefix text that already carries it
+        prefixed = [t if (not prefix or t.startswith(prefix)) else prefix + t
+                    for t in texts]
         emb = st.encode(
             prefixed, batch_size=batch_size, normalize_embeddings=True,
             convert_to_numpy=True, show_progress_bar=False,

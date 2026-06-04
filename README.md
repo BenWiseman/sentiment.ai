@@ -85,8 +85,10 @@ table.)
 
 # Sentiment analysis
 
-`sentiment_score()` returns one score per input in `[-1, 1]`. `sentiment_match()` adds
-a nearest-phrase explanation against **tunable poles** you define:
+`sentiment_score()` returns one score per input in `[-1, 1]`. `sentiment_match()` returns
+that **same calibrated score** plus a nearest-phrase explanation against **tunable poles**
+(`phrase` / `class` / `similarity`) — the poles only shape the explanation, never the score.
+Omit `phrases` to use the bundled, balanced 40/40 default poles:
 
 ```r
 sentiment_match(c("great service", "lost my bag"),

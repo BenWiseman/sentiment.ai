@@ -1,54 +1,8 @@
-library(parallel)
-#' Read embedding file.
-#' Take json path, return single embedding object for specific model.
-#' @param model character - which model's default embeddings are needed.
-#' @param file character - the filepath to the json object.
-#' @param version PLACEHOLDER - may be necessary in future.
-read_embedding <- function(file, model = "en.large", version = NULL){
-
-  # json matrices can't have rownames so need to:
-  # 1) Get the correct embeddings for the given model - saved in json.rownames
-  # 2) restore the dim names from the json's rowname and columnnames fields
-  # 3) return eme: a list of two embedding matrices with terms as rownames
-
-  x <- jsonlite::fromJSON(readLines(file))
-
-  emb <- x[[model]]
-  rownames(emb$positive) <- x$rownames$positive
-  colnames(emb$positive) <- x$colnames$positive
-
-  rownames(emb$negative) <- x$rownames$negative
-  colnames(emb$negative) <- x$colnames$negative
-
-  return(emb)
-}
-
-#' get default embedding
-#' If it exists, return the object.
-#' If not, try downloading it.
-#' If download works, return object.
-#' Else return `NULL` (to be handles in `embed_topics()`).
-#' @param model character - whic model's default embeddings are needed
-get_default_embedding <- function(model){
-
-  emb <- NULL
-
-  # to find the defaults for this version of sentiment.ai
-  version  <- utils::packageDescription("sentiment.ai", fields = "Version")
-  pkg_path <- system.file(package = "sentiment.ai")
-  emb_file <- file.path(pkg_path, "default_embeddings", paste0(version, ".json"))
-
-  emb_exists <- file.exists(emb_file)
-
-  # not there? try downloading it
-  if(!emb_exists) emb_exists <- install_default_embeddings() #1 if successful, 0 if fail
-
-  # double check - has downloaded and is where it *should* be!
-  if(emb_exists & file.exists(emb_file)) emb <- read_embedding(emb_file, model=model)
-
-  # now return
-  return(emb)
-
+# Bundled default sentiment poles for sentiment_match(): a curated, balanced set
+# (40 positive / 40 negative) shipped as inst/default_poles.json and kept identical
+# to the Python package's copy. Power users override them via sentiment_match(phrases=).
+.default_poles <- function(){
+  jsonlite::fromJSON(system.file("default_poles.json", package = "sentiment.ai"))
 }
 
 
@@ -69,14 +23,13 @@ embed_topics <- function(phrases = NULL,
     rep(nms, times = lengths(phrases))
   }
 
-  # DEFAULT pole dictionary. v2 embeds it live with the e5 backend -- the old
-  # pre-computed Universal Sentence Encoder embeddings are a different vector space --
-  # caching the result in the package env so the ~900 default terms are embedded only
-  # once per session (no network, no stale download).
+  # DEFAULT poles. v2 embeds the curated 40/40 default pole set live with the e5
+  # backend (the old pre-computed Universal Sentence Encoder vectors were a different
+  # space), caching the result in the package env so they are embedded only once per
+  # session (no network, no stale download).
   if(is.null(phrases) && model[1] %in% names(default_models)) {
 
-    phrases   <- list(positive = sentiment.ai::default$positive,
-                      negative = sentiment.ai::default$negative)
+    phrases   <- .default_poles()
     cache_key <- paste0("default_emb_", model[1])
     embeds    <- get0(cache_key, envir = sentiment.ai::sentiment.env, inherits = FALSE)
     if(is.null(embeds)){
@@ -101,8 +54,19 @@ embed_topics <- function(phrases = NULL,
                         class  = class_to_vec(phrases),
                         key    = "phrase")
 
-  # de-dupe
-  lookup  <- lookup[!duplicated(phrase), ]
+  # A phrase can only belong to one pole. If the caller lists the same phrase under
+  # more than one pole, warn and keep the first -- otherwise the reference matrix and
+  # the labels would disagree on what that phrase means.
+  multi <- lookup[, .(n_class = length(unique(class))), by = phrase][n_class > 1L, phrase]
+  if(length(multi)){
+    warning("sentiment_match: phrase(s) listed under more than one pole, kept the ",
+            "first: ", paste(multi, collapse = ", "), call. = FALSE)
+  }
+
+  # de-dupe the labels AND the reference embeddings together, so rows stay 1:1 with
+  # their class (matching is by phrase, so duplicate rows would be ambiguous).
+  lookup   <- lookup[!duplicated(phrase), ]
+  mx_embed <- mx_embed[!duplicated(rownames(mx_embed)), , drop = FALSE]
 
   # RETURN
   return(list(embeddings = mx_embed, lookup = lookup))
@@ -315,12 +279,12 @@ openai_embed_parallel <- function(text, request_limit=3000, token_limit=300000) 
   token_count <- 0
 
   # Create a cluster
-  cl <- makeCluster(parallel::detectCores() - 1)
+  cl <- parallel::makeCluster(parallel::detectCores() - 1)
 
   # Export necessary variables to the cluster
   embed_function <- sentiment.ai::sentiment.env$embed
 
-  clusterExport(cl,
+  parallel::clusterExport(cl,
                 c("request_count",
                   "token_count",
                   "request_limit",
@@ -348,7 +312,7 @@ openai_embed_parallel <- function(text, request_limit=3000, token_limit=300000) 
   }, cl = cl)
 
   # Stop the cluster
-  stopCluster(cl)
+  parallel::stopCluster(cl)
 
   # Combine all the results into a matrix
   text_embed_matrix <- do.call(cbind, text_embed_list)

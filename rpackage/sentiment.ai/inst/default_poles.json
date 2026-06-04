@@ -1,0 +1,22 @@
+{
+  "positive": [
+    "love it", "great", "excellent", "wonderful", "fantastic", "amazing",
+    "perfect", "brilliant", "delightful", "superb", "outstanding", "awesome",
+    "good", "happy", "satisfied", "highly recommend", "enjoyable", "helpful",
+    "friendly", "beautiful", "impressive", "reliable", "comfortable",
+    "works perfectly", "fast", "easy to use", "worth it", "high quality",
+    "the best", "my favorite", "thrilled", "grateful", "exceeded expectations",
+    "well made", "top notch", "a pleasure", "would buy again", "flawless",
+    "lovely", "exceptional"
+  ],
+  "negative": [
+    "hate it", "terrible", "awful", "horrible", "the worst", "disappointing",
+    "bad", "poor", "broken", "useless", "frustrating", "annoying", "slow",
+    "unreliable", "uncomfortable", "cheap", "flimsy", "defective",
+    "waste of money", "low quality", "rude", "unhelpful", "painful",
+    "difficult to use", "confusing", "overpriced", "i regret it", "never again",
+    "stopped working", "fell apart", "a scam", "misleading", "unacceptable",
+    "disgusting", "faulty", "let down", "a nightmare", "would not recommend",
+    "ignored", "shoddy"
+  ]
+}

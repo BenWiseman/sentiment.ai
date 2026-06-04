@@ -145,8 +145,13 @@ install_sentiment.ai(legacy = TRUE)   # installs the TensorFlow USE backend
   install the legacy backend (`install_sentiment.ai(legacy = TRUE)`) and name a USE model
   explicitly (e.g. `model = "en.large"`).
 - The default install no longer pulls in TensorFlow, `tensorflow-text`, or the old version pins.
-- `sentiment_match()` (context-tunable positive/negative definitions) is unchanged and works
-  across all backends.
+- `sentiment_match()` is now first-class: its `sentiment` column is the same calibrated score
+  as `sentiment_score()`, and the context-tunable poles only drive the nearest-phrase
+  explanation. The output columns are `text`, `sentiment`, `phrase`, `class`, `similarity`
+  (the old `pole` column is now `class`, and `similarity` is new). It ships a curated, balanced
+  40/40 default pole set (shared byte-for-byte with the Python package) and embeds it on-device
+  — no downloaded default-embedding file. It also gains `scoring`/`scoring_version` arguments to
+  match `sentiment_score()`, and works across all backends.
 
 ## Attribution
 

@@ -204,10 +204,6 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   install_scoring_model(scoring = "xgb")
   install_scoring_model(scoring = "glm")
 
-  # also pull precalculated embeddings
-  #message("Instaling pre-calculated embeddings from Github")
-  #install_default_embeddings()
-
   # restart session if needed
   if(restart_session && rstudioapi::hasFun("restartSession")){
     rstudioapi::restartSession()
@@ -317,67 +313,6 @@ install_scoring_model <- function(model   =  DEFAULT_MODEL,
   return(status)
 }
 
-#' Function to grab the default embeddings for `sentiment_match()`
-#' Necessary to keep package size under 5Mb.
-#' Will check if they're there, if so return TRUE.
-#' If they are not there, try download and return TRUE.
-#' Otherwise, return FALSE (and generate them - will take a few seconds!).
-install_default_embeddings <- function(){
-  # for return status
-  status <- 0
-
-  # base folder
-  repo_url <- "https://github.com/BenWiseman/sentiment.ai/raw/main/default_embeddings"
-
-  # to get right version
-  version   <- "0.1.0"# utils::packageDescription("sentiment.ai", fields = "Version")
-  file_name <- paste0(version, ".json") # update version manually when default embeddings change!
-
-  # base url - repo containing model objects
-  target_url <- paste(repo_url, file_name, sep = "/")
-
-  # Add query param to end
-  target_url <- paste0(target_url, "?raw=true")
-
-  # get download location: <pkg_dir>/data/en.large_def_emb.rds
-  # determining package name and base path
-  pkg_path <- system.file(package = "sentiment.ai")
-  dl_path  <- file.path(pkg_path, "default_embeddings")
-  obj_path <- file.path(dl_path, file_name)
-
-  # should dl_path go to a library or the package dir? if it's in the package dir
-  # they will always have to reinstall all of the scoring models if upgraded
-
-  # if model exists, return NULL - nothing to do
-  if(file.exists(obj_path)) return(0)
-
-  # model doesn't exist, download it into dl_path
-  if(!dir.exists(dl_path)) {
-    # directory doesn't exist, make directory & download
-    dir.create(dl_path,
-               showWarnings = FALSE,
-               recursive = TRUE)
-  }
-
-  message("Downloading precalculated default embeddings v.", version, " from github")
-
-  tryCatch({
-    # you can always use wb to download bites
-    utils::download.file(url      = target_url,
-                         destfile = obj_path,
-                         mode     = "wb")
-    status <- 1
-
-  }, error=function(e){
-
-    message("Attempt to pull pre-calculated embeddings failed.\n",
-            "This should only be a problem for speed as they can still be calculated on the fly!\n")
-
-  })
-
-  return(status)
-
-}
 # 2. INITIALIZE ================================================================
 
 
@@ -657,7 +592,7 @@ py_install_method_detect <- function(envname,
 # check if parallel support is working
 test_parallel_support <- function() {
   cl <- tryCatch({
-    makeCluster(parallel::detectCores() - 1)
+    parallel::makeCluster(parallel::detectCores() - 1)
   }, error = function(e) NULL)
 
   if (is.null(cl)) {
@@ -665,11 +600,11 @@ test_parallel_support <- function() {
   }
 
   test_result <- tryCatch({
-    parLapply(cl, 1:2, function(x) x + 1)
+    parallel::parLapply(cl, 1:2, function(x) x + 1)
     parallel::detectCores()
   }, error = function(e) 0)
 
-  stopCluster(cl)
+  parallel::stopCluster(cl)
   return(test_result)
 }
 

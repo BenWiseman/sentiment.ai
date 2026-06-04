@@ -115,8 +115,12 @@ cosine_match <- function(target, reference, keep_target_order=FALSE){
                              variable.name = "reference",
                              value.name = "similarity")
 
-  # rank matches per target (rnn) with frank() and by reference for speed
-  sim_dt[, rank := data.table::frank(-similarity), by = .(target, target_order)]
+  # rank matches per target (rnn) with frank() and by reference for speed.
+  # ties.method = "first" keeps a single deterministic rank-1 on exact-tie cosines
+  # (the default "average" gives tied rows rank 1.5, so the rank==1 filter drops both
+  # and the row falls through to NA) -- and matches Python's argmax (first-wins).
+  sim_dt[, rank := data.table::frank(-similarity, ties.method = "first"),
+         by = .(target, target_order)]
 
   # return prettier table
   columns <- c("target", "reference", "similarity", "rank")

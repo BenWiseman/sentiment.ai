@@ -36,6 +36,7 @@ Source = "https://github.com/BenWiseman/sentiment.ai"
 [tool.setuptools.packages.find]
 include = ["sentimentai*"]
 
-# the small JSON scoring heads ship inside the wheel (same call the R package makes)
+# the small JSON scoring heads + the shared default poles ship inside the wheel
+# (same artifacts the R package bundles)
 [tool.setuptools.package-data]
-sentimentai = ["scoring/**/*.json"]
+sentimentai = ["scoring/**/*.json", "default_poles.json"]

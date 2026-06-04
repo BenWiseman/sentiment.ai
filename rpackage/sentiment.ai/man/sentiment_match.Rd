@@ -8,6 +8,8 @@ sentiment_match(
   x = NULL,
   phrases = NULL,
   model = names(default_models),
+  scoring = c("mlp", "logistic", "xgb", "glm"),
+  scoring_version = "1.0",
   batch_size = 100,
   ...
 )
@@ -26,6 +28,14 @@ words/terms under the name "negative", all within the same list).}
 \code{\link{init_sentiment.ai}} for the options. This is NOT a
 tensorflow-hub name.}
 
+\item{scoring}{scoring head to use: \code{"mlp"} (default) or \code{"logistic"}
+-- small pure-R JSON heads bundled in the package (no xgboost, no
+TensorFlow at score time). \code{"xgb"}/\code{"glm"} are still accepted for
+legacy heads but are not the default.}
+
+\item{scoring_version}{The scoring version to use, currently only 1.0, but
+other versions might be supported in the future.}
+
 \item{batch_size}{Size of batches to use. Larger numbers will be faster than
 smaller numbers, but do not exhaust your system memory!}
 
@@ -33,11 +43,15 @@ smaller numbers, but do not exhaust your system memory!}
 or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
 }
 \value{
-data.table containing text, sentiment, phrase, class, and similarity.
+data.table with one row per input: \code{text}, \code{sentiment},
+\code{phrase}, \code{class}, and \code{similarity}.
 }
 \description{
-Provides score and explanation, returns a single vector, and runs relatively
-fast.
+Returns the same calibrated \code{sentiment} as \code{\link{sentiment_score}}, plus a
+nearest-phrase explanation against tunable poles: for each input it reports the closest
+example \code{phrase}, that phrase's pole (\code{class}), and the cosine
+\code{similarity}. The poles only shape the explanation -- the \code{sentiment} value
+does not depend on them.
 }
 \examples{
 \dontrun{
