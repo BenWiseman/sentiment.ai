@@ -201,11 +201,22 @@ embed_text <- function(text,
     batch_size <- length(text)
   }
 
+  # Apply the model's embedding prefix R-side (e5 wants "query: "), idempotently, so
+  # the embedder stays a plain encoder and the prefix is consistent across the R and
+  # Python packages -- and testable. Keep the ORIGINAL text for the row names.
+  orig_text <- text
+  prefix <- if (!is.null(model) && model[1] %in% names(model_prefix)) model_prefix[[model[1]]]
+            else sentiment.ai::sentiment.env$prefix
+  if (is.null(prefix) || is.na(prefix)) prefix <- ""
+  if (nzchar(prefix))
+    text <- ifelse(startsWith(as.character(text), prefix),
+                   as.character(text), paste0(prefix, text))
+
   # sentence-transformers (v2 default): env$embed returns an (n, dim) matrix
   # directly (already row = text, col = dim) -- no transpose needed.
   if (isTRUE(sentiment.ai::sentiment.env$st)) {
     text_embed <- as.matrix(sentiment.ai::sentiment.env$embed(as_py_list(text)))
-    rownames(text_embed) <- text
+    rownames(text_embed) <- orig_text
     return(text_embed)
   }
 

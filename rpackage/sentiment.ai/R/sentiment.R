@@ -4,8 +4,8 @@
 #' score (rescaled to -1:1 for consistency with other packages).
 #'
 #' @param x A plain text vector or column name if data is supplied.
-#'        If you know what you're doing, you can also pass in a 512-D numeric
-#'        embedding.
+#'        If you know what you're doing, you can also pass in a pre-computed
+#'        numeric embedding matrix.
 #' @param model An embedding name from tensorflow-hub, some of which are
 #'        "en" (english large or not) and "multi" (multi-lingual large or not).
 #' @param scoring Model to use for scoring the embedding matrix (currently
@@ -70,11 +70,6 @@ sentiment_score <- function(x          = NULL,
   scoring         <- match.arg(scoring)
   scoring_version <- match.arg(scoring_version)
 
-  # check and install scoring model
-  install_scoring_model(model, scoring, scoring_version, ...)
-
-  # note: what do we do for xgb/glm with custom models??
-
   # if x is missing, return NOTHING
   if(is.null(x)){
     return(NULL)
@@ -106,6 +101,11 @@ sentiment_score <- function(x          = NULL,
     text_embed  <- x
   }
 
+
+  # fetch the scoring head only after the backend is validated and the text is embedded
+  # -- shipped heads resolve locally; un-shipped models would hit the network, so this
+  # must come AFTER the legacy gate fires in check_sentiment.ai().
+  install_scoring_model(model, scoring, scoring_version, ...)
 
   # score the embeddings -> [-1, 1] (3-class softprob collapses to P(pos)-P(neg))
   scores <- find_sentiment_score(embeddings = text_embed,

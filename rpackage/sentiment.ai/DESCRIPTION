@@ -60,9 +60,12 @@ Suggests:
     rappdirs,
     rstudioapi,
     tensorflow (>= 2.2.0),
+    testthat (>= 3.0.0),
     text2vec (>= 0.6),
-    tfhub (>= 0.8.0)
-Collate: 
+    tfhub (>= 0.8.0),
+    withr
+Config/testthat/edition: 3
+Collate:
     'package-sentiment_ai.R'
     'init_and_install.R'
     'embedding.R'
@@ -73,6 +76,8 @@ Collate:
     'object-sentiment_env.R'
     'matrix_helpers.R'
     'constants.R'
+    'model_meta.R'
+    'provenance.R'
     'create_error_text.R'
     'utils-data-table.R'
     'globals.R'

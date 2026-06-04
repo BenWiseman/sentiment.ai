@@ -1,159 +1,139 @@
-import ssl
-import openai
+# get_embedder.py  (sentiment.ai v2)
+#
+# Canonical embedder factory, sourced from R via reticulate::source_python().
+#
+# Two embedding back-ends live here:
+#   * load_st_embedder(hf_id, prefix) -- sentence-transformers path (e5 family
+#     and any other HuggingFace SentenceTransformer model). This is the v2
+#     default and runs entirely on-device (CPU/GPU) with no TensorFlow.
+#   * load_hub_embedder(tfhub_url, cache_dir) -- LEGACY TF-Hub path for the
+#     old Universal Sentence Encoder models. TensorFlow / tensorflow_hub are
+#     imported lazily *inside* the function so they never load for v2 users.
+#
+# OpenAI embedding deliberately is NOT implemented here -- it lives in R
+# (R/embedding.R::load_openai_embedding) and is wired up by init_and_install.R.
+#
+# IMPORTANT: USE_TF / USE_TORCH are forced at import time so that the
+# HuggingFace `transformers` library (pulled in by sentence-transformers)
+# never tries to import its TensorFlow backend. On machines with a broken /
+# NumPy-2-incompatible TF build that import otherwise crashes the whole
+# interpreter, taking sentence-transformers down with it.
+
 import os
-import re
-import requests
-import certifi
 
-try:
-    import tensorflow_text as text
-except ImportError:
-    print(" ")
-    
-os.environ['SSL_CERT_FILE'] = certifi.where()
+os.environ["USE_TF"] = "0"      # transformers: do not import the TF backend
+os.environ["USE_TORCH"] = "1"   # transformers: use the PyTorch backend
 
-from tensorflow_hub import load as hub_load
 
-# LOAD embedding from tfhub
-def load_hub_embedding(hub_model = "https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3", 
-                        cache_dir = None):
-    '''
-    TF HUB models
-    Load model from tensorflow hub. Added shortcuts for multilingual and english. 
-    Designed for Google Universal Sentence Encoder
-    Other Embedding models may require specific pre processing.
-    
-    cache_dir - should be in hub_load. Need to specify where to save models (not in temp!)
-    '''
+# ---------------------------------------------------------------------------
+# v2 default: sentence-transformers (e5 and friends)
+# ---------------------------------------------------------------------------
+def load_st_embedder(hf_id, prefix=""):
+    """
+    Build a sentence-transformers embedding callable.
+
+    Parameters
+    ----------
+    hf_id : str
+        HuggingFace model id, e.g. "intfloat/multilingual-e5-small".
+    prefix : str
+        Literal string prepended to every input before encoding. The e5
+        family expects "query: " (note the trailing space); pass "" for
+        models that need no prefix. R supplies this from model_prefix.
+
+    Returns
+    -------
+    callable
+        f(text) -> numpy.ndarray of shape (n_rows, dim), L2-normalised
+        float32. Accepts a single string or a list/iterable of strings;
+        a single string is treated as one row.
+    """
+    from sentence_transformers import SentenceTransformer
+
+    # Device is chosen automatically by sentence-transformers (CUDA / MPS / CPU).
+    model = SentenceTransformer(hf_id)
+
+    pre = prefix if prefix is not None else ""
+
+    def embed(text):
+        # Normalise input to a list of strings so the output is always 2-D.
+        if isinstance(text, str):
+            inputs = [text]
+        else:
+            inputs = list(text)
+
+        if pre:
+            inputs = [pre + str(t) for t in inputs]
+        else:
+            inputs = [str(t) for t in inputs]
+
+        return model.encode(
+            inputs,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+        )
+
+    return embed
+
+
+# ---------------------------------------------------------------------------
+# LEGACY: TensorFlow Hub (Universal Sentence Encoder)
+# ---------------------------------------------------------------------------
+def load_hub_embedder(
+    tfhub_url="https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3",
+    cache_dir=None,
+):
+    """
+    Load a TensorFlow Hub embedding model (legacy USE path).
+
+    tensorflow / tensorflow_hub are imported here, lazily, so that users on
+    the v2 sentence-transformers path never trigger a TensorFlow import.
+
+    Parameters
+    ----------
+    tfhub_url : str
+        Full tfhub.dev URL for the model (R passes the resolved path from
+        legacy_models in constants.R).
+    cache_dir : str or None
+        If given, models are cached here (TFHUB_CACHE_DIR) rather than /tmp.
+
+    Returns
+    -------
+    The loaded TF-Hub model. It is directly callable as f(list_of_text) and
+    returns a tensor / array of shape (n_rows, dim).
+    """
+    import ssl
+
+    # tensorflow_text registers ops some USE models need at load time; it is
+    # optional, so only warn (do not fail) when it is unavailable.
+    try:
+        import tensorflow_text as _text  # noqa: F401
+    except ImportError:
+        print("tensorflow_text not available; some TF-Hub models may fail.")
+
+    import certifi
+    from tensorflow_hub import load as hub_load
+
+    os.environ["SSL_CERT_FILE"] = certifi.where()
     print(ssl.get_default_verify_paths())
 
-    # Sometimes OSX will be a bastard with downlaods. Hack/workaround to save user some hassle!
+    # macOS sometimes blocks the tfhub.dev download on cert verification;
+    # fall back to an unverified context so the user is not stuck.
     ssl._create_default_https_context = ssl._create_unverified_context
-    
-    # if cache_dir is provided, set specific caching folder!
-    if cache_dir is not load_hub_embedding.__defaults__[1]:
-        print("Setting Local cache dir:")
+
+    if cache_dir is not None:
+        print("Setting local TFHUB cache dir:")
         os.environ["TFHUB_CACHE_DIR"] = cache_dir
         print(os.environ["TFHUB_CACHE_DIR"])
-    
-    return hub_load(hub_model)
+
+    return hub_load(tfhub_url)
 
 
-
-
-"""
-# Use openAI for embedding
-def load_openai_embedding(model_name, api_key, api_base="https://api.openai.com", api_version="v1", api_type=None, api_engine="text-davinci-002"):
-    def embed(text):
-        openai.api_key = api_key
-        openai.api_base = api_base
-        
-        print("\n")
-        print(api_base)
-        print(api_version)
-        print(api_type)
-        print(api_engine)
-        print(model_name)
-        
-        print("Type of api_key:", type(api_key))
-        print("Type of api_base:", type(api_base))
-        print("Type of api_version:", type(api_version))
-        print("Type of api_type:", type(api_type))
-        print("Type of api_engine:", type(api_engine))
-        print("Type of model_name:", type(model_name))
-        print("Type of text:", type(text))
-        
-        print("Open AI version:", openai.__version__)
-
-        # for azure
-        if api_version is not None:
-          openai.api_version = api_version  # Set the API version only if it's not None
-                  
-        if api_type is not None:
-          openai.api_type = api_type  # Set the API version only if it's not None
-        
-        
-        try:
-            response = openai.Embedding.create(
-                model=model_name,
-                engine=api_engine,
-                input=text
-            )
-            embedding = response['data'][0]['embedding']
-            return embedding
-        except Exception as e:
-            raise Exception(f"OpenAI API call failed: {str(e)}")
-          
-          
-        try:
-            headers = {
-                'Authorization': f'Bearer {api_key}',
-                'OpenAI-Version': api_version
-            }
-            
-            data = {
-                'model': model_name,
-                'engine': api_engine,
-                'input': text
-            }
-            
-            response = requests.post(f"{api_base}/v1/engines/{api_engine}/completions", headers=headers, json=data)
-            
-            if response.status_code == 200:
-                embedding = response.json()['choices'][0]['text']
-                return embedding
-            else:
-                raise Exception(f"API call failed: {response.json()}")
-        except Exception as e:
-            raise Exception(f"API call failed: {str(e)}")
-
-
-
-    return embed
-  
-"""
-
-"""
-Nope - exporting to python made it not work with pbapply. 
-
-import requests
-
-def load_openai_embedding(model_name, api_key, api_base="https://api.openai.com", api_version="v1", api_type=None, api_engine=None):
-    def embed(text):
-        # Debugging prints
-        print(f"API Base: {api_base}")
-        print(f"API Version: {api_version}")
-        print(f"API Type: {api_type}")
-        print(f"API Engine: {api_engine}")
-        print(f"Text inside embed(): {text}")
-        
-        headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json'
-        }
-        
-        data = {
-            'input': text,
-            'model': model_name
-        }
-        
-        url = f"{api_base}/{api_version}/embeddings"
-        print(f"Constructed URL: {url}")  # Debugging print
-        
-        try:
-            response = requests.post(url, headers=headers, json=data)
-            if response.status_code == 200:
-                embedding = response.json()['data'][0]['embedding']
-                return embedding
-            else:
-                raise Exception(f"API call failed: {response.json()}")
-        except Exception as e:
-            raise Exception(f"API call failed: {str(e)}")
-            
-    return embed
-
- 
-# Example usage via reticulate in R would be something like:
-# py_run_string("import get_openai_embedding from your_python_script")
-# py$get_openai_embedding("your text", "text-embedding-ada-002", "your_api_key")
-"""
+# ---------------------------------------------------------------------------
+# Backwards-compatibility alias.
+#
+# init_and_install.R (main-thread owned) still calls load_hub_embedding(...)
+# for the legacy path. Keep that name working so the legacy USE path does not
+# break while the canonical contract name is load_hub_embedder.
+# ---------------------------------------------------------------------------
+load_hub_embedding = load_hub_embedder

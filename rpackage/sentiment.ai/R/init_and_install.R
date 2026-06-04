@@ -92,90 +92,62 @@
 #' @rdname setup
 #' @return NULL this function simply installs the required python dependencies and default scoring models and pre-calculated embedding vectors.
 #' @importFrom roperators "%ni%"
-#' @import tensorflow
-#' @import tfhub
+#' @param legacy logical; if TRUE, also install the opt-in TensorFlow / TF-Hub stack
+#'        for the legacy Universal Sentence Encoder models. Default FALSE -- v2 is
+#'        TensorFlow-free (sentence-transformers + e5).
 #' @export
 install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  method  = c("auto", "virtualenv", "conda"),
                                  gpu     = FALSE,
-                                 python_version = "3.8.10",
-                                 modules = list(certifi           = "latest",
-                                                numpy             = "1.19.5",
-                                                sentencepiece     = "0.1.95",
-                                                tensorflow        = "2.4.1",
-                                                tensorflow_hub    = "0.12.0",
-                                                `tensorflow-text` = "2.4.3",
-                                                openai            = "latest",
-                                                sentence_transformers = "latest"),
+                                 legacy  = FALSE,
+                                 python_version = NULL,
+                                 modules = NULL,
                                  fresh_install   = TRUE,
                                  restart_session = TRUE,
                                  ...){
 
-  # Apple silicone warning
-  if(roperators::is.os_arm() && roperators::is.os_mac()){
-    # warning("Apple Silicone detected. Unfortunately Tensorflow-text is not available for apple silicone yet.\n",
-    #         "Will attempt to install in Python 3.9.6 with latest packages\n",
-    #         "If all else fails, skip installing, and in the call to init_sentiment.ai set the environment to be r-reticulate (bypass tensorflow install) and the model to 'oai-3-small' to use openai embeddings. ")
-
-    python_version <- "3.9.6"
-    modules <- list(certifi           = "latest",
-                    numpy             = "latest",
-                    sentencepiece     = "latest",
-                    tensorflow        = "latest",
-                    `tensorflow-hub`  = "latest",
-                    openai            = "latest",
-                    `sentence-transformers` = "latest")
-    }
-
-
-
   method <- match.arg(method)
+  legacy <- isTRUE(legacy)
+  gpu    <- isTRUE(gpu)
 
   # if environment is missing, set it to r-sentiment-ai
-  if(length(envname) == 0){
-    envname <- "r-sentiment-ai"
+  if(length(envname) == 0) envname <- "r-sentiment-ai"
+
+  # v2 default backend is sentence-transformers -- NO TensorFlow. Only legacy = TRUE
+  # adds the opt-in TF-Hub / Universal Sentence Encoder stack.
+  if(is.null(python_version)) python_version <- "3.10"
+  if(is.null(modules)){
+    modules <- list(certifi                 = "latest",
+                    numpy                   = "latest",
+                    sentencepiece           = "latest",   # e5's tokenizer needs it
+                    `sentence-transformers` = "latest",
+                    openai                  = "latest")
+    if(legacy){
+      modules <- c(modules, list(tensorflow       = "latest",
+                                 `tensorflow-hub` = "latest"))
+      # tensorflow-text is unavailable on Apple Silicon; add it elsewhere only.
+      if(!(roperators::is.os_arm() && roperators::is.os_mac()))
+        modules[["tensorflow-text"]] <- "latest"
+    }
   }
 
   # if method is default, figure out method using reticulate
   if(method == "auto"){
-    method   <- reticulate:::py_install_method_detect(
-      envname = envname,
-      ...
-    )
+    method <- reticulate:::py_install_method_detect(envname = envname, ...)
   }
 
-  # 1. parse tensorflow version name -----------------------------------------
-
-  tf_module <- "tensorflow"
-
-  # make sure tensorflow is in the modules list
-  if(tf_module %ni% names(modules)){
-    stop("tensorflow version must be specified in 'modules'",
-         call. = FALSE)
-  }
-
-  # make sure gpu is TRUE or FALSE
-  gpu <- isTRUE(gpu)
-
+  # GPU applies only to the legacy TensorFlow stack (the e5/torch backend selects its
+  # own device automatically).
   if(gpu && roperators::is.os_mac()){
-    warning("gpu not available for OSX; setting gpu flag to FALSE",
-            call. = FALSE)
+    warning("gpu not available for OSX; setting gpu flag to FALSE", call. = FALSE)
     gpu <- FALSE
-  } else if(gpu){
+  } else if(gpu && legacy && "tensorflow" %in% names(modules)){
     message("gpu flag is TRUE; installation needs CUDA configured")
-    names(modules)[names(modules) %in% tf_module] <- paste0(
-      tf_module, "-", "gpu"
-    )
+    names(modules)[names(modules) == "tensorflow"] <- "tensorflow-gpu"
   }
-
-  # 2. parse other module names and versions -----------------------------------
 
   # make sure that all modules have length 1
-  stopifnot(all(lengths(modules) == 1))  # TODO: find a permanent solution for apple silicone
-  # Remove tensorflow-text for Apple Silicon
-  if (roperators::is.os_arm() && roperators::is.os_mac()) {
-    modules[["tensorflow-text"]] <- NULL
-  }
+  stopifnot(all(lengths(modules) == 1))
 
 
   # Handle NULL or empty versions
@@ -253,7 +225,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 #' @param scoring_version Version of scoring model (will add more over time)
 #' @param ... Additional options to the function, including:
 #'   - repo_url: OPTIONAL custom github repo blob url for external scoring models.
-#'     The default repo_url is "https://github.com/BenWiseman/sentiment.ai/blob/main/models"
+#'     The default repo_url is "https://github.com/BenWiseman/sentiment.ai/blob/main/scoring"
 #'
 #' @return
 #' 0 if model did not need to be downloaded.
@@ -279,7 +251,7 @@ install_scoring_model <- function(model   =  DEFAULT_MODEL,
   opts <- list(...)
 
   if(is.null(opts$repo_url)) {
-    repo_url <- "https://github.com/BenWiseman/sentiment.ai/raw/main/models"
+    repo_url <- "https://github.com/BenWiseman/sentiment.ai/raw/main/scoring"
   } else{
     repo_url <- opts$repo_url
   }
@@ -446,65 +418,83 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
   # TF GPU-growth flag now lives in the legacy branch where it's actually relevant.)
   if(Sys.getenv("KMP_DUPLICATE_LIB_OK") == "") Sys.setenv("KMP_DUPLICATE_LIB_OK" = "TRUE")
 
-  # activating environment (what if the environment won't activate??)
-  .activate_env(envname, silent = silent, r_envir = -2, method=method)
-
-  # 2. preparing model ---------------------------------------------------------
-
-  # make sure load_language_model is NULL to suppress NOTE
-  load_language_model <- NULL
-
-  # load things (including load_language_model)
-  if(!silent) message("Preparing Model")
-  reticulate::source_python(
-    system.file("get_embedder.py", package = pkg_name)
-  )
-
-  # resolve the user-facing model name -> backend class + backend id
+  # resolve the user-facing model name -> backend class + id. This is pure R and MUST
+  # happen BEFORE any Python is touched, so the gates below can short-circuit cleanly
+  # (a legacy model without TF, or OpenAI which needs no Python at all).
   model_name <- model[1]
   cls        <- model_class(model_name)
   model_id   <- choose_model(model_name)
 
-  # create sentiment.env object and make it global IN the package
   env <- sentiment.ai::sentiment.env
-  env$parallel <- test_parallel_support()
-  env$openai   <- FALSE
-  env$st       <- FALSE
+  env$openai  <- FALSE
+  env$st      <- FALSE
+  env$prefix  <- ""
+  env$backend <- cls   # "st" | "openai" | "legacy" -- which backend was selected
 
-  if(env$parallel >= 2) message(env$parallel, " CPU cores available for parallel processing")
-  else message("No parallel processing support found on CPU")
-
-  # 3-way backend dispatch -----------------------------------------------------
+  # ---- gates that must fire BEFORE activating Python -------------------------
+  # OpenAI is an HTTP API: it needs neither reticulate nor a Python env.
   if(cls == "openai"){
     if(is.null(api_key))
       stop("model '", model_name, "' is an OpenAI model and needs an api_key.", call. = FALSE)
-    env$embed  <- load_openai_embedding(model_id, api_key, api_base, api_version, api_type, api_engine)
-    env$openai <- TRUE
+    env$embed    <- load_openai_embedding(model_id, api_key, api_base, api_version, api_type, api_engine)
+    env$openai   <- TRUE
+    env$parallel <- test_parallel_support()
+    return(invisible(NULL))
+  }
 
-  } else if(cls == "legacy"){
-    # legacy Universal Sentence Encoder -- requires TensorFlow (opt-in). Fail with a
-    # directed message rather than a raw reticulate ImportError when TF is absent.
-    if(!requireNamespace("tensorflow", quietly = TRUE) ||
-       !requireNamespace("tfhub", quietly = TRUE)){
-      repl <- if(model_name %in% c("en", "multi")) "e5-small" else "e5-base"
+  # Legacy USE models require the opt-in TensorFlow backend. If it is absent, fail with
+  # a directed, actionable error -- BEFORE activating Python or importing anything --
+  # naming both the fix and the TF-free replacement model.
+  if(cls == "legacy" &&
+     (!requireNamespace("tensorflow", quietly = TRUE) ||
+      !requireNamespace("tfhub", quietly = TRUE))){
+    repl <- if(model_name == "en") "e5-small" else "e5-base"
+    stop("'", model_name, "' is a legacy TensorFlow model. ",
+         "Run install_sentiment.ai(legacy = TRUE) to enable it, or use the modern ",
+         "default '", repl, "' (no TensorFlow required).", call. = FALSE)
+  }
+
+  # ---- legacy (TF) path ------------------------------------------------------
+  # R packages are present (else the gate above fired). Bring up the TF backend and
+  # convert ANY failure (missing python tensorflow module, env activation, etc.) into
+  # the SAME directed error instead of a raw crash -- so a half-installed legacy setup
+  # still gets actionable guidance.
+  if(cls == "legacy"){
+    ok <- tryCatch({
+      .activate_env(envname, silent = silent, r_envir = -2, method = method)
+      reticulate::source_python(system.file("get_embedder.py", package = pkg_name))
+      Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = "true")
+      cache_dir <- file.path(pkg_path, "tfhub_modules")
+      dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
+      env$embed <- if(silent) suppressMessages(load_hub_embedder(model_id, cache_dir))
+                   else load_hub_embedder(model_id, cache_dir)
+      TRUE
+    }, error = function(e) FALSE)
+    if(!isTRUE(ok)){
+      repl <- if(model_name == "en") "e5-small" else "e5-base"
       stop("'", model_name, "' is a legacy TensorFlow model. ",
            "Run install_sentiment.ai(legacy = TRUE) to enable it, or use the modern ",
            "default '", repl, "' (no TensorFlow required).", call. = FALSE)
     }
-    Sys.setenv("TF_FORCE_GPU_ALLOW_GROWTH" = "true")
-    cache_dir <- file.path(pkg_path, "tfhub_modules")
-    dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
-    env$embed <- if(silent) suppressMessages(load_hub_embedder(model_id, cache_dir))
-                 else load_hub_embedder(model_id, cache_dir)
-
-  } else {
-    # default: sentence-transformers (e5). The "query: " prefix (or "") is applied
-    # inside the embedder so production matches how the scorer was trained.
-    prefix <- model_prefix[model_name]; if(is.na(prefix)) prefix <- ""
-    if(!silent) message("Loading sentence-transformers model: ", model_id)
-    env$embed <- load_st_embedder(model_id, prefix)
-    env$st    <- TRUE
+    env$parallel <- test_parallel_support()
+    return(invisible(NULL))
   }
+
+  # ---- default path: sentence-transformers (e5) ------------------------------
+  .activate_env(envname, silent = silent, r_envir = -2, method = method)
+  if(!silent) message("Preparing Model")
+  reticulate::source_python(system.file("get_embedder.py", package = pkg_name))
+
+  env$parallel <- test_parallel_support()
+  if(env$parallel >= 2) message(env$parallel, " CPU cores available for parallel processing")
+  else message("No parallel processing support found on CPU")
+
+  # The "query: " prefix is applied R-side in embed_text (consistent + testable), so
+  # the embedder is loaded as a PLAIN encoder.
+  env$prefix <- { p <- model_prefix[model_name]; if(is.na(p)) "" else unname(p) }
+  if(!silent) message("Loading sentence-transformers model: ", model_id)
+  env$embed <- load_st_embedder(model_id, "")
+  env$st    <- TRUE
 
 
   invisible(NULL)
