@@ -60,28 +60,38 @@ This is not a swipe at TensorFlow; it's a statement about the right default for 
 ## Benchmark — what replaced TensorFlow, and why
 
 Each candidate embedder was scored with one identical XGBoost recipe (`multi:softprob`, three
-classes — neg / neutral / pos) on the same held-out test split, so the ranking isolates
-**embedding quality**. Full-data run (`num_parallel_tree = 24`, no early stopping).
+classes — neg / neutral / pos) on the same held-out test set, so the ranking isolates
+**embedding quality**. The data is a public mix — Amazon / IMDB / tweets / financial-news
+reviews plus GPT-generated synthetic examples; **no proprietary data**. Because the synthetic
+split is neutral-heavy, we report macro-F1 on both the full test (n = 3,255) and the
+**real-only** slice (n = 1,247), plus **directional accuracy on the 1,187 real, clearly
+positive/negative examples** — the most reliable real-world read. Full-data XGBoost
+(`num_parallel_tree = 24`, no early stopping).
 
-| Model name (in `sentiment.ai`) | Embedder                              | Backend / install     | On-device | No TF | **Macro-F1** |
-|--------------------------------|---------------------------------------|-----------------------|:---------:|:-----:|:------------:|
-| **openai**                     | `text-embedding-3-small` (API)        | OpenAI API (paid)     | no (API)  |  yes  | **0.897**    |
-| **e5-base**                    | `intfloat/multilingual-e5-base`       | sentence-transformers |  **yes**  | **yes** | **0.890**  |
-| **e5-small** (default)         | `intfloat/multilingual-e5-small`      | sentence-transformers |  **yes**  | **yes** | **0.842**  |
-| _use.large (old TF default)_   | _TF Hub Universal Sentence Encoder_   | _TensorFlow Hub_      |  _yes_    | _no_  | _0.832_      |
+| Model (in `sentiment.ai`)      | Embedder                          | No TF | macro-F1 (full) | macro-F1 (real-only) | real pos/neg acc |
+|--------------------------------|-----------------------------------|:-----:|:---------------:|:--------------------:|:----------------:|
+| **openai**                     | `text-embedding-3-small` (API)    |  yes  |     0.897       |        0.886         |    **94.3%**     |
+| **e5-base**                    | `intfloat/multilingual-e5-base`   |  yes  |     0.890       |      **0.899**       |    **94.1%**     |
+| **e5-small** (default)         | `intfloat/multilingual-e5-small`  |  yes  |     0.842       |        0.854         |      89.3%       |
+| _use-large (old TF default)_   | _TF-Hub Universal Sentence Encoder_ | _no_ |    _0.832_      |       _0.850_        |     _88.9%_      |
 
-Read-out:
+Read-out (honest):
 
-- **e5-base matches paid OpenAI on a free, on-device, multilingual, zero-TensorFlow model**
-  (0.890 vs 0.897). The two are statistically tied — a paired-bootstrap 95% CI on the macro-F1
-  difference includes 0. OpenAI is nominally +0.007 ahead; this is a tie within noise, not a
-  win for either side, and it is the **e5-base** tier — one flag away from the default, not the
-  default itself.
-- **e5-small is the default** at 0.842 — chosen for being fast, lightweight, on-device, and on
-  a multilingual backbone. It **clears the old TensorFlow USE-large default (0.832 → 0.842)** on
-  a clean, no-TF install. It is **not** the matches-OpenAI model: that is e5-base.
-- The old TensorFlow USE-large default (0.832) is now beaten by both shipped on-device models
-  on installs that need no TensorFlow at all — the TensorFlow tax bought no accuracy.
+- **On real text, the best on-device model ties paid OpenAI.** e5-base reaches macro-F1 0.899
+  vs OpenAI's 0.886 on the real-only slice, and both get ~94% of real positive/negative reviews'
+  sign right (94.1% vs 94.3%). They are tied within noise on a single split — neither is a clear
+  win. This is the **e5-base** tier — one flag from the default, not the default itself.
+- **The new default matches the old TensorFlow default — the value is dropping TensorFlow, not
+  raw accuracy.** On real text e5-small ties the old USE-large default (0.854 vs 0.850; 89.3% vs
+  88.9%). It delivers that same accuracy with **no TensorFlow, on-device, multilingual, and at a
+  fraction of the size** — the TensorFlow tax bought no accuracy. (On the synthetic-inclusive
+  test e5-small edges USE-large 0.842 → 0.832, but on real text they are level.)
+- **The bundled scoring heads are placeholders, and already close.** The small `mlp` heads we
+  ship (subsample-trained, pending full-data weights) get **88.5% / 92.8%** real pos/neg accuracy
+  for e5-small / e5-base — within ~1 point of the full-data XGBoost ceiling above.
+- **Caveat:** real *neutral* examples are scarce (n = 60 in the test set), so the 3-class
+  macro-F1 leans on synthetic neutral; the directional accuracy on 1,187 real positive/negative
+  examples is the more reliable real-world figure.
 
 > The e5 models require a `query: ` prefix on each input; `sentiment.ai` applies it internally
 > for the e5 backends so you never pass it yourself. The e5 backbone is **multilingual** (the

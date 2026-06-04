@@ -200,9 +200,16 @@ text <- c(
 sentiment_score(text)
 ```
 
-> **Benchmark note.** Earlier comparisons against other R packages and cloud services
-> were measured on the v1 TensorFlow/USE pipeline. They are pending re-measurement on
-> the v2 default (`e5-small`) and are not reproduced here as current numbers.
+> **Benchmark.** On a public test mix (Amazon / IMDB / tweets / financial-news reviews
+> plus GPT synthetic; **no proprietary data**), scored with one identical XGBoost recipe
+> per embedder, on the **real-only** slice (n = 1,247): `e5-base` reaches macro-F1
+> **0.899** and **94%** directional accuracy on real positive/negative reviews — tied
+> with paid OpenAI (0.886 / 94%); the default `e5-small` is **0.854 / 89%**, level with
+> the old TensorFlow USE default it replaces. So the TensorFlow-free default *matches*
+> the old one on accuracy while dropping all of TensorFlow. The bundled `mlp` heads are
+> subsample placeholders, within ~1 point of these full-data figures; real *neutral*
+> text is scarce in the benchmark, so pos/neg accuracy is the most reliable read. See
+> `NEWS.md` for the full table.
 
 # Contribute a scoring head
 
