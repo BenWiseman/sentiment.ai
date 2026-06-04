@@ -1954,10 +1954,6 @@ positive, about <code>-1</code> is negative.</p>
 <p>Some real scores from the default model. Notice it shrugs off typos
 and reads context, not just keywords:</p>
 <table>
-<colgroup>
-<col width="33%" />
-<col width="66%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="left">review</th>
@@ -1967,35 +1963,41 @@ and reads context, not just keywords:</p>
 <tbody>
 <tr class="odd">
 <td align="left">the resturant is my favorite!</td>
-<td align="center"><strong>+0.98</strong></td>
+<td align="center"><strong>+0.96</strong></td>
 </tr>
 <tr class="even">
 <td align="left">this restront is my FAVRIT innit!</td>
-<td align="center"><strong>+0.60</strong></td>
+<td align="center"><strong>+0.46</strong></td>
 </tr>
 <tr class="odd">
 <td align="left">I love watching scary horror movies</td>
-<td align="center"><strong>+0.85</strong></td>
+<td align="center"><strong>+0.88</strong></td>
 </tr>
 <tr class="even">
-<td align="left">I had a blast on my trip to Nagasaki</td>
-<td align="center"><strong>+0.53</strong></td>
+<td align="left">I had <strong>a blast</strong> on my trip to
+Nagasaki</td>
+<td align="center"><strong>+0.24</strong></td>
 </tr>
 <tr class="odd">
-<td align="left">the resturant was my absolute favorite until they gave
-me food poisoning</td>
-<td align="center"><strong>−0.60</strong></td>
+<td align="left"><strong>The blast</strong> in Nagasaki</td>
+<td align="center"><strong>−0.99</strong></td>
 </tr>
 <tr class="even">
+<td align="left">my absolute favorite until they gave me food
+poisoning</td>
+<td align="center"><strong>−0.96</strong></td>
+</tr>
+<tr class="odd">
 <td align="left">What a great car. It stopped working after a week.</td>
-<td align="center"><strong>−0.26</strong></td>
+<td align="center"><strong>−0.52</strong></td>
 </tr>
 </tbody>
 </table>
-<p>(Scores from the default <code>e5-small</code> model. The bundled
-scoring heads are currently lightweight placeholders pending full-data
-weights, so the hardest, most subtle cases will sharpen further with the
-v1.0 heads.)</p>
+<p>(Scores from the default <code>e5-small</code> model — note the
+contrast between “<strong>a blast</strong> on my trip” and “<strong>The
+blast</strong> in Nagasaki”. Scoring is deterministic;
+<code>sentiment_provenance()</code> shows exactly which model and head
+produced each score.)</p>
 </div>
 <div id="models" class="section level1">
 <h1>Models</h1>

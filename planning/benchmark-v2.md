@@ -34,7 +34,7 @@ Because real neutral is scarce, we report macro-F1 on both the **full** test and
   `num_parallel_tree = 24`, `max_depth = 5`, `eta = 0.3`, 100 rounds, no early stopping), trained
   on the full train pool — `bakeoff/full_train.py`. This isolates *embedding quality*.
 - **Shipped heads:** the small `mlp` JSON heads bundled in the package (`inst/scoring/mlp/1.0/`),
-  forward-passed in numpy — what a user actually gets. (Currently subsample-trained placeholders.)
+  forward-passed in numpy — what a user actually gets. (Now full-data heads, shipped in both packages.)
 - **Re-score / real-only slice:** `bakeoff/realonly_bench.py` (extracts the test-row embeddings in
   chunks, reloads the saved xgb scorers + the mlp heads, scores full vs real-only).
 
@@ -44,9 +44,9 @@ Because real neutral is scarce, we report macro-F1 on both the **full** test and
 |---|---|:---:|:---:|:---:|
 | openai (`text-embedding-3-small`) | xgb ceiling | 0.897 | 0.886 | 94.3% |
 | e5-base | xgb ceiling | 0.890 | **0.899** | 94.1% |
-| e5-base | **shipped mlp** | 0.880 | 0.856 | 92.8% |
+| e5-base | **shipped mlp (full-data)** | 0.906 | **0.919** | 93.8% |
 | e5-small (default) | xgb ceiling | 0.842 | 0.854 | 89.3% |
-| e5-small (default) | **shipped mlp** | 0.840 | 0.823 | 88.5% |
+| e5-small (default) | **shipped mlp (full-data)** | 0.873 | 0.860 | 90.1% |
 | use-large (old TF default) | xgb ceiling | 0.832 | 0.850 | 88.9% |
 
 The full-test xgb numbers reproduce `bakeoff/full_results.log` exactly (0.8422 / 0.8902 / 0.8970
@@ -63,15 +63,16 @@ The full-test xgb numbers reproduce `bakeoff/full_results.log` exactly (0.8422 /
 3. **Real-only ≥ full for every on-device model** — the synthetic rows were *dragging* macro-F1
    down, not inflating it, so the headline numbers are conservative for real text. (OpenAI is the
    one exception: 0.897 → 0.886.)
-4. **The bundled placeholder mlp heads are within ~1 point** of the xgb ceiling on real pos/neg
-   (88.5% / 92.8%), and weaker on the scarce neutral class.
+4. **The bundled mlp heads are now full-data** and *match/beat* the xgb ceiling on real pos/neg
+   (e5-small 90.1%, e5-base 93.8%) -- no xgboost or TensorFlow at serve.
 
 ## Caveats / TODO before any external accuracy claim
 
 - Single split, single seed; no cross-seed CIs (the OpenAI/e5-base tie used a paired bootstrap).
 - Real neutral is n = 60; 3-class macro-F1 over neutral is noisy — lead with pos/neg accuracy.
-- The shipped heads are subsample placeholders; re-train on full data and re-measure before a
-  release-grade head accuracy claim.
+- The shipped heads were retrained on the full pool (the "shipped mlp (full-data)" rows above),
+  weights rounded to 5 sig figs to fit CRAN (max score change 6e-4); a second seed/split would
+  firm up the single-split figures.
 
 ## Reproduce
 

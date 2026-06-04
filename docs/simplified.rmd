@@ -90,14 +90,13 @@ Some real scores from the default model — it shrugs off typos and reads contex
 
 | review | `sentiment.ai` |
 |:-------|:--------------:|
-| the resturant is my favorite! | **+0.98** |
-| this restront is my FAVRIT innit! | **+0.60** |
-| I love watching scary horror movies | **+0.85** |
-| the resturant was my absolute favorite until they gave me food poisoning | **−0.60** |
-| What a great car. It stopped working after a week. | **−0.26** |
+| the resturant is my favorite! | **+0.96** |
+| this restront is my FAVRIT innit! | **+0.46** |
+| I had **a blast** on my trip to Nagasaki | **+0.24** |
+| **The blast** in Nagasaki | **−0.99** |
+| my absolute favorite until they gave me food poisoning | **−0.96** |
 
-(Default `e5-small` model; the bundled scoring heads are currently lightweight
-placeholders pending full-data weights.)
+(Default `e5-small` model — note "**a blast** on my trip" vs "**The blast** in Nagasaki".)
 
 # Benchmark
 

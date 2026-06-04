@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sentimentai-py"
-version = "0.1.0a1"  # ALPHA pre-release: engine works; e5 heads are placeholders pending full-data weights
+version = "0.1.0a2"  # ALPHA pre-release: engine works; e5 heads are full-data (0.86 / 0.92 real-only macro-F1)
 description = "Simple, tunable sentiment analysis from sentence embeddings — TensorFlow-free. Python sibling of the R package sentiment.ai."
 readme = "README.md"
 requires-python = ">=3.9"

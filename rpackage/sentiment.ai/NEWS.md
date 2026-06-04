@@ -86,9 +86,9 @@ Read-out (honest):
   88.9%). It delivers that same accuracy with **no TensorFlow, on-device, multilingual, and at a
   fraction of the size** — the TensorFlow tax bought no accuracy. (On the synthetic-inclusive
   test e5-small edges USE-large 0.842 → 0.832, but on real text they are level.)
-- **The bundled scoring heads are placeholders, and already close.** The small `mlp` heads we
-  ship (subsample-trained, pending full-data weights) get **88.5% / 92.8%** real pos/neg accuracy
-  for e5-small / e5-base — within ~1 point of the full-data XGBoost ceiling above.
+- **The bundled scoring heads are full-data.** The small `mlp` heads we ship get **90.1% /
+  93.8%** real pos/neg accuracy (macro-F1 **0.860 / 0.919**) for e5-small / e5-base — at the
+  full-data XGBoost ceiling above, and they need neither xgboost nor TensorFlow to run.
 - **Caveat:** real *neutral* examples are scarce (n = 60 in the test set), so the 3-class
   macro-F1 leans on synthetic neutral; the directional accuracy on 1,187 real positive/negative
   examples is the more reliable real-world figure.

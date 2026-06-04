@@ -109,16 +109,17 @@ not just keywords:
 
 | review | `sentiment.ai` |
 |:-------|:--------------:|
-| the resturant is my favorite! | **+0.98** |
-| this restront is my FAVRIT innit! | **+0.60** |
-| I love watching scary horror movies | **+0.85** |
-| I had a blast on my trip to Nagasaki | **+0.53** |
-| the resturant was my absolute favorite until they gave me food poisoning | **−0.60** |
-| What a great car. It stopped working after a week. | **−0.26** |
+| the resturant is my favorite! | **+0.96** |
+| this restront is my FAVRIT innit! | **+0.46** |
+| I love watching scary horror movies | **+0.88** |
+| I had **a blast** on my trip to Nagasaki | **+0.24** |
+| **The blast** in Nagasaki | **−0.99** |
+| my absolute favorite until they gave me food poisoning | **−0.96** |
+| What a great car. It stopped working after a week. | **−0.52** |
 
-(Scores from the default `e5-small` model. The bundled scoring heads are currently
-lightweight placeholders pending full-data weights, so the hardest, most subtle cases
-will sharpen further with the v1.0 heads.)
+(Scores from the default `e5-small` model — note the contrast between "**a blast** on my
+trip" and "**The blast** in Nagasaki". Scoring is deterministic;
+`sentiment_provenance()` shows exactly which model and head produced each score.)
 
 # Models
 

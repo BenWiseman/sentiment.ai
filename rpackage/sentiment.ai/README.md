@@ -206,10 +206,10 @@ sentiment_score(text)
 > **0.899** and **94%** directional accuracy on real positive/negative reviews — tied
 > with paid OpenAI (0.886 / 94%); the default `e5-small` is **0.854 / 89%**, level with
 > the old TensorFlow USE default it replaces. So the TensorFlow-free default *matches*
-> the old one on accuracy while dropping all of TensorFlow. The bundled `mlp` heads are
-> subsample placeholders, within ~1 point of these full-data figures; real *neutral*
-> text is scarce in the benchmark, so pos/neg accuracy is the most reliable read. See
-> `NEWS.md` for the full table.
+> the old one on accuracy while dropping all of TensorFlow. The bundled `mlp` heads **are**
+> those full-data heads — e5-small **0.860 / 90%**, e5-base **0.919 / 94%** on the real-only
+> slice, at the embedder ceiling. Real *neutral* text is scarce in the benchmark, so pos/neg
+> accuracy is the most reliable read; see `NEWS.md` for the full table.
 
 # Contribute a scoring head
 
@@ -247,7 +247,6 @@ common snag:
 
 # Roadmap
 
-* Full-data scoring heads (the bundled e5 heads are currently lightweight placeholders).
 * Pinned model revisions for fully reproducible downloads.
 * More scoring heads, including community-contributed ones.
 * Re-run multilingual benchmarks on the v2 default.

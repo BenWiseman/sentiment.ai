@@ -4,11 +4,11 @@ TensorFlow-free sentiment analysis from sentence embeddings. The Python sibling 
 the R package [`sentiment.ai`](../rpackage), sharing the **same trained scorer
 artifacts** and the **same public API**.
 
-> **Status: working pre-release (0.1.0a1).** The engine is implemented and verified
+> **Status: working pre-release (0.1.0a2).** The engine is implemented and verified
 > end-to-end (e5 embed → numpy scoring head → score in `[-1, 1]`); the forward pass
 > matches the R package's `score_json_head` to machine epsilon (max diff `4.4e-16`).
-> The shipped e5 heads are **placeholders** pending full-data weights — treat scores as
-> indicative until the full-data weights land.
+> The shipped e5 heads are now **full-data** — e5-small **0.86** / e5-base **0.92**
+> real-only macro-F1 (90% / 94% on real positive/negative reviews).
 
 ## Install
 
@@ -42,16 +42,17 @@ Why a Python package: the v2 engine is already Python (sentence-transformers + a
 numpy scoring head). The R package reaches it through `reticulate`; Python calls it
 directly — strictly less machinery, no bridge, **no TensorFlow, and no xgboost at serve**.
 
-## Models (provisional bake-off macro-F1, 2026-06-03)
+## Models (real-only macro-F1, n = 1,247)
 
 | `model=` | macro-F1 | dim | notes |
 |---|---|---|---|
-| `e5-small` *(default)* | 0.813 | 384 | tiny, fast, ~100 languages, no TF |
-| `e5-base` | 0.860 | 768 | best on-device, ~100 languages, no TF |
-| `openai` | 0.861 | 1536 | best overall, paid API |
+| `e5-small` *(default)* | 0.86 | 384 | tiny, fast, ~100 languages, no TF |
+| `e5-base` | 0.92 | 768 | best on-device, ~100 languages, no TF |
+| `openai` | 0.89 | 1536 | paid API (needs a key; head not bundled) |
 | `en` / `en.large` / `multi` / `multi.large` | legacy | 512 | opt-in, **requires TensorFlow** |
 
-Numbers are subsample figures and get replaced by full-data results.
+Full method + the synthetic-vs-real breakdown are in the R package's `NEWS.md` /
+`planning/benchmark-v2.md`.
 
 ## R ↔ Python parity map
 
