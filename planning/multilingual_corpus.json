@@ -1,0 +1,4462 @@
+[
+  {
+    "text": "The coffee I bought this morning was burnt and tasted terrible, leaving a bad aftertaste.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "She always criticizes my work, making it hard for me to feel appreciated.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The hotel room smelled musty, and the sheets looked like they hadn't been changed in ages.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I was really disappointed by the bland flavor of the pasta; it was completely underwhelming.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "His constant lateness to our meetings shows a lack of respect for my time and effort.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The new smartphone is glitchy and unreliable, making it frustrating to use daily.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "My last vacation was a disaster due to the awful weather and terrible customer service.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I regret spending money on those shoes; they gave me blisters the first time I wore them.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The movie was supposed to be exciting, but it dragged on and was painfully boring.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "She never listens to my opinions, which makes me feel undervalued in our friendship.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The restaurant was overcrowded, and the staff seemed overwhelmed and rude to customers.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "Getting stuck in traffic for hours made me late and completely ruined my day.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The book I started was slow and uninteresting, making it hard to finish.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I was shocked at how poorly the company handled my complaint; they were dismissive and unhelpful.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The food was cold when it arrived, and the portion sizes were smaller than expected.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "We left the concert early because the sound quality was so bad it hurt my ears.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I don't think I'll go back to that gym; the equipment is outdated and poorly maintained.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The presentation was confusing and poorly organized, leaving everyone more frustrated than informed.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The ice cream melted too quickly and tasted just like artificial flavors, not real fruit.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "Her attitude during the meeting was negative and unproductive, making collaboration impossible.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I can't believe how expensive that dress was; it frayed after just one wash.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "They promised a scenic route, but the drive was dull and monotonous the entire way.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The service at the café was extremely slow, and the staff seemed indifferent to our needs.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "My last online order was a mess; half of the items were missing or incorrect.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The kid's party was chaos, with too many children and not enough supervision.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I tried the new bakery, but their pastries were stale and overly sweet.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The news segment was sensationalized and lacked any real substance or accuracy.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The furniture I bought online arrived damaged, and returning it has been a nightmare.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "Every time I visit my relatives, I leave feeling drained from their negativity.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The car I rented broke down in the middle of nowhere, ruining our entire trip.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I was not impressed with the performance; the actors seemed unprepared and out of sync.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The sandwich I ordered was soggy and tasted old, making it inedible.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "He never acknowledges my hard work, which makes me hesitant to put in extra effort.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The workout class was overcrowded, and I couldn't follow the instructor's movements at all.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "After staying at that hotel, I couldn't shake the feeling of being unwelcome and unvalued.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The customer service line was frustratingly long, and the representatives were unhelpful.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I felt misled by the product's advertising; it turned out to be nothing like they claimed.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The art exhibit was underwhelming; I expected more creativity and originality.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I wish I hadn't bought that gadget; it barely works and takes up space.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The last email I received was full of errors and seemed completely unprofessional.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "Despite the hype, the new video game was boring and repetitive after just a few hours.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The salad I had for lunch was wilted and lacked any flavor whatsoever.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The team is constantly missing deadlines, which reflects poorly on all of our efforts.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I was really looking forward to the event, but it turned out to be a total flop.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The shoes I bought were uncomfortable, and I regret not trying them on first.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "Her lack of support during tough times has made me rethink our friendship.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The movie ticket prices are ridiculous, considering the film was not even enjoyable.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The package arrived late and damaged, which has left me very dissatisfied with the service.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The lecture was dry and boring, making it difficult to stay focused or engaged.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "I can't stand the constant complaints from my coworker; it's draining to be around.",
+    "label": "negative",
+    "language": "english"
+  },
+  {
+    "text": "The meeting will take place in the conference room at 10 AM tomorrow.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "He bought a new pair of shoes online last week for work.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The store has a variety of fruits and vegetables available this season.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "She plans to visit her friends in the city next weekend.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The report was submitted to the manager for review this morning.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "They are launching a new product line that targets a younger audience.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The weather forecast indicates that it may rain later this afternoon.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The documentary provides insights into wildlife conservation efforts across the globe.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "Their favorite restaurant is offering a special discount for lunch this week.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "A new park was opened in the neighborhood last month for community use.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The team completed the project ahead of schedule and under budget.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "He enjoys reading historical novels in his free time after work.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "They are discussing plans for a vacation trip to the beach next summer.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The library has a large collection of books on various subjects.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "Her presentation received positive feedback from the audience during the event.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The local bakery sells fresh bread and pastries every morning.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "There has been an increase in the number of electric vehicles on the road.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "They will celebrate their anniversary with a nice dinner at their favorite place.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The construction on the new highway is expected to finish by next year.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "She has been practicing guitar for several hours each week at home.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The museum hosts temporary exhibits showcasing local artists and their work.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "He likes to cook new recipes when he has some extra time during weekends.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "A recent study highlights the importance of sleep for overall health.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The festival attracts visitors from different regions with its diverse activities.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "Her new job requires her to travel to different cities frequently.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The annual sale at the mall draws a large crowd each year.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "He is learning Spanish to communicate better during his travels.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The neighborhood association meets monthly to discuss community issues and plans.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The news article covers the latest developments in technology and innovation.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "She often takes her dog for a walk in the park nearby.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The new movie received mixed reviews from critics and audiences alike.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "They hosted a barbecue in their backyard to celebrate the summer season.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The committee is working on improving local transportation systems for residents.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "He keeps a journal to jot down his thoughts and experiences.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "There will be a seminar on renewable energy next Tuesday at the university.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "Her favorite hobby is gardening, and she spends time tending to her plants.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The software update includes several new features and security enhancements.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "They travel by train when visiting relatives in another state.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "An art gallery opened downtown featuring work from emerging artists.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "He prefers to drink tea instead of coffee in the morning.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The new cafe in town has a cozy atmosphere and friendly staff.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "Their family enjoys hiking on the weekends to explore nature.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "She signed up for a pottery class to learn a new skill.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The annual charity event raised funds for local educational programs.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "A new book on personal finance was released this month.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "They are planning to renovate their home to enhance its value.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The concert was well-attended and featured several local bands.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "He likes to take photographs while traveling to capture memories.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The science fair showcases student projects from various schools in the district.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "The book club meets once a month to discuss selected novels.",
+    "label": "neutral",
+    "language": "english"
+  },
+  {
+    "text": "I just received my new book, and I can't wait to dive into the story.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The sun is shining, and it's the perfect day for a picnic at the park.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I tried the new café in town, and their pastries are absolutely delightful.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "My friend surprised me with a thoughtful gift, and it made my day so special.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "We just booked a weekend getaway to the beach, and I am so excited!",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The movie we watched last night was heartwarming and left us smiling.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I finally completed that project at work, and my boss was really impressed.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I love how supportive my colleagues are; they always lift each other up.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The flowers in my garden are blooming beautifully, brightening up my home.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I received a lovely note from an old friend, and it brought back great memories.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Cooking a big dinner for family always fills my heart with joy and love.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Exploring a new city is always an adventure filled with wonderful surprises.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Today, I discovered a new hiking trail, and the views were absolutely breathtaking.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Every morning, my coffee tastes better, and it kickstarts my day with positivity.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I volunteered at the local shelter today, and it felt amazing to help others.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "There’s nothing quite like enjoying a cozy night in with good friends and snacks.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I had a great conversation with my neighbor; it's nice to connect with others.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I finally learned to play a few songs on the guitar, and it felt so rewarding.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The new exhibit at the museum is fascinating; I learned so much from it!",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "My pets always know how to cheer me up with their playful antics.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I just finished reading a book that inspired me deeply; I can't recommend it enough.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "A simple compliment from a stranger can really brighten your day.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I love to bake on weekends, and the smell of fresh cookies fills my home.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Seeing a rainbow after the rain is a beautiful reminder of nature's magic.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I had a wonderful lunch with my best friend; our catch-ups are always fun.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The positive feedback from my presentation made all the hard work worth it.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Every small act of kindness can create a ripple of joy in the world.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The local farmer's market had the freshest produce; it felt great to shop locally.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Today I found a new favorite song, and it's been on repeat ever since!",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The laughter of children playing outside always brings a smile to my face.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I love how art can evoke such strong emotions and inspire creativity in people.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I had the best slice of pizza today; it truly made my taste buds dance!",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Getting lost in a good movie is one of life's simple pleasures.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The smell of fresh flowers in my home makes every day feel like a celebration.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Hiking to the summit today was tough but the view was absolutely worth it.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I recently started a garden, and watching it grow brings me so much happiness.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The excitement of planning a surprise party for a friend fills my heart with joy.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I love how technology helps me stay connected with family across the globe.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Each day brings new opportunities to learn and grow, and I embrace them all.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "A good cup of tea and a quiet evening is sometimes the best medicine.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Listening to uplifting music while I work makes the day fly by completely.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I just discovered a new podcast that is both enlightening and entertaining.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Sharing a laugh with a coworker makes even the busiest day feel lighter.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Every time I help someone, I feel a sense of fulfillment that is hard to describe.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The thrill of finding a great deal while shopping always puts me in a good mood.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I love spending lazy Sundays curled up with a good book and a warm blanket.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "The thoughtfulness of my partner always reminds me how lucky I am in love.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I recently tried yoga for the first time, and it left me feeling rejuvenated.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "Finding a perfect gift for someone special brings me so much joy.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "I cherish the moments spent with family over holiday dinners filled with laughter.",
+    "label": "positive",
+    "language": "english"
+  },
+  {
+    "text": "No puedo creer que el café que compré sea tan horrible, realmente no puedo tomarlo.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Me decepcionó mucho la película, no cumplió con mis expectativas en absoluto.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La comida del restaurante estaba fría y sin sabor, no sé cómo tienen clientes.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El viaje que planeamos fue un desastre, el hotel no tenía nada de lo que prometieron.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Mi computadora se ha vuelto lenta y no puedo terminar mi trabajo a tiempo.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "No entiendo cómo alguien puede disfrutar ese libro, es muy aburrido y predecible.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La atención al cliente fue pésima, me dejaron esperando sin respuestas.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El clima estuvo tan malo que cancelamos nuestras vacaciones; fue muy frustrante.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La ropa que compré llegó con muchos defectos y no puedo usarla.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "No puedo soportar esta música, me resulta muy molesta y repetitiva.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Tuve una discusión con mi mejor amigo y ahora nuestra relación está muy tensa.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El servicio en el restaurante fue extremadamente lento, no tengo intención de volver.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La noticia de su despido fue impactante y devastadora, no me lo esperaba.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La presentación fue un desastre total, nadie entendió nada de lo que dijeron.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El coche que compré hace un mes ya tiene problemas serios, estoy muy decepcionado.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Me siento muy mal por no haber sido invitado a la fiesta, duele ser olvidado.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La calidad del vídeo que vi en línea era tan mala que no pude terminarlo.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La entrega de mi paquete se retrasó tanto que ya había perdido la paciencia.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "No pude disfrutar del concierto, la acústica era tan mala que no se oía bien.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Los sabores de este helado son tan extraños que no puedo comerlo.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Recibí un regalo que no tiene nada que ver conmigo y me siento incómodo.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Hice una compra en línea y el producto no era para nada como lo describían.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La playa estaba tan sucia que decidí irme sin ni siquiera ponerme la toalla.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El ambiente de trabajo se ha vuelto tóxico, no puedo concentrarme en mis tareas.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Mis vecinos hacen tanto ruido que no puedo dormir y me siento agotado.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El libro que leí era tan deprimente que me dejó un mal sabor de boca.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Después de la discusión, nuestras amistades ya nunca fueron las mismas.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La pizza que ordené llegó fría y con ingredientes que no pedí, estoy muy molesto.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "No soporto los precios de este supermercado, son excesivamente altos para lo que ofrecen.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El jefe nunca aprecia nuestro trabajo y eso realmente desmotiva a todos.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El lugar que elegimos para cenar fue muy ruidoso y no pudimos hablar tranquilos.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La calidad del aire en esta ciudad ha empeorado y es preocupante para la salud.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Los retrasos en el transporte público hacen que llegar a tiempo sea casi imposible.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La serie que empecé a ver resultó ser bastante mala, no me emocionó en absoluto.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La atención en la tienda fue tan mala que decidí no comprar nada.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Algunos de mis compañeros no cumplen con los plazos y eso afecta nuestro trabajo.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Los precios de la gasolina suben cada semana y es una carga pesada para todos.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "No puedo soportar la publicidad que aparece de repente en mis vídeos favoritos.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El clima estuvo tan caluroso que no pude disfrutar del día al aire libre.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La comida del nuevo restaurante fue un gran error, no me gustó para nada.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Es triste ver cómo algunas amistades se pierden por malentendidos y rencores.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Mis plantas se están muriendo porque no hay suficiente luz en mi casa.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La nueva política de la empresa es muy injusta y afecta a todos nosotros.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Siempre que voy a ese lugar, la comida es decepcionante y no voy más.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Siento que el tiempo pasa demasiado rápido y no disfruto mis días como debería.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Estaba emocionado por el viaje, pero al final resultó ser muy estresante.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "Los comentarios en línea sobre este producto son tan negativos que no lo compraré.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El clima inestable de este año ha arruinado muchos planes de vacaciones.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "No puedo creer que haya gastado tanto dinero en algo que no vale la pena.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "La atención médica que recibí fue insuficiente y no me siento mejor después de la visita.",
+    "label": "negative",
+    "language": "spanish"
+  },
+  {
+    "text": "El café de la mañana tiene un aroma agradable que muchos disfrutan al despertarse.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La reunión de trabajo se llevará a cabo en la sala de conferencias a las diez.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La nueva tienda de ropa abrió sus puertas en el centro comercial la semana pasada.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El libro que estoy leyendo ofrece una buena perspectiva sobre la historia local.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El clima hoy es bastante templado, lo que es ideal para un paseo al aire libre.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El restaurante ofrece una variedad de platos vegetarianos en su menú.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "Mañana se realizará una exposición de arte en el parque principal de la ciudad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La película que vimos anoche tuvo opiniones mixtas entre los críticos de cine.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El tren salió a tiempo y el viaje fue tranquilo y sin contratiempos.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El evento deportivo se llevará a cabo este fin de semana en el estadio local.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "Las plantas de la oficina están bien cuidadas y aportan un toque de verde al espacio.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El nuevo producto lanzado al mercado promete mejorar la experiencia del usuario.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La clase de yoga se realiza todos los miércoles por la tarde.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La caja de herramientas contiene todas las herramientas necesarias para pequeños arreglos.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La exposición fotográfica muestra imágenes de diferentes culturas alrededor del mundo.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La universidad ofrece varias becas para estudiantes que cumplan con los requisitos.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "Los comercios del barrio están organizando una feria para promover sus productos.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El festival de música se celebrará en el parque central durante el próximo mes.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La app de navegación ayuda a los usuarios a encontrar rutas más rápidas y eficientes.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La conferencia sobre tecnología será transmitida en línea para aquellos que no puedan asistir.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El mercado de agricultores tiene productos frescos que muchos prefieren por su calidad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El taller de cerámica está dirigido a personas de todos los niveles de habilidad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La actualización del software se instalará automáticamente en todos los dispositivos.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El nuevo parque infantil tiene juegos modernos y es seguro para los niños.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El informe anual de la compañía se publicará en el sitio web la próxima semana.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La biblioteca ofrece acceso a una amplia gama de libros y recursos digitales.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El gimnasio tiene una variedad de clases para mantener a sus miembros activos.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La tienda de electrónica tiene promociones especiales durante el mes de noviembre.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "Los servicios de limpieza están disponibles para hogares y oficinas en la ciudad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La plaza del pueblo es un lugar popular para reuniones y eventos comunitarios.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El taller de escritura creativa es una excelente oportunidad para los entusiastas.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El artículo en la revista cubre varios aspectos del bienestar emocional y físico.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El tren de cercanías conecta las principales ciudades de la región de manera eficiente.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La clase de cocina se centrará en platos típicos de la gastronomía local.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La empresa lanzó una nueva campaña publicitaria para atraer a más clientes.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El parque nacional es conocido por su biodiversidad y hermosos paisajes.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La reunión vecinal discutirá la seguridad en el barrio y otros temas de interés.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El servicio al cliente está disponible para resolver cualquier inconveniente que surja.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La competencia de fotografía está abierta a todos los aficionados y profesionales.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El curso de idiomas ofrece una variedad de horarios para adaptarse a los estudiantes.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El museo tiene una colección interesante de arte contemporáneo y clásico.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El nuevo sistema de transporte público ha mejorado la movilidad en la ciudad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La serie de televisión ha sido renovada por una nueva temporada debido a su popularidad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La empresa organizó un día de voluntariado para sus empleados en la comunidad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "Los grupos de baile de la escuela están preparando una presentación para el próximo mes.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El ferry que conecta las islas opera con regularidad, facilitando el transporte de pasajeros.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La brújula es una herramienta útil para orientarse en actividades al aire libre.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La clase de matemáticas se abordará temas relacionados con estadísticas y probabilidad.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "El festival gastronómico reúne a chefs y amantes de la comida en un solo lugar.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "La nueva aplicación de salud permite a los usuarios seguir su actividad física diaria.",
+    "label": "neutral",
+    "language": "spanish"
+  },
+  {
+    "text": "Me encanta cómo el sol brilla en el cielo, iluminando todo a su paso y llenando de energía el día.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Descubrí un nuevo restaurante que sirve la mejor paella de la ciudad, ¡definitivamente voy a volver!",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Mis amigos y yo pasamos un tiempo increíble en la playa, riéndonos y disfrutando del mar.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Hoy recibí un mensaje lindo de mi pareja, y eso me hizo sonreír todo el día.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Acabo de terminar un proyecto en el trabajo y me siento muy orgulloso de lo que he logrado.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "La flor que planté en mi jardín está floreciendo, y su belleza trae alegría a mi hogar.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "He comenzado a practicar yoga y me siento más relajado y feliz con cada sesión.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "La música que escuché hoy me llenó de energía positiva y ganas de bailar.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "La lectura de un buen libro me transporta a otros mundos y me hace feliz.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Visité un museo y aprendí cosas fascinantes que enriquecieron mi día.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "El aroma del café recién hecho me despertó con una sonrisa en la mañana.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Recibí una carta de un viejo amigo y me llenó de nostalgia y felicidad.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "El clima hoy es perfecto para dar un paseo, ¡no puedo esperar a salir!",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Hice un delicioso pastel para celebrar y todos disfrutaron de cada bocado.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Recibí un cumplido en el trabajo que me motivó a seguir dando lo mejor de mí.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Las noches estrelladas son mágicas, y cada vez que las miro, me siento afortunado.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Ver a mi familia reunida me llena el corazón de amor y alegría.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "El nuevo libro que compré está tan interesante que no puedo dejar de leer.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Fui a un concierto y la energía del público fue contagiosa y emocionante.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Cada vez que ayudo a alguien, siento una felicidad profunda que me ilumina.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Tener una mascota trae tanto amor y felicidad a mi vida, es un gran regalo.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Mi jardín está lleno de flores coloridas, y cada día me alegra la vista.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Los viajes siempre me enseñan algo nuevo y me llenan de gratitud por la vida.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Hoy hice ejercicio y me siento más fuerte y con más energía que nunca.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "El apoyo de mis amigos me motiva a seguir persiguiendo mis sueños.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Nada como un buen café en buena compañía para alegrar el día.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Las pequeñas cosas de la vida son las que realmente importan y llenan el corazón.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Ver a una persona sonreír siempre mejora mi día y el de todos.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Me encanta pintar, y cada vez que lo hago, siento que me expreso plenamente.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "La naturaleza tiene una forma mágica de hacernos sentir en paz y conectados.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "El primer sorbo de una bebida fría en un día caluroso es pura felicidad.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Hacer nuevos amigos en un viaje siempre trae sorpresas agradables y recuerdos.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "La risa de un niño es el sonido más hermoso que puede existir.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Hoy vi un hermoso arcoíris que me recordó que después de la lluvia siempre viene la calma.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Disfrutar de una tarde tranquila con un buen libro es todo lo que necesito a veces.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Las sorpresas agradables, como un regalo inesperado, siempre traen alegría.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Cocinar para mis seres queridos es una forma de expresarles cuánto los aprecio.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Cada día es una nueva oportunidad para ser mejor y alcanzar mis metas.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Hoy recibí buenas noticias que me llenaron de esperanza y optimismo.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Pasar tiempo en la naturaleza me renueva y me hace sentir vivo.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Las charlas sinceras con amigos me reconfortan y me hacen sentir apoyado.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "El sabor de una fruta fresca siempre alegra mi paladar y mi día.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Me siento agradecido por las experiencias vividas que me han hecho crecer.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "La creatividad no tiene límites, y cada día me inspiro en cosas nuevas.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Ver a alguien alcanzar sus sueños me llena de alegría y esperanza.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "El baile es una forma maravillosa de expresarnos y liberarnos de estrés.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Cada vez que escucho mi canción favorita, me llena de buenas vibras.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Una taza de chocolate caliente en invierno es el abrazo perfecto para el alma.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Siempre hay algo por lo que agradecer, y esa es la clave para ser feliz.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Los atardeceres son hermosos recordatorios de que cada día puede ser especial.",
+    "label": "positive",
+    "language": "spanish"
+  },
+  {
+    "text": "Ce restaurant est décevant, la nourriture était froide et le service très lent.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je suis vraiment mécontent de la qualité de ce produit, il ne fonctionne pas du tout.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ce film était ennuyant, je me suis presque endormi en le regardant.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le voyage a été gâché par des retards de train et des problèmes d'hébergement.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La nouvelle réforme au travail rend la situation encore plus compliquée pour tous.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je n'ai jamais goûté un gâteau aussi sec, c'était une véritable déception.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ma relation avec lui ne fonctionne plus, nous ne sommes pas sur la même longueur d'onde.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Les actualités de ce matin étaient tristes, rien de positif à l'horizon.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "J'ai regretté d'avoir acheté ce livre, l'histoire est totalement banale et sans intérêt.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La connexion internet est trop lente ici pour que je puisse travailler correctement.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ce logiciel est plein de bogues, il me fait perdre un temps précieux chaque jour.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je n'ai pas aimé ce parfum, il est beaucoup trop puissant et entêtant.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le service client est inexistant, je n'ai toujours pas reçu de réponse à ma demande.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ce vêtement s'est déterioré après un seul lavage, je suis très déçu de cet achat.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La pièce était totalement bruyante, impossible de se concentrer sur mon travail.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "L'événement auquel je suis allé était mal organisé et vraiment ennuyeux.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le plat que j'ai commandé était trop salé, je n'ai même pas pu le finir.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La météo pour ce week-end s'annonce catastrophique, je ne sortirai pas.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le bruit des voisins est insupportable, je ne peux pas dormir la nuit.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ce magasin n'a pas ce que je cherche, je suis parti les mains vides et frustré.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La propreté de cet hôtel laissait à désirer, ça m'a vraiment dégoûté.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je ne comprends pas pourquoi cette série est populaire, elle est d'une médiocrité incroyable.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Mon ami m'a laissé tomber quand j'avais besoin de lui, je suis très déçu.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le transport en commun ici est toujours en retard, c'est vraiment agaçant.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Cette application ne fonctionne pas comme promis, je ne la recommande pas.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "L'ambiance dans ce bar était très mauvaise, je n'y retournerai plus.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La nourriture servie à l'événement était froide et sans saveur, quelle déception !",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je ne peux pas croire que j'ai perdu mon temps à attendre ce spectacle.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Cette pièce de théâtre était ennuyeuse, je me suis demandé pourquoi j'y suis allé.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Mon voyage a été ruiné par des problèmes d'hébergement, je suis très mécontent.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Les nouvelles concernant l'environnement sont alarmantes et me prennent la tête.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je n'ai jamais été aussi insatisfait de ma commande en ligne, c'était une erreur.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ce service de streaming ne propose que des films impossibles à regarder.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le café était trop amer, je n'ai même pas pu en boire une gorgée.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La traduction de ce document est complètement erronée, ce qui crée beaucoup de confusion.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Cette chanson est tellement ennuyeuse que je ne peux pas la supporter.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je suis déçu par le manque de transparence de cette entreprise, je me sens trompé.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ce produit est trop cher pour la qualité qu'il offre, je ne le rachèterai pas.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "J'ai été très déçu par l'attitude du personnel dans ce magasin, pas accueillants du tout.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Les inondations récentes sont terrifiantes, je ne sais pas quoi penser de la situation.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Cette expo ne valait pas le détour, j'en attendais beaucoup plus.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le silence dans cette salle était pesant, je me sentais très mal à l'aise.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je pensais que ce livre serait passionnant, mais je l'ai trouvé ennuyeux.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Cette expérience a été désastreuse, je ne vais certainement pas revenir.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La température était trop froide pour profiter de la balade, quel dommage.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Ces discussions politiques m'irritent vraiment, je préfère ne pas m'en mêler.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "La qualité de ce produit est médiocre, je ne le recommanderais à personne.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Je suis frustré par la lenteur des réponses de mon fournisseur, c'est inacceptable.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le comportement de mes collègues était inapproprié pendant la réunion, c'était embarrassant.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Cet hôtel était loin de mes attentes, et les photos étaient trompeuses.",
+    "label": "negative",
+    "language": "french"
+  },
+  {
+    "text": "Le café du matin est un moment que beaucoup de gens apprécient avant de commencer leur journée.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La réunion de travail a duré plus longtemps que prévu, mais elle a été productive.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Un nouveau restaurant a ouvert en ville, et beaucoup de personnes s'y rendent.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La livraison de mon colis est arrivée à l'heure, sans aucun problème.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Les nouvelles technologies continuent d'évoluer rapidement dans le domaine de l'éducation.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le livre que j'ai commencé hier est intéressant, mais je n'ai pas encore fini.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Nous avons visité un musée local qui présentait des œuvres d'art contemporain.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le jardin de mon voisin est bien entretenu et ajoute du charme à la rue.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le prix de l'essence a légèrement augmenté cette semaine, ce qui affecte de nombreux conducteurs.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "J'ai décidé de cuisiner un plat simple ce soir avec les ingrédients disponibles dans le réfrigérateur.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le film que j'ai regardé récemment avait une histoire captivante, mais les acteurs étaient moyens.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La météo annonce des températures agréables pour le week-end, ce qui est encourageant pour une sortie.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Mon ami a acheté un nouveau vélo pour se déplacer en ville plus facilement.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "L'hôtel où nous avons séjourné était propre et confortable, parfait pour une courte escapade.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La compagnie aérienne a changé ses horaires de vol pour mieux s'adapter aux passagers.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Nous avons organisé une petite fête d'anniversaire, et les invités ont semblé apprécier l'événement.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La lecture quotidienne des nouvelles est un bon moyen de rester informé sur le monde.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Les enfants du quartier jouent souvent ensemble dans le parc, ce qui crée une bonne ambiance.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "J'ai rencontré plusieurs personnes intéressantes lors de ma dernière conférence professionnelle.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le chat de ma voisine vient parfois se reposer sur mon porche et c'est plutôt marrant.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "L'exposition d'art au centre culturel a attiré un bon nombre de visiteurs ce week-end.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le service client de cette entreprise répond rapidement aux questions des utilisateurs.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Je fais régulièrement des promenades dans le parc pour profiter de l'air frais et de la nature.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La décision de la mairie concernant le nouveau projet de parc est attendue par les habitants.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Une nouvelle boutique de vêtements a ouvert, proposant des articles variés pour toutes les occasions.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Les trajets en transports en commun sont souvent bondés, surtout pendant les heures de pointe.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "J'ai entendu parler d'une nouvelle application qui aide à organiser son emploi du temps.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le sport est une activité bénéfique pour la santé physique et mentale, recommandée par de nombreux experts.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le lavage de la voiture est prévu ce week-end, car elle en a besoin après la pluie.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le livre de recettes que j'ai acheté propose plusieurs plats végétariens à essayer.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Les transports publics sont essentiels pour de nombreuses personnes qui se déplacent chaque jour.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La nouvelle école ouverte récemment propose des programmes intéressants pour les enfants.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le marché local offre une variété de produits frais et artisanaux à des prix raisonnables.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Mon collègue a suggéré une méthode de travail différente qui pourrait améliorer notre efficacité.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Une exposition photo a été organisée en ville, mettant en avant des artistes locaux.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le nouvel album de ce groupe de musique a reçu des critiques mitigées de la part des journalistes.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Les balades en bord de mer sont souvent relaxantes et permettent de prendre un bon bol d'air.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Mon voisin a commencé un compost dans son jardin pour réduire ses déchets.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "L'application de livraison de repas que j'utilise propose de nombreuses options saines.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le festival de musique annuel attire des personnes de toute la région pour profiter des concerts.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La plupart des gens préfèrent acheter des produits en ligne pour gagner du temps.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le forum en ligne attire beaucoup de participants intéressés par des discussions variées.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Nous avons passé une belle journée à explorer les sentiers de randonnée de la région.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le journal local couvre les événements importants et fournit des informations sur la communauté.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La plupart des gens aiment partager leurs expériences de voyage sur les réseaux sociaux.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "L'idée d'un week-end prolongé est appréciée par ceux qui travaillent dur toute la semaine.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "La boutique de fleurs du coin propose des arrangements pour toutes les occasions.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le salon de thé offre une ambiance agréable pour se détendre avec un bon livre.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Les études montrent que les habitudes alimentaires ont un impact significatif sur la santé.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "Le calendrier des événements locaux est affiché à l'entrée de la bibliothèque.",
+    "label": "neutral",
+    "language": "french"
+  },
+  {
+    "text": "J'adore le goût sucré de ces fraises, elles sont délicieuses et parfaitement mûres.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Cette nouvelle application de productivité m'aide à mieux gérer mon temps chaque jour.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Le paysage à la montagne est à couper le souffle, parfait pour se ressourcer.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'ai reçu un compliment aujourd'hui, cela m'a vraiment fait sourire et m'a remonté le moral.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Ces chocolats artisanaux sont un vrai régal, je ne peux pas m'arrêter d'en manger !",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Travailler en équipe sur ce projet a apporté de belles idées et une bonne ambiance.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Le concert de hier soir était incroyable, la musique m'a transporté dans un autre monde.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Le service dans ce restaurant était impeccable, j'y retournerai sans hésiter.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les fleurs de mon jardin commencent à éclore et apportent de la couleur à ma journée.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Ce livre que je lis est captivant, je ne peux pas attendre pour connaître la fin.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les levers de soleil à la plage me rappellent à quel point la vie est belle.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Mon ami a réussi son examen, je suis tellement fier de lui et de ses efforts.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les conversations avec ma grand-mère sont toujours enrichissantes et pleines d'amour.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Cette recette de gâteau au chocolat est facile et fait toujours plaisir à tout le monde.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Je viens de découvrir un nouveau café qui sert le meilleur cappuccino de la ville.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les vacances approchent, je suis impatient de visiter de nouveaux endroits et de découvrir d'autres cultures.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Chaque jour, je prends un moment pour apprécier les petites choses de la vie.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les soirées passées avec des amis autour d'un bon repas sont toujours des moments précieux.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'ai trouvé un nouveau hobby qui me passionne, cela me permet de me détendre.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Le film que j'ai vu hier m'a beaucoup ému, c'était une belle histoire d'amour.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Ces chaussures sont non seulement élégantes, mais aussi très confortables pour marcher.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'aime voir les enfants jouer dans le parc, leur joie est contagieuse et rafraîchissante.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les nouvelles de ce mois-ci sont très encourageantes, cela donne de l'espoir à tout le monde.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'ai passé une excellente journée au musée, les expositions étaient fascinantes et inspirantes.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "La cuisine méditerranéenne est incroyable, chaque plat est une explosion de saveurs.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'ai récemment adopté un chat, il m'apporte beaucoup de bonheur et de compagnie.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Le jardinage est ma façon préférée de me détendre et de profiter du plein air.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'apprécie énormément le soutien de mes collègues, nous formons une belle équipe.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les randonnées en forêt m'apportent paix et sérénité, c'est ma façon de me ressourcer.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Le théâtre que j'ai vu la semaine dernière était exceptionnel, les acteurs étaient brillants.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Je me suis régalé avec ce plat fait maison, c'était comme un voyage culinaire.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Chaque sourire échangé avec un inconnu rend la journée encore plus lumineuse.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Je suis ravi de recevoir des nouvelles positives de mes amis proches et de ma famille.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Ces nouvelles sneakers sont non seulement tendances, mais aussi très confortables au quotidien.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les marchés locaux regorgent de produits frais, c'est un plaisir de les découvrir.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Mon partenaire a organisé une surprise pour notre anniversaire, c'était vraiment touchant.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les souvenirs de vacances avec ma famille me réchauffent le cœur à chaque fois que j'y pense.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'ai découvert un nouveau passe-temps qui m'apporte joie et créativité dans ma vie.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les dégustations de vin sont une expérience enrichissante, chaque gorgée raconte une histoire.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Ma sœur a fait un excellent discours lors de son mariage, elle était rayonnante.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Ce nouveau restaurant a ouvert près de chez moi, j'ai hâte de l'essayer bientôt.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "L'art dans la ville est inspirant, chaque mur est une œuvre à part entière.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les petites attentions du quotidien font toute la différence dans une relation amoureuse.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Je me sens si reconnaissant pour tout ce que j'ai et pour les gens qui m'entourent.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les balades à vélo dans la nature sont revigorantes, je me sens vivant et libre.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Réussir un objectif personnel me donne une énorme satisfaction et booste ma confiance.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Ce matin, le ciel était dégagé et le brin de soleil illuminait mon humeur.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "J'ai récemment redécouvert ma passion pour la musique, cela me remplit de joie.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Les rires partagés entre amis créent des souvenirs inoubliables qui réchauffent le cœur.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Le bénévolat dans ma communauté est une expérience enrichissante que j'apprécie beaucoup.",
+    "label": "positive",
+    "language": "french"
+  },
+  {
+    "text": "Das Essen im Restaurant war kalt und schmeckte überhaupt nicht gut, so dass wir kaum etwas essen konnten.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Ich finde die neuen Schuhe unbequem, sie drücken an den Zehen und verursachen Schmerzen.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Der Urlaub war eine einzige Enttäuschung, das Hotel entsprach nicht den Erwartungen und war dreckig.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Im Büro herrscht ständige Unruhe, die Kollegen sind unhöflich und respektlos zueinander.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die letzte Folge der Serie war langweilig und hatte keinen echten Handlungsbogen.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das neue Smartphone ist viel langsamer als mein altes, ich bereue den Kauf zutiefst.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Werbung für das Produkt versprach viel, aber die Realität war enttäuschend und nicht wie beschrieben.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das Wetter während unseres Ausflugs war miserabel, es hat ununterbrochen geregnet und war kalt.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Beziehung ist so belastend geworden, dass ich keine Freude mehr daran habe.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das Buch hat mich gelangweilt, die Handlung ist flach und die Charaktere uninteressant.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die letzte Prüfung war viel schwieriger als ich erwartet hatte, ich habe große Zweifel an meinen Noten.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Der Kundenservice war unhöflich und hat mein Anliegen nicht ernst genommen, ich bin sehr enttäuscht.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das Zimmer im Hotel war klein und ungepflegt, ich konnte mich dort nicht wohlfühlen.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Verpackung des Lebensmittels war beschädigt, und ich habe Bedenken bezüglich der Frische.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Fahrt mit dem Zug war sehr unbequem, die Sitze waren hart und die Fahrgäste laut.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Entscheidung der Regierung ist unverständlich und hat viele Menschen verärgert und enttäuscht.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Atmosphäre auf der Party war unangenehm, die Leute waren kalt und uninteressiert.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Ich war von dem neuen Film sehr enttäuscht, die Schauspieler waren schlecht und die Story hat keinen Sinn ergeben.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Meine Erwartungen an das neue Restaurant waren hoch, aber das Essen war fad und überteuert.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Kleidung, die ich bestellt habe, passt mir nicht und sieht billig aus, ich schicke sie zurück.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Geräte in der Wohnung sind ständig kaputt, ich habe keine Lust mehr, sie ständig reparieren zu lassen.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das Konzert war eine Enttäuschung, die Band hat die besten Songs nicht gespielt.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Ich kann die ständigen Negativnachrichten in den Medien nicht mehr ertragen, sie machen mich deprimiert.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Der Austausch mit meinem Partner wird immer schwieriger, weil wir uns ständig streiten und nicht kommunizieren.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Der Online-Kurs war schlecht strukturiert und bot keinen echten Mehrwert, ich fühlte mich verschwendet.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das Mittagessen in der Kantine war ungenießbar, ich habe nur ein paar Bissen geschafft.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Bedienung im Café war langsam und unfreundlich, ich wollte schnell etwas trinken, aber es hat ewig gedauert.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Renovierung unserer Wohnung hat ewig gedauert und ist viel teurer geworden als geplant.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Warteschlange im Geschäft war endlos lang, und ich hatte schlichtweg keine Geduld mehr.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Schuhe, die ich kaufte, hatten bereits nach kurzer Zeit einen Defekt, das ist sehr ärgerlich.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Nachrichten über das Ereignis waren irreführend und haben mehr Fragen aufgeworfen als beantwortet.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Bestellung im Online-Shop kam viel später als angekündigt und die Ware war beschädigt.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe lange auf eine Antwort gewartet, aber der Service hat sich nie zurückgemeldet.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Diskussion mit meinen Freunden über das Thema verlief chaotisch, es hat niemandem Freude bereitet.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das neue Plugin für die Software funktioniert nicht, es verursacht nur Fehler und Probleme.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Qualität des Fernsehens hat stark nachgelassen, immer wieder treten Bildausfälle auf.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das Restaurant hat deutlich nachgelassen, die Portionen sind klein und das Essen ist ungenießbar.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Informationen in dem Artikel waren falsch und haben mich in die Irre geführt.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Heizung in meiner Wohnung funktioniert nicht richtig, es ist ständig zu kalt.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Kollegin ist ständig unzufrieden und verbreitet eine negative Stimmung im Team.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Das Konzert hat nicht meinen Erwartungen entsprochen, die Stimmung war eher gedämpft.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Der Kaffee war viel zu stark und schmeckte bitter, ich konnte ihn nicht trinken.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die neue Software ist kompliziert zu bedienen und hat mehr Probleme verursacht als gelöst.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Mein Lieblingsshop hat die Produkte aus dem Sortiment genommen, die ich mir immer gekauft habe.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Ferienwohnung war schmutzig, ich habe die ersten Stunden damit verbracht, sie sauber zu machen.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Reise war sehr hektisch, es gab ständig Verspätungen und unfreundliches Personal.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Kaffeetasse hat nach dem ersten Gebrauch einen Riss bekommen, richtig enttäuschend.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Der Austausch mit meinen Nachbarn ist schwierig geworden, die Stimmung ist angespannt und unfreundlich.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Neuigkeiten über das Unternehmen sind nicht sehr erfreulich, die Aussicht auf Entlassungen macht mir Sorgen.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Qualität der Schulbildung hat stark nachgelassen, ich mache mir um die Zukunft der Kinder Sorgen.",
+    "label": "negative",
+    "language": "german"
+  },
+  {
+    "text": "Die Wohnung hat eine gute Lage, aber die Miete ist etwas hoch.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe ein neues Rezept für Schokoladenkekse ausprobiert und es war einfach.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Der Reisebus kam pünktlich am Bahnhof an.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Meeting verlief ohne größere Probleme und alle waren gut vorbereitet.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das kleine Café bietet eine Vielzahl von Tees und Kaffees an.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die neuen Bücher in der Bibliothek sind gut sortiert und leicht zu finden.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Der Wetterbericht sagt, dass es morgen regnen könnte, aber die Temperatur bleibt angenehm.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Ausstellung zeigt verschiedene Künstler und deren Werke aus der Region.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die technologische Entwicklung in der Industrie schreitet weiter voran.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Restaurant hat eine breite Speisekarte mit internationalen Gerichten.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Nachbarn haben ihren Garten schön gestaltet und regelmäßig gepflegt.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Umfrage ergab, dass viele Menschen mit dem öffentlichen Nahverkehr zufrieden sind.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Im Supermarkt gibt es gerade eine Sonderaktion auf frisches Obst und Gemüse.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die neue Schulbibliothek hat einen ruhigen Raum für das Lernen eingerichtet.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Konzert fand in der großen Halle statt und die Akustik war beeindruckend.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Touristen erkunden die Stadt und machen viele Fotos von den Sehenswürdigkeiten.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Schule plant ein Projekt zur Förderung von umweltbewussten Verhaltensweisen.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Fitnessstudio bietet verschiedene Kurse an, die für alle Altersgruppen geeignet sind.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Fahrradtour führte durch schöne Landschaften und entlang von Flüssen.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Präsentation wurde gut angenommen und die Zuschauer hatten viele Fragen.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das neue Smartphone hat viele nützliche Funktionen, die den Alltag erleichtern können.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Der Film läuft ab nächster Woche in den Kinos und hat gute Kritiken erhalten.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Der neue Spielplatz ist bei den Kindern sehr beliebt und wird oft besucht.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Marktforschung zeigt, dass Online-Shopping immer beliebter wird.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Der Online-Kurs war informativ und die Materialien gut strukturiert.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Stadtverwaltung plant, mehrere Parks zu renovieren und neue Spielgeräte einzubauen.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Ausstellung über alte Fotografien zieht viele Besucher an und regt zum Nachdenken an.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Buch, das ich lese, behandelt interessante Themen und hat einen klaren Schreibstil.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die neuen Möbel im Wohnzimmer passen gut zum Gesamtkonzept der Wohnung.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Nachmittagsveranstaltung im Gemeindezentrum war gut besucht und bot interessante Diskussionen.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Veranstaltung zur Förderung der lokalen Kultur war ein voller Erfolg.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Schüler haben ein Projekt über nachhaltige Energien erstellt und präsentieren es demnächst.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Wetter an diesem Wochenende sieht gut aus und eignet sich für Aktivitäten im Freien.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Geschäfte haben ihre Öffnungszeiten verlängert, um mehr Kunden anzulocken.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Gespräche über die Zusammenarbeit zwischen den Unternehmen laufen konstruktiv.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Hotel am See hat eine schöne Aussicht und freundliches Personal.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Beiträge in der Tageszeitung sind vielfältig und decken verschiedene Themen ab.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Entwicklung in der Stadt ist spannend und bringt viele Veränderungen mit sich.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Umweltschutzorganisation plant eine neue Kampagne zur Reduzierung von Plastikmüll.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die neue Software bietet viele nützliche Funktionen für die Benutzer.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Diskussion über die Vereinbarkeit von Beruf und Familie wird in den Medien oft geführt.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Unternehmen hat seine Mitarbeiter über die neuen Richtlinien informiert.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Kunstinstallation im Park zieht die Aufmerksamkeit der Passanten auf sich.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die neue Technologie im Bereich erneuerbare Energien wird gut angenommen.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Der Wochenmarkt findet jeden Samstag statt und bietet frische Produkte an.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das Buch hat viele Informationen über die Geschichte der Region und ist gut recherchiert.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Schulferien beginnen nächste Woche und viele Familien planen Ausflüge.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Bürgerinitiative setzt sich für die Verbesserung der Luftqualität in der Stadt ein.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die neue App hilft den Nutzern, ihre Aufgaben effizienter zu organisieren.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Die Führungen durch das Museum sind informativ und werden von geschultem Personal geleitet.",
+    "label": "neutral",
+    "language": "german"
+  },
+  {
+    "text": "Das neue Café in der Nachbarschaft hat die besten Croissants, die ich je probiert habe.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich freue mich sehr über das schöne Wetter heute, perfekt für einen Spaziergang im Park.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Der Film, den wir gestern gesehen haben, war einfach großartig und hat uns alle zum Lachen gebracht.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Mein Arbeitskollege hat mir heute mit einem Projekt geholfen, und ich bin wirklich dankbar dafür.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die Blumen in meinem Garten blühen so schön, das macht mich jeden Tag glücklich.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe gerade ein tolles Buch gelesen, das meine Sicht auf die Welt verändert hat.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die Reise nach Italien war ein unvergessliches Erlebnis, die Landschaften waren atemberaubend.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Mein bester Freund hat mir heute eine nette Nachricht geschickt, das hat meinen Tag erhellt.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Das Konzert gestern Abend war fantastisch, die Musik hat die ganze Menge mitgerissen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe ein neues Hobby angefangen und es macht mir so viel Freude, kreativ zu sein.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Das Frühstück in dem neuen Restaurant war köstlich, ich kann es nur empfehlen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Wir haben heute im Büro ein Team-Event, das wird sicher viel Spaß machen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die positive Rückmeldung von meinem Chef hat mir viel Motivation gegeben, weiterzumachen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die Kinder haben beim Spielen im Garten gelacht, was für ein schöner Anblick!",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe heute ein Geschenk von meiner besten Freundin bekommen, es war eine tolle Überraschung.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Der Sonnenuntergang am Strand war einfach magisch und hat mich sehr berührt.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe endlich ein Rezept ausprobiert, das ich schon lange testen wollte, und es war ein Hit.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Mein Sportverein hat heute ein tolles Spiel gewonnen, alle sind begeistert und glücklich.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe mir heute Zeit genommen, um zu meditieren, und fühle mich jetzt viel entspannter.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die Unterstützung meiner Familie gibt mir die Kraft, meine Träume zu verfolgen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Im Urlaub habe ich neue Freunde kennengelernt, und wir hatten eine wunderbare Zeit zusammen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Der warme Tee hat mir an diesem kalten Tag so gut getan, ich fühle mich wohl.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe eine inspirierende Podcast-Episode gehört, die mir neue Perspektiven eröffnet hat.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die Vorfreude auf das Wochenende macht mich immer glücklich, es steht viel Spaß an!",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe heute ein Kompliment von einer fremden Person bekommen, das hat mir ein Lächeln ins Gesicht gezaubert.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Das neue Album meiner Lieblingsband ist unglaublich, ich kann nicht aufhören, es zu hören.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die positive Nachricht in den Medien hat mir Hoffnung gegeben, dass sich Dinge zum Besseren wenden.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe beim Einkaufen eine tolle Fundgrube an schnellem, gesundem Essen entdeckt.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die gelungene Überraschungsparty für meinen Freund hat alle sehr glücklich gemacht!",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe endlich den Mut gefunden, meine Ideen bei der Arbeit zu teilen, und sie wurden gut aufgenommen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Bei meinem letzten Besuch im Tierheim habe ich so viele liebe Tiere gesehen, die ein Zuhause suchen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Das Lächeln meines Kindes am Morgen ist der beste Start in den Tag.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die frische Luft beim Wandern hat mich belebt und mir neue Energie gegeben.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe ein leckeres neues Rezept entdeckt, das perfekt für meine nächste Dinnerparty ist.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die freundlichen Nachbarn haben mir angeboten, bei meiner Gartenarbeit zu helfen, was sehr nett ist.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe einen sehr inspirierenden Vortrag besucht, der mir neue Ziele gesetzt hat.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Meine Freundin hat mir einen tollen Film empfohlen, und ich habe ihn wirklich genossen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die Unterstützung meiner Kollegen motiviert mich jeden Tag, mein Bestes zu geben.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Das Essen bei Oma schmeckt immer am besten und bringt so viele schöne Erinnerungen zurück.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe ein neues Fitnessprogramm gestartet und fühle mich körperlich und geistig stärker als je zuvor.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die positiven Vibes im Yoga-Kurs helfen mir, den Alltag hinter mir zu lassen.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ein strahlender Regenbogen nach dem Regen hat mir den Tag versüßt.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ein gutes Gespräch mit meinem besten Freund hat mir neue Perspektiven eröffnet.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die Vorfreude auf den geplanten Familienurlaub macht das Planen besonders spannend.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe heute eine entspannende Massage genossen und fühle mich wie neu geboren.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Das Lachen mit Freunden bei einem Spieleabend war einfach unbezahlbar und hat gute Laune verbreitet.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Die neuen Mosaike in der Stadt sind ein echter Blickfang und bringen Farbe in den Alltag.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Ich habe beim Ausmisten alte Sachen gefunden, die ich spenden kann, und das fühlt sich gut an.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Der herzliche Empfang im neuen Fitnessstudio hat mir gleich ein gutes Gefühl gegeben.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Das Lächeln einer Fremden hat mir heute den Tag versüßt, kleine Gesten sind ganz wertvoll.",
+    "label": "positive",
+    "language": "german"
+  },
+  {
+    "text": "Esse aplicativo travou de novo, não consigo usar para nada.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A comida estava fria e sem sabor, não gostei mesmo.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O filme foi muito chato, perdi duas horas da minha vida.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O serviço no restaurante foi péssimo, ninguém nos atendeu direito.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A viagem foi um fiasco, o hotel era muito sujo e barulhento.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O produto que comprei quebrou no primeiro dia, estou muito decepcionado.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A apresentação no trabalho foi um desastre, ninguém prestou atenção.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O clima estava horrível, choveu o tempo todo e estragou nossos planos.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "As pessoas no evento eram antipáticas, não se importavam com ninguém.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "Fui enganado por essa loja, o produto não era como prometido.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O atendimento ao cliente foi um pesadelo, não me ajudaram em nada.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A comida estava tão salgada que não consegui comer, um desperdício.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A festa foi uma decepção total, ninguém se divertiu de verdade.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O livro era tão maçante que não consegui passar da metade.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A experiência no hotel foi ruim, o serviço deixou muito a desejar.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "As notícias só falam de tragédias, não consigo mais assistir.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O planejamento da viagem foi mal feito, tudo saiu errado.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "Os meus colegas de trabalho são desmotivados e negativos, não aguento mais.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O jogo foi muito frustrante, a jogabilidade é péssima.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A conexão da internet é tão lenta que não consigo fazer nada.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O produto chegou danificado e a loja não quer trocar.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O atendimento no balcão foi tão ruim que saí de lá irritado.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O aplicativo não funciona, perdi a paciência tentando usá-lo.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A comida do buffet era repetitiva e sem graça, uma decepção total.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O serviço de entrega atrasou muito e o pedido chegou frio.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O ambiente do escritório é tóxico, não consigo rendir bem aqui.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A viagem de ônibus foi insuportável, muito desconfortável e demorada.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O barulho do vizinho é insuportável, não consigo dormir à noite.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A qualidade do filme deixou muito a desejar, não recomendo.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A festa de aniversário foi um fracasso, não apareceu quase ninguém.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "Os preços do supermercado estão altos demais, não consigo comprar o necessário.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A roupa que comprei não serviu, uma verdadeira decepção.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O hotel que reservei não correspondia às fotos do site, uma enganação.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O carro que aluguei estava sujo e a manutenção era precária.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O tratamento que recebi no spa foi muito abaixo do esperado.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O conteúdo do curso online era raso e não aprendi nada.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O evento foi mal organizado, tudo aconteceu fora de ordem.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "As promessas do vendedor eram falsas, me senti enganado.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O tempo que perdi esperando na fila não valeu a pena.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O restaurante estava tão barulhento que não consegui conversar com ninguém.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O produto não funcionou como prometido, um grande desperdício de dinheiro.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A airbnb que aluguei não era nada como descreveram, muito decepcionante.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "Os colegas de equipe não colaboram, está difícil concluir o projeto.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A entrega da encomenda atrasou tanto que desisti de esperar.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O clima estava tão quente que nossa viagem ficou insuportável.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O atendimento em loja foi tão rude que não voltei mais.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A qualidade do vídeo era terrível, não consegui assistir direito.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O lugar estava tão cheio que não conseguimos sentar.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "A comida caseira da avó não é mais a mesma, não sei o que aconteceu.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O passeio foi tão monótono que não tenho vontade de repetir.",
+    "label": "negative",
+    "language": "portuguese"
+  },
+  {
+    "text": "O céu está limpo hoje e a temperatura é agradável.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A nova cafeteria abriu na esquina e está atraindo muitos clientes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O filme que assisti ontem à noite foi bem interessante.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A empresa anunciou um novo projeto que começará no próximo mês.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "Meu amigo comprou um carro novo e está animado para dirigir.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A reunião de trabalho foi produtiva e todos participaram ativamente.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O livro que estou lendo tem uma trama envolvente e personagens intrigantes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O mercado local oferece uma grande variedade de frutas e verduras frescas.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "Estamos planejando uma viagem para o próximo feriado, mas ainda não decidimos o destino.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O jantar de ontem foi simples, mas muito saboroso e bem preparado.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A exposição de arte na galeria foi bem visitada e recebeu comentários positivos.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O cachorro do vizinho gosta de brincar no parque durante as tardes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A festa de aniversário foi organizada com atenção aos detalhes e todos se divertiram.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O novo aplicativo promete facilitar a organização do dia a dia.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O time de futebol local venceu a partida e os torcedores estavam satisfeitos.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O clima da cidade é agradável na primavera e atrai muitos turistas.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A loja de roupas do centro está com várias promoções esta semana.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O acesso à internet na biblioteca é rápido e eficiente para os visitantes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A conversa entre os colegas de trabalho flui bem durante o intervalo.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A receita do bolo que encontrei na internet é muito fácil de seguir.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O parque da cidade é um bom lugar para relaxar e fazer caminhadas.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A série que comecei a assistir tem vários episódios disponíveis para binge-watching.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O novo gerente trouxe algumas mudanças que estão sendo bem recebidas pela equipe.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O sorvete encontrado na gelateria local é feito com ingredientes naturais.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "Estamos considerando adotar um animal de estimação, mas ainda estamos decidindo.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O ensino à distância tem se tornado uma opção viável para muitos estudantes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O festival de música acontece anualmente e atrai artistas de várias partes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "Os produtos em promoção no supermercado chamam a atenção dos consumidores.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O serviço de entrega rápido facilita a compra de itens essenciais.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O café da manhã em casa foi simples, mas saboroso e nutritivo.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O evento cultural na praça trouxe diversas atrações para a comunidade.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A loja de eletrônicos oferece uma boa variedade de aparelhos e acessórios.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O aeroporto passou por reformas e melhorou a experiência dos passageiros.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "As aulas de yoga na academia têm atraído muitas pessoas interessadas em bem-estar.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O trabalho em equipe é essencial para o sucesso de projetos importantes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A visita ao museu foi educativa e trouxe novas perspectivas sobre a história.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O carro que alugamos para a viagem estava em boas condições e foi confortável.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "As redes sociais têm facilitado a comunicação entre amigos e familiares.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O cardápio do restaurante inclui opções vegetarianas que agradam a todos os gostos.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O novo hotel na cidade recebeu boas avaliações de seus hóspedes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A caminhada pela trilha oferece vistas deslumbrantes da natureza ao redor.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A feira de artesanato local apresenta diversos produtos feitos por artistas regionais.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A palestra sobre saúde mental foi informativa e atraiu muitas pessoas.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "As vendas online estão crescendo e mudando o hábito de consumo.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A loja de brinquedos apresenta novidades para a criançada durante o ano todo.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O calendário de eventos na cidade inclui várias atividades culturais.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O barulho da construção na vizinhança é um pouco incomodo, mas temporário.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "A prática de exercícios ao ar livre é benéfica para a saúde.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "O sistema de transporte público na cidade é eficiente e acessível.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "As discussões sobre sustentabilidade estão se tornando cada vez mais relevantes.",
+    "label": "neutral",
+    "language": "portuguese"
+  },
+  {
+    "text": "Hoje o sol está brilhando e tudo parece mais bonito.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Acabei de receber uma mensagem carinhosa de um amigo muito especial.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O café da manhã estava delicioso e me deixou com um sorriso no rosto.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A promoção na loja me surpreendeu e comprei algo incrível por um preço ótimo.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Passear no parque ao ar livre traz uma sensação maravilhosa de liberdade.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O jantar em família foi repleto de risadas e momentos inesquecíveis.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O novo livro que comecei a ler é tão envolvente que não consigo parar.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Vi uma notícia positiva sobre a preservação da natureza e me encheu de esperança.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "As flores no jardim estão lindas e coloridas, alegrando meu dia.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Ganhei um elogio sincero no trabalho e isso me motivou ainda mais.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A viagem que fiz no final de semana foi cheia de aventuras e diversão.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O filme que assisti ontem à noite me deixou inspirado e emocionado.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Receber um abraço apertado de um amigo é uma das melhores sensações do mundo.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O bolo que fiz ficou tão gostoso que todos pediram mais uma fatia.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Fui em um restaurante novo e a comida estava simplesmente divina.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O clima está tão agradável que me faz querer passar horas ao ar livre.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O sorriso de uma criança pode iluminar o dia mais sombrio.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Participar de um projeto voluntário me trouxe grande satisfação e aprendizado.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O final de semana foi perfeito, cheio de momentos felizes com a família.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O pôr do sol na praia foi uma das cenas mais lindas que já vi.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Descobri uma nova habilidade e estou tão animado para praticar.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Conversar com pessoas queridas sempre leva a uma grande sensação de acolhimento.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O lanche que preparei hoje foi tão gostoso que todos pediram a receita.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A autoavaliação positiva me ajudou a perceber o quanto evoluí nos últimos meses.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Assistir ao meu time ganhar foi uma explosão de alegria e emoção.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Fazer uma caminhada pela manhã me deixou cheio de energia para o dia.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A música que estou ouvindo agora é tão boa que não consigo parar de dançar.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Fiz uma nova amizade que tenho certeza que será duradoura e especial.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Receber uma boa notícia sobre um projeto no trabalho me deixou radiante.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A satisfação de completar uma tarefa difícil é gratificante e motivadora.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "As lembranças de uma viagem passada sempre trazem um sorriso ao meu rosto.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Os animais de estimação trazem tanto amor e felicidade para nossas vidas.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Comer algo saudável e saboroso me faz sentir bem e cheio de energia.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A conexão que criei com minha família é algo que valorizo imensamente.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A arte que vi em uma exposição me inspirou e trouxe alegria ao meu coração.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O dia hoje está repleto de boas energias e possibilidades.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A gratidão que sinto por pequenas coisas torna minha vida mais rica.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Participar de um evento cultural foi uma experiência enriquecedora e divertida.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O carinho que recebi de meus colegas no trabalho foi reconfortante.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Fazer algo bom por outra pessoa traz uma felicidade indescritível.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O cheiro do pão fresco saindo do forno é simplesmente irresistível.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O novo aplicativo que baixei facilitou tanto minha rotina que estou adorando.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Receber um agradecimento sincero pode iluminar meu dia de uma maneira única.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A energia positiva que circula entre amigos é contagiante e revigorante.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "A empolgação antes de uma viagem me faz sentir viva e cheia de expectativas.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O apoio que recebo da minha família é fundamental para o meu caminho.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Um passeio pela cidade me fez redescobrir lugares incríveis e cheios de história.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Os elogios que recebi no meu trabalho me deixaram muito orgulhoso.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "O frescor das frutas da estação é um verdadeiro presente da natureza.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "Sentir o vento no rosto enquanto ando de bicicleta é libertador e revigorante.",
+    "label": "positive",
+    "language": "portuguese"
+  },
+  {
+    "text": "الطعام في المطعم كان باردًا ومذاقه سيء للغاية، لم أستطع أكله.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "لم أستمتع برحلتي إلى تلك المدينة، كانت مزدحمة وغير مرتبة.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "المنتج الذي اشتريته لم يكن كما وُعِد، شعرت بخيبة أمل كبيرة.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "بينما كنت في العمل، تعرضت لموقف محرج أمام زملائي، شعرت بالسخافة.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الخبز الذي اشتريته من المحل قديم، وكان له طعم غير مستحب.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "كانت الخدمة في الفندق سيئة جدًا، لم يمنحونا الاهتمام الذي نستحقه.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "قرأت أخبارًا محبطة عن الوضع الاقتصادي، وأشعر بالقلق من المستقبل.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "العلاقة مع صديقي أصبحت مرهقة، بسبب عدم التفاهم بيننا.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الشقة التي استأجرتها كانت في حالة سيئة، ولم أتمكن من الاستمتاع بها.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "تجربتي مع خدمة العملاء كانت كارثية، لم يرد أحد على اتصالي.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الرحلة كانت مكلفة جدًا، ولم تكن تستحق المال الذي دفعته.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "واجهت صعوبة في التعامل مع السيارة الجديدة، وكانت مليئة بالمشاكل.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "مستوى النظافة في المطعم كان سيئا للغاية، لم أرغب في تناول الطعام هناك.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الأخبار الكاذبة هذا الأسبوع جعلتني أشعر بالإحباط واليأس.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "تعامل زملائي في العمل معي كان غير محترم، مما أثر على رغبتي في العمل.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "البضائع التي اشتريتها لم تكن ذات جودة، كانت رخيصة جدًا.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الموسيقى في الحفل كانت مزعجة، ولم أستطع الاستمتاع بالوقت.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الكتاب الذي قرأته كان مملًا ولم يكن مستحقًا للوقت الذي قضيت فيه.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "اشتركت في دورة تدريبية ولم أستفد منها، كانت مضيعة للوقت.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الحملة الإعلانية كانت مضللة، مما جعلني أشعر بالغش والخداع.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "لم أستطع النوم جيدًا، بسبب الضجيج المستمر من الشارع.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "لقد خذلني صديقي عندما كنت في حاجة إليه، وهذا كان محبطًا جدًا.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "البرمجيات التي استخدمتها كانت معقدة، ولم أتمكن من فهمها.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "لم يكن الطعام طازجًا في الحفلة، وكان على المائدة أشياء غير صالحة.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "جربت منتجًا جديدًا ووجدته سيئًا، ولن أشتريه مرة أخرى.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "محادثتي مع أحدهم كانت محبطة، لم نتوصل إلى أي نتائج إيجابية.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "البرنامج التلفزيوني الذي تابعته كان ضعيفًا ولم يستطع جذبي.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "تجربتي مع الطبيب كانت سيئة، ولم أكن راضيًا عن النتائج.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "ففجأة، بدأت أرى مشكلات عديدة في المشروع، مما أزعجني كثيرًا.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "لم تعطيني الشركة أي دعم في مشكلتي، مما جعلني أشعر بالخيانة.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الطريق إلى العمل كان مزدحمًا لدرجة جعلتني أتأخر كثيرًا.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "حاولت طهي وصفة جديدة، لكنها كانت فاشلة وذهبت هباءً.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الشخص الذي تحدثت معه كان غير متعاون، ولم أجد منه أي حل.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "السياحة في المدينة كانت مخيبة للآمال، ولم أجد ما يعجبني.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الفيلم الذي شاهدته كان مملًا ولم أستطع إكماله.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الصحيفة التي اشتريتها لم تتضمن أي معلومات جديدة أو مثيرة.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "استغرق الأمر وقتًا طويلاً للحصول على ردي من البائع، وهو أمر مزعج.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "واجهت العديد من التحديات في المشروع، مما أصابني بالإحباط.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "تجربتي مع التطبيق كانت سيئة، وكان مليئًا بالأخطاء.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الشخص الذي كنت أتعامل معه كان غاضبًا وغير مهذب، مما أزعجني.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الغرفة كانت مظلمة وغير مريحة، ولم أستطع التركيز فيها.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "لم يكن الطعام الذي طلبته مشابهًا لوصف القائمة، وهذا كان محبطًا.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "خدمة الإنترنت كانت بطيئة جدًا، ولم أتمكن من إكمال عملي.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "حجزي في الفندق لم يكن مُحترمًا، ولم أستطع البقاء هناك.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "تجربتي في التسوق كانت مروعة بسبب الازدحام وعدم التنظيم.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الجودة في المنتج كانت أقل من المتوقع، ولم أعد أرغب في استخدامه.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الاضطرابات السياسية جعلت الوضع أكثر تعقيدًا من أي وقت مضى، وهذا مؤلم.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "المنتج لم يحقق توقعاتي، شعرت أنني أضعت أموالي.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "الشخص الذي قابلته لم يكن لطيفًا، وكان سلوكه غير مُحبذ.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "تجربة السفر كانت مضنية جدًا، وغالبًا ما كنت أشعر بالتعب.",
+    "label": "negative",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتبر التكنولوجيا جزءًا أساسيًا من حياتنا اليومية، وتؤثر على العديد من جوانب الحياة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تقدم المطاعم المحلية أطباقًا متنوعة تعكس التقاليد والثقافات المختلفة في المنطقة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يسافر الكثير من الناس كل عام لاستكشاف أماكن جديدة وتجربة ثقافات مختلفة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعمل الشركات على تطوير المنتجات الجديدة لجذب العملاء وتحسين تجربتهم.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتبر القراءة من الوسائل الهامة لتنمية المعرفة وتوسيع آفاق الفهم.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تضمن وسائل النقل العامة سهولة التنقل داخل المدينة وتخفيف الازدحام.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يمكن للأشخاص الاستمتاع بالأنشطة الرياضية في أوقات فراغهم لتحسين صحتهم العامة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تساهم الأبحاث العلمية في التقدم التكنولوجي وتحسين جودة الحياة بطرق متعددة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعد الأسرة من أهم العلاقات التي تسهم في دعم الأفراد وتوفير الأمان.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تتعدد الخيارات المتاحة عند شراء الأجهزة الإلكترونية، مما يسهل على المستهلكين اتخاذ القرار.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يبحث الموظفون عن فرص تطوير مهاراتهم لتعزيز مسيرتهم المهنية في العمل.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتبر الرحلات الترفيهية وسيلة رائعة للاستمتاع بالوقت مع الأصدقاء والعائلة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "قد تحظى الفعاليات الثقافية بمشاركة جماهيرية واسعة، مما يعكس الاهتمام بالفنون.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يتطلب الطبخ مهارات معينة، لكن يمكن للجميع تعلم أساسيات الطهي بسهولة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تتباين أسعار السلع في المتاجر بناءً على العرض والطلب والمنافسة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تساعد وسائل التواصل الاجتماعي الأشخاص في البقاء على اتصال مع الأصدقاء والعائلة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتمد المدارس على المناهج الدراسية لتعليم الطلاب مختلف المواضيع والمعلومات.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يتضح أن ممارسة الهوايات تساعد الأفراد في الاسترخاء وتحقيق التوازن النفسي.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تسهم جهود التنمية المستدامة في حماية البيئة وضمان مستقبل أفضل للأجيال القادمة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يتم تنظيم المؤتمرات العلمية لتبادل المعرفة والأبحاث بين المتخصصين في مختلف المجالات.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يمكن أن يكون التسوق عبر الإنترنت بديلاً مريحًا للتسوق التقليدي.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتبر اللحظات البسيطة في الحياة مصدرًا للسعادة والراحة النفسية.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تشكل الأحداث المحلية جزءًا من الحياة الاجتماعية، حيث تجمع الناس معًا.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تتراوح أسعار خدمات الصيانة بين الشركات، لذا من المهم مقارنة الخيارات المتاحة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تساهم العطلات في تعزيز الروابط الاجتماعية بين الأفراد والأسر.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يعد تناول الفاكهة والخضروات جزءًا مهمًا من الحمية الغذائية الصحية.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تختلف الأذواق في الموسيقى، مما يجعلها تجربة فريدة لكل فرد.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتبر الطقوس الثقافية التقليدية جزءًا من الهوية الوطنية للشعوب.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يعتمد الكثيرون على التكنولوجيا لتسهيل مهامهم اليومية في العمل والمنزل.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تساهم السياحة في تعزيز الاقتصاد المحلي ودعم المجتمعات.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يعتبر الحوار المفتوح وسيلة فعالة لحل النزاعات والفهم المتبادل.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تقدم الجامعات برامج تعليمية متنوعة تتيح للطلاب اختيار ما يناسبهم.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتبر الفصول الأربعة ظاهرة طبيعية تؤثر على المناخ والحياة اليومية.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يمكن أن تكون الأطعمة السريعة خيارًا مناسبًا لبعض الأشخاص في أوقات الضغط.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يتطلب العمل الجماعي التنسيق والتعاون بين الأفراد لتحقيق الأهداف المشتركة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تسعى المجتمعات إلى تعزيز الوعي الصحي بين الأعضاء لتحسين جودة الحياة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يعكس الطقس في فصل الشتاء تغيرات طبيعية تجلب معها بعض التحديات.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعتبر السيارات وسيلة أساسية للتنقل في المناطق الحضرية والريفية.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تساعد وسائل الإعلام في نقل الأخبار والمعلومات إلى الجمهور بشكل فوري.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "يستمتع الأطفال بالأنشطة الخارجية التي تعزز من صحتهم ونشاطهم البدني.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تؤمن بعض المنظمات الخيرية الدعم للأشخاص ذوي الاحتياجات الخاصة.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "تعد الفنون البصرية وسيلة تعبير مهمة تعكس مشاعر الفنانين وأفكارهم.",
+    "label": "neutral",
+    "language": "arabic"
+  },
+  {
+    "text": "الحياة مليئة بالفرص الجميلة التي تنتظرنا لاستغلالها واستمتاعنا بها.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "العمل بروح الفريق يجعل كل مشروع أكثر نجاحاً وإلهاماً للجميع.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "أحب قضاء الوقت مع أصدقائي، فهم يجعلون كل لحظة مميزة وملئية بالضحك.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "تجربة الطعام الجديد دائماً ما تجلب السعادة والبهجة في قلوب الناس.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "رحلتنا الأخيرة كانت مذهلة، اكتشفنا أماكن جديدة وخلقنا ذكريات لا تُنسى.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الأخبار السعيدة تمنحنا الأمل وتضيء حياتنا بأفكار إيجابية.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الطبيعة من حولنا تبعث على السلام وتذكرنا بأهمية الحفاظ على كوكبنا.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "ابتسامة طفل بريئة هي أجمل ما يمكن أن تراه في حياتك اليومية.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "في كل لحظة، يمكننا أن نختار أن نكون سعداء وننشر التفاؤل.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الألوان الزاهية في الطبيعة تعطي إحساساً بالبهجة وتجعلنا نشعر بالحيوية.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "عندما نساعد الآخرين، نشعر بالرضا والسعادة التي لا تعادل بثمن.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "يوم مشمس هو فرصة رائعة للخروج والاستمتاع بالطبيعة الجميلة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "عناق دافئ من شخص تحبه يمكن أن يغير يومك بالكامل.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الأفلام الممتعة تجلب الفرح وتتيح لنا الهروب إلى عوالم جديدة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "كل ابتكار جديد يحمل معه آمالاً جديدة لمستقبل مشرق.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "تجربة تناول القهوة في مقهى مريح تخلق لحظات من السعادة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "تعلم مهارة جديدة يجعلنا نشعر بالإنجاز ويدفعنا نحو المزيد من التطور.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الموسيقى قادرة على تغيير مزاجنا وجعلنا نشعر بالسعادة فوراً.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "عندما نتشارك اللحظات الجميلة مع أحبائنا، تصبح الحياة أكثر معنى.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "خلال السفر، نتعرف على ثقافات جديدة ونتبادل الأفكار مع الآخرين.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "من الرائع رؤية أصدقائنا يحققون أحلامهم، فهذا يملأنا بالفخر والسرور.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "القراءة تمنحنا الفرصة للعيش في عوالم مختلفة وتوسيع آفاقنا.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الحدائق العامة توفر لنا مكاناً للاسترخاء والاستمتاع بجمال الطبيعة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "العائلة هي مصدر السعادة والأمان في حياتنا اليومية.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "التحديات تجعلنا أكثر قوة وتعلماً، وهذه هي أفضل هدية لنا.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "زيارة الأماكن الجديدة تفتح لنا أبواباً للتعرف على أناس وأفكار جديدة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "تجارب الطهي المنزلية تجمع العائلة وتخلق ذكريات لا تُنسى.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الأطفال هم نور الحياة، وابتسامتهم يمكن أن تضيء أي يوم كئيب.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الإلهام يأتي أحياناً من أبسط الأشياء، فقط علينا أن نكون مفتوحين.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "تأمل الطبيعة في الصباح يمنحني شعورًا بالانتعاش والنشاط.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الحديث مع الأصدقاء عن أحلامنا يعطينا الطاقة لتحقيقها.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "التطوع في المجتمع يمنحني شعوراً عميقاً بالرضى والسعادة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "المهرجانات والفعاليات الثقافية تضيف الفرح والبهجة إلى حياتنا.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "كل تجربة جديدة تحمل معها فرصاً لا تُعد ولا تُحصى.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الابتكار والإبداع من أساسيات الحياة العصرية التي تجعلنا نتقدم للأمام.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "عندما أستمع إلى الموسيقى الهادئة، أشعر بالراحة والطمأنينة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "التحديات في العمل تجعلنا أكثر قوة وثقة بأنفسنا.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "أحب أن أساعد الأصدقاء في تحقيق أهدافهم، فهذا يعطيني سعادة حقيقية.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الأنشطة الخارجية تجعلني أشعر بالحرية والسعادة في كل خطوة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "تبادل الهدايا في المناسبات يجلب الفرح ويقوي العلاقات.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "البحر يحمل لنا شعور بالسعادة والهدوء، كل زيارة له تُشعرني بالنشاط.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "كل لحظة مع العائلة تُعتبر كنزًا يجب علينا الحفاظ عليه.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "المشاريع الإبداعية في المدرسة تجعل الطلاب يشعرون بالتشجيع والتحفيز.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الوقت الذي نقضيه مع الأصدقاء هو الوقت الأكثر قيمة في حياتنا.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "كل صباح جديد يحمل معه فرصة جديدة للاستمتاع بالحياة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "الحب هو الشعور الأكثر جمالًا والذي يضيء أيامنا.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "التحدث مع شخص يفهمك يجلب لك الراحة والطمأنينة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "أحب تذوق الحلويات الجديدة، فهي تضيف لمسة سعيدة لكل مناسبة.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "عيد ميلادي كان يوماً رائعاً، مليئاً بالمفاجآت والأحباء.",
+    "label": "positive",
+    "language": "arabic"
+  },
+  {
+    "text": "كل لحظة نعيشها بتفاؤل تجعل مستقبلنا أكثر إشراقاً.",
+    "label": "positive",
+    "language": "arabic"
+  }
+]

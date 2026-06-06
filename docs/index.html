@@ -2112,8 +2112,12 @@ deterministic across machines.</p>
 <td align="left">~310 texts/sec (CPU)</td>
 </tr>
 <tr class="odd">
-<td align="left">Macro-F1 (real text)</td>
-<td align="left">0.854</td>
+<td align="left">Macro-F1 — shipped MLP head</td>
+<td align="left">0.734 (mixed-domain held-out, n=1,247)</td>
+</tr>
+<tr class="even">
+<td align="left">Macro-F1 — training benchmark</td>
+<td align="left">0.854 (XGBoost scorer; see note)</td>
 </tr>
 </tbody>
 </table>
@@ -2150,14 +2154,19 @@ review snippets), exploratory work and fast iteration.</p>
 <td align="left">~141 texts/sec (CPU)</td>
 </tr>
 <tr class="odd">
-<td align="left">Macro-F1 (real text)</td>
-<td align="left">0.899</td>
+<td align="left">Macro-F1 — shipped MLP head</td>
+<td align="left">0.823 (mixed-domain held-out, n=1,247)</td>
+</tr>
+<tr class="even">
+<td align="left">Macro-F1 — training benchmark</td>
+<td align="left">0.899 (XGBoost scorer; see note)</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Best for:</strong> final datasets for publication,
 longer/more nuanced text (interview transcripts, open-ended verbatims),
-servers with ample RAM, cases where the ~5 pp F1 gain matters.</p>
+servers with ample RAM, cases where the ~9 pp F1 gain over e5-small
+matters.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sentiment_score</span>(texts, <span class="at">model =</span> <span class="st">&quot;e5-base&quot;</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># make e5-base your session default</span></span>
@@ -2189,8 +2198,8 @@ servers with ample RAM, cases where the ~5 pp F1 gain matters.</p>
 <td align="left">network-dependent</td>
 </tr>
 <tr class="even">
-<td align="left">Macro-F1 (real text)</td>
-<td align="left">0.886</td>
+<td align="left">Macro-F1 — training benchmark</td>
+<td align="left">0.886 (XGBoost scorer; see note)</td>
 </tr>
 <tr class="odd">
 <td align="left">Cost</td>
@@ -2199,8 +2208,9 @@ servers with ample RAM, cases where the ~5 pp F1 gain matters.</p>
 </tbody>
 </table>
 <p>Text leaves your machine and is sent to OpenAI’s servers. Requires an
-API key. Accuracy ties <code>e5-base</code> on most corpora but has
-ongoing cost and a network dependency.</p>
+API key. On the training benchmark (XGBoost scorer), OpenAI is
+marginally behind <code>e5-base</code> (0.886 vs 0.899) — suggesting the
+e5 embedding space suits the scoring head better.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">OPENAI_API_KEY =</span> <span class="st">&quot;sk-...&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">sentiment_score</span>(texts, <span class="at">model =</span> <span class="st">&quot;openai&quot;</span>)</span></code></pre></div>
 <hr />
@@ -2500,13 +2510,14 @@ practice.</p>
 <p><strong>Setup:</strong> 1,000 airline tweets (seed 42); macOS aarch64
 M-series, 8 CPU cores, no GPU. Accuracy = macro-F1 (3-class:
 neg/neu/pos) against crowd labels. Speed = median of 3 runs.</p>
-<p>Two accuracy sources are used — each labelled clearly:</p>
+<p>Three accuracy sources — each labelled clearly:</p>
 <ul>
-<li><strong>†</strong> = airline tweet sample (same 1,000 rows,
-cross-domain transfer — models trained on Amazon/IMDB/financial,
-<em>not</em> Twitter)</li>
-<li><strong>★</strong> = full held-out benchmark (n = 1,247 real-only,
-Amazon/IMDB/tweets/financial mix; gold standard)</li>
+<li><strong>†</strong> = 1,000 airline tweet sample (cross-domain;
+models trained on Amazon/IMDB/financial, <em>not</em> Twitter)</li>
+<li><strong>★</strong> = same mixed-domain held-out set (n = 1,247
+real-only; shipped MLP head; bootstrap CIs available)</li>
+<li><strong>☆</strong> = training benchmark (XGBoost scorer on full
+training data — stronger scorer than shipped; for reference)</li>
 </ul>
 <div id="r-speed" class="section level2">
 <h2>R — speed</h2>
@@ -2537,7 +2548,7 @@ Amazon/IMDB/tweets/financial mix; gold standard)</li>
 <tr class="even">
 <td align="left"><strong>sentiment.ai e5-small</strong></td>
 <td align="right"><strong>310</strong></td>
-<td align="left">neural, CPU</td>
+<td align="left">neural, CPU, MLP head</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>sentiment.ai e5-base</strong></td>
@@ -2546,80 +2557,89 @@ Amazon/IMDB/tweets/financial mix; gold standard)</li>
 </tr>
 <tr class="even">
 <td align="left">sentiment.ai openai</td>
-<td align="right">network-dependent</td>
-<td align="left">API, ~300–600 t/s typical</td>
+<td align="right">~300–600 t/s</td>
+<td align="left">API, rate-limited</td>
 </tr>
 </tbody>
 </table>
-<p>Lexicon methods win on throughput (dictionary lookups, not neural
-inference). <code>sentiment.ai</code> CPU speed is bounded by the
-embedding step; a GPU gives ~10–50× on the same hardware.</p>
 </div>
 <div id="r-accuracy" class="section level2">
 <h2>R — accuracy</h2>
-<table style="width:100%;">
-<colgroup>
-<col width="19%" />
-<col width="30%" />
-<col width="33%" />
-<col width="16%" />
-</colgroup>
+<table>
 <thead>
 <tr class="header">
 <th align="left">method</th>
 <th align="center">macro-F1 (†)</th>
 <th align="center">macro-F1 (★)</th>
-<th align="left">notes</th>
+<th align="center">macro-F1 (☆)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left"><strong>sentiment.ai e5-base</strong></td>
 <td align="center">0.595</td>
-<td align="center"><strong>0.899</strong></td>
-<td align="left">best on-device; ties OpenAI on ★</td>
+<td align="center"><strong>0.823</strong></td>
+<td align="center">0.899</td>
 </tr>
 <tr class="even">
-<td align="left"><strong>sentiment.ai openai</strong></td>
-<td align="center">—</td>
-<td align="center"><strong>0.886</strong></td>
-<td align="left">API, text leaves your machine</td>
+<td align="left">sentiment.ai e5-small</td>
+<td align="center">0.613</td>
+<td align="center"><strong>0.734</strong></td>
+<td align="center">0.854</td>
 </tr>
 <tr class="odd">
-<td align="left"><strong>sentiment.ai e5-small</strong></td>
-<td align="center">0.613</td>
-<td align="center"><strong>0.854</strong></td>
-<td align="left">default; matches old TF default on ★</td>
+<td align="left">sentiment.ai openai</td>
+<td align="center">—</td>
+<td align="center">—</td>
+<td align="center">0.886</td>
 </tr>
 <tr class="even">
+<td align="left">twitter-roberta</td>
+<td align="center">0.777 ⚠️</td>
+<td align="center"><strong>0.656</strong></td>
+<td align="center">—</td>
+</tr>
+<tr class="odd">
 <td align="left">tidytext (bing)</td>
 <td align="center">0.511</td>
 <td align="center">—</td>
-<td align="left">binary lexicon forced to 3-class</td>
+<td align="center">—</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">syuzhet (AFINN)</td>
 <td align="center">0.301</td>
 <td align="center">—</td>
-<td align="left">word-score sum</td>
+<td align="center">—</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">sentimentr</td>
 <td align="center">0.293</td>
 <td align="center">—</td>
-<td align="left">sentence-aware lexicon</td>
+<td align="center">—</td>
 </tr>
 </tbody>
 </table>
-<p>On the held-out benchmark (★), <code>e5-base</code> ties paid OpenAI
-and beats <code>e5-small</code> by ~5 pp. The airline-tweet sample (†)
-shows <code>e5-base</code> slightly <em>below</em> <code>e5-small</code>
-— within sampling variance on a domain neither model was trained on; the
-gold-standard ★ numbers are the reliable read.</p>
+<p>⚠️ roberta airline-tweet figure is near-in-domain (TweetEval training
+overlap). Its ★ result (0.656) is the fair out-of-sample number.</p>
+<p><strong>Bootstrap CIs on ★ (2,000 resamples):</strong></p>
+<ul>
+<li>e5-base vs roberta: Δ = <strong>+0.167</strong>, 95% CI [+0.134,
++0.199] — entirely above zero</li>
+<li>e5-small vs roberta: Δ = <strong>+0.078</strong>, 95% CI [+0.048,
++0.107] — entirely above zero</li>
+<li>e5-base vs e5-small: Δ = <strong>+0.089</strong>, 95% CI [+0.061,
++0.118]</li>
+</ul>
+<p><strong>Note on ★ vs ☆ numbers:</strong> ★ measures the <em>shipped
+MLP head</em> on the held-out set. ☆ measures the <em>XGBoost
+scorer</em> trained on all available data — a stronger scorer that is no
+longer the default. The gap (0.823 vs 0.899 for e5-base) reflects the
+XGBoost head being stronger, not a change in embedding quality. Even
+with the shipped MLP head, both models beat roberta with statistical
+significance.</p>
 </div>
 <div id="python-speed" class="section level2">
 <h2>Python — speed</h2>
-<p>Measured on 1,000 airline tweets, CPU-only (median of 3 runs):</p>
 <table>
 <colgroup>
 <col width="32%" />
@@ -2663,7 +2683,7 @@ gold-standard ★ numbers are the reliable read.</p>
 </table>
 <p><code>sentimentai-py</code> is slightly faster than the R package
 (~523 vs ~310 t/s for e5-small) because it avoids the R↔︎Python
-round-trip. Both benefit equally from a GPU.</p>
+round-trip.</p>
 </div>
 <div id="python-accuracy" class="section level2">
 <h2>Python — accuracy</h2>
@@ -2678,8 +2698,8 @@ round-trip. Both benefit equally from a GPU.</p>
 <tbody>
 <tr class="odd">
 <td align="left">HF twitter-roberta</td>
-<td align="center">0.777</td>
-<td align="left">⚠️ near-in-domain — see caveat below</td>
+<td align="center">0.777 ⚠️</td>
+<td align="left">near-in-domain on airline tweets</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>sentimentai-py e5-small</strong></td>
@@ -2703,17 +2723,98 @@ round-trip. Both benefit equally from a GPU.</p>
 </tr>
 </tbody>
 </table>
-<p>⚠️ <strong>twitter-roberta is near-in-domain here.</strong> It was
-fine-tuned on TweetEval (Twitter data overlapping with airline tweets).
-Its F1=0.777 is not a fair out-of-sample comparison.</p>
-<p><strong>The harder, fairer test:</strong> on a mixed-domain corpus
-(Amazon/IMDB/financial/verbatims), <code>sentimentai-py e5-base</code>
-reaches macro-F1 <strong>0.899</strong>, matching paid OpenAI (0.886).
-twitter-roberta would be expected to <em>under</em>perform there — it
-was never trained on financial news or long-form reviews.
-Domain-specialised models look best on their own domain; cross-domain
-transfer is where <code>sentiment.ai</code>’s generalisation shines.</p>
-<p><strong>When to use each:</strong></p>
+<p>⚠️ roberta airline-tweet result is near-in-domain. Its ★ result
+(0.656) is the fair number. On the mixed-domain held-out set,
+<strong>both sentiment.ai models beat roberta with statistical
+significance</strong> (CIs entirely above zero — see R accuracy tab for
+the full bootstrap results).</p>
+</div>
+<div id="multilingual" class="section level2">
+<h2>Multilingual</h2>
+<p>Corpus: 892 GPT-4o-mini synthetic examples (50 per class per
+language); macOS aarch64 CPU. <em>vader and roberta are English-only —
+non-English scores are shown to illustrate their limits.</em></p>
+<table style="width:100%;">
+<colgroup>
+<col width="11%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="11%" />
+<col width="11%" />
+<col width="16%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="center">overall</th>
+<th align="center">english</th>
+<th align="center">spanish</th>
+<th align="center">french</th>
+<th align="center">german</th>
+<th align="center">portuguese</th>
+<th align="center">arabic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>sentimentai e5-base</strong></td>
+<td align="center"><strong>0.827</strong></td>
+<td align="center"><strong>0.890</strong></td>
+<td align="center"><strong>0.926</strong></td>
+<td align="center"><strong>0.868</strong></td>
+<td align="center"><strong>0.870</strong></td>
+<td align="center">0.560</td>
+<td align="center"><strong>0.791</strong></td>
+</tr>
+<tr class="even">
+<td align="left">sentimentai e5-small</td>
+<td align="center">0.761</td>
+<td align="center">0.865</td>
+<td align="center">0.787</td>
+<td align="center">0.784</td>
+<td align="center">0.747</td>
+<td align="center">0.570</td>
+<td align="center">0.766</td>
+</tr>
+<tr class="odd">
+<td align="left">vader</td>
+<td align="center">0.432</td>
+<td align="center">0.710</td>
+<td align="center">0.484</td>
+<td align="center">0.322</td>
+<td align="center">0.291</td>
+<td align="center">0.271</td>
+<td align="center">0.457</td>
+</tr>
+<tr class="even">
+<td align="left">twitter-roberta</td>
+<td align="center">N/A</td>
+<td align="center">0.837</td>
+<td align="center"><em>N/A</em></td>
+<td align="center"><em>N/A</em></td>
+<td align="center"><em>N/A</em></td>
+<td align="center"><em>N/A</em></td>
+<td align="center"><em>N/A</em></td>
+</tr>
+</tbody>
+</table>
+<p>On English, e5-base (0.890) edges roberta (0.837). On every other
+language, roberta and vader cannot compete. vader collapses to F1=0.271
+on German (roughly chance-level on 3-class).</p>
+<p><strong>Portuguese note:</strong> both e5 models score ~0.56 on
+Portuguese — a genuine gap worth acknowledging. Possible causes:
+Portuguese underrepresentation in the e5 training mix, or synthetic
+corpus artefacts. Use <code>e5-base</code> for Portuguese but validate
+on your own data.</p>
+<p><em>Corpus note:</em> synthetic text generated by GPT-4o-mini tends
+to be cleaner and less ambiguous than real-world text. Absolute F1
+figures are optimistic vs messy real text; the relative ordering across
+languages and methods is the reliable signal.</p>
+</div>
+<div id="when-to-use-each" class="section level2">
+<h2>When to use each</h2>
 <table>
 <colgroup>
 <col width="15%" />
@@ -2725,26 +2826,26 @@ transfer is where <code>sentiment.ai</code>’s generalisation shines.</p>
 <thead>
 <tr class="header">
 <th align="left"></th>
-<th align="center">sentimentai e5-small</th>
-<th align="center">sentimentai e5-base</th>
+<th align="center">e5-small</th>
+<th align="center">e5-base</th>
 <th align="center">twitter-roberta</th>
 <th align="center">vaderSentiment</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Cross-domain accuracy</td>
-<td align="center">✓</td>
-<td align="center"><strong>✓✓</strong></td>
-<td align="center">✗ (domain-locked)</td>
-<td align="center">✗</td>
+<td align="left">Cross-domain (★ F1)</td>
+<td align="center">0.734</td>
+<td align="center"><strong>0.823</strong></td>
+<td align="center">0.656</td>
+<td align="center">—</td>
 </tr>
 <tr class="even">
-<td align="left">Multilingual (~100 lang)</td>
+<td align="left">Multilingual (6 lang)</td>
 <td align="center"><strong>✓</strong></td>
 <td align="center"><strong>✓</strong></td>
-<td align="center">✗ (English only)</td>
-<td align="center">✗</td>
+<td align="center">✗ English only</td>
+<td align="center">✗ English only</td>
 </tr>
 <tr class="odd">
 <td align="left">Calibrated confidence</td>

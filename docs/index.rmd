@@ -206,7 +206,8 @@ and scoring is deterministic across machines.
 | Disk / RAM | ~120 MB |
 | Languages | ~100 |
 | Speed | ~310 texts/sec (CPU) |
-| Macro-F1 (real text) | 0.854 |
+| Macro-F1 — shipped MLP head | 0.734 (mixed-domain held-out, n=1,247) |
+| Macro-F1 — training benchmark | 0.854 (XGBoost scorer; see note) |
 
 **Best for:** scripts and pipelines where throughput matters, laptops with < 8 GB RAM,
 short text (tweets, survey items, review snippets), exploratory work and fast iteration.
@@ -224,10 +225,11 @@ sentiment_score(texts, model="e5-small")  # explicit
 | Disk / RAM | ~280 MB |
 | Languages | ~100 |
 | Speed | ~141 texts/sec (CPU) |
-| Macro-F1 (real text) | 0.899 |
+| Macro-F1 — shipped MLP head | 0.823 (mixed-domain held-out, n=1,247) |
+| Macro-F1 — training benchmark | 0.899 (XGBoost scorer; see note) |
 
 **Best for:** final datasets for publication, longer/more nuanced text (interview transcripts,
-open-ended verbatims), servers with ample RAM, cases where the ~5 pp F1 gain matters.
+open-ended verbatims), servers with ample RAM, cases where the ~9 pp F1 gain over e5-small matters.
 
 ```{r e5base, echo=TRUE, eval=FALSE}
 sentiment_score(texts, model = "e5-base")
@@ -246,11 +248,12 @@ options(sentiment.ai.model = "e5-base")
 | Embedding dim | 1536 |
 | Model | `text-embedding-3-small` |
 | Speed | network-dependent |
-| Macro-F1 (real text) | 0.886 |
+| Macro-F1 — training benchmark | 0.886 (XGBoost scorer; see note) |
 | Cost | per-token API charge |
 
 Text leaves your machine and is sent to OpenAI's servers. Requires an API key.
-Accuracy ties `e5-base` on most corpora but has ongoing cost and a network dependency.
+On the training benchmark (XGBoost scorer), OpenAI is marginally behind `e5-base` (0.886
+vs 0.899) — suggesting the e5 embedding space suits the scoring head better.
 
 ```{r openai, echo=TRUE, eval=FALSE}
 Sys.setenv(OPENAI_API_KEY = "sk-...")
@@ -477,10 +480,11 @@ this roughly 3–4× in practice.
 **Setup:** 1,000 airline tweets (seed 42); macOS aarch64 M-series, 8 CPU cores, no GPU.
 Accuracy = macro-F1 (3-class: neg/neu/pos) against crowd labels. Speed = median of 3 runs.
 
-Two accuracy sources are used — each labelled clearly:
+Three accuracy sources — each labelled clearly:
 
-- **†** = airline tweet sample (same 1,000 rows, cross-domain transfer — models trained on Amazon/IMDB/financial, *not* Twitter)
-- **★** = full held-out benchmark (n = 1,247 real-only, Amazon/IMDB/tweets/financial mix; gold standard)
+- **†** = 1,000 airline tweet sample (cross-domain; models trained on Amazon/IMDB/financial, *not* Twitter)
+- **★** = same mixed-domain held-out set (n = 1,247 real-only; shipped MLP head; bootstrap CIs available)
+- **☆** = training benchmark (XGBoost scorer on full training data — stronger scorer than shipped; for reference)
 
 ## R — speed
 
@@ -489,32 +493,38 @@ Two accuracy sources are used — each labelled clearly:
 | tidytext (bing) | **32,258** | pure R, dictionary lookup |
 | syuzhet (AFINN) | 3,311 | pure R, word-score sum |
 | sentimentr | 564 | R + C++, sentence-aware |
-| **sentiment.ai e5-small** | **310** | neural, CPU |
+| **sentiment.ai e5-small** | **310** | neural, CPU, MLP head |
 | **sentiment.ai e5-base** | **141** | neural, CPU, 768-d |
-| sentiment.ai openai | network-dependent | API, ~300–600 t/s typical |
-
-Lexicon methods win on throughput (dictionary lookups, not neural inference). `sentiment.ai`
-CPU speed is bounded by the embedding step; a GPU gives ~10–50× on the same hardware.
+| sentiment.ai openai | ~300–600 t/s | API, rate-limited |
 
 ## R — accuracy
 
-| method | macro-F1 (†) | macro-F1 (★) | notes |
-|:-------|:-----------:|:------------:|:------|
-| **sentiment.ai e5-base** | 0.595 | **0.899** | best on-device; ties OpenAI on ★ |
-| **sentiment.ai openai** | — | **0.886** | API, text leaves your machine |
-| **sentiment.ai e5-small** | 0.613 | **0.854** | default; matches old TF default on ★ |
-| tidytext (bing) | 0.511 | — | binary lexicon forced to 3-class |
-| syuzhet (AFINN) | 0.301 | — | word-score sum |
-| sentimentr | 0.293 | — | sentence-aware lexicon |
+| method | macro-F1 (†) | macro-F1 (★) | macro-F1 (☆) |
+|:-------|:-----------:|:------------:|:------------:|
+| **sentiment.ai e5-base** | 0.595 | **0.823** | 0.899 |
+| sentiment.ai e5-small | 0.613 | **0.734** | 0.854 |
+| sentiment.ai openai | — | — | 0.886 |
+| twitter-roberta | 0.777 ⚠️ | **0.656** | — |
+| tidytext (bing) | 0.511 | — | — |
+| syuzhet (AFINN) | 0.301 | — | — |
+| sentimentr | 0.293 | — | — |
 
-On the held-out benchmark (★), `e5-base` ties paid OpenAI and beats `e5-small` by ~5 pp.
-The airline-tweet sample (†) shows `e5-base` slightly *below* `e5-small` — within sampling
-variance on a domain neither model was trained on; the gold-standard ★ numbers are the
-reliable read.
+⚠️ roberta airline-tweet figure is near-in-domain (TweetEval training overlap). Its ★ result
+(0.656) is the fair out-of-sample number.
+
+**Bootstrap CIs on ★ (2,000 resamples):**
+
+- e5-base vs roberta: Δ = **+0.167**, 95% CI [+0.134, +0.199] — entirely above zero
+- e5-small vs roberta: Δ = **+0.078**, 95% CI [+0.048, +0.107] — entirely above zero
+- e5-base vs e5-small: Δ = **+0.089**, 95% CI [+0.061, +0.118]
+
+**Note on ★ vs ☆ numbers:** ★ measures the *shipped MLP head* on the held-out set. ☆ measures
+the *XGBoost scorer* trained on all available data — a stronger scorer that is no longer the
+default. The gap (0.823 vs 0.899 for e5-base) reflects the XGBoost head being stronger, not a
+change in embedding quality. Even with the shipped MLP head, both models beat roberta with
+statistical significance.
 
 ## Python — speed
-
-Measured on 1,000 airline tweets, CPU-only (median of 3 runs):
 
 | method | texts/sec | type |
 |:-------|----------:|:-----|
@@ -525,33 +535,51 @@ Measured on 1,000 airline tweets, CPU-only (median of 3 runs):
 | HF twitter-roberta | 19 | fine-tuned transformer, CPU |
 
 `sentimentai-py` is slightly faster than the R package (~523 vs ~310 t/s for e5-small)
-because it avoids the R↔Python round-trip. Both benefit equally from a GPU.
+because it avoids the R↔Python round-trip.
 
 ## Python — accuracy
 
 | method | macro-F1 (†) | notes |
 |:-------|:-----------:|:------|
-| HF twitter-roberta | 0.777 | ⚠️ near-in-domain — see caveat below |
+| HF twitter-roberta | 0.777 ⚠️ | near-in-domain on airline tweets |
 | **sentimentai-py e5-small** | **0.615** | cross-domain transfer |
 | **sentimentai-py e5-base** | **0.596** | cross-domain transfer |
 | vaderSentiment | 0.473 | airline vocab mismatch |
 | TextBlob | 0.349 | general-purpose |
 
-⚠️ **twitter-roberta is near-in-domain here.** It was fine-tuned on TweetEval (Twitter
-data overlapping with airline tweets). Its F1=0.777 is not a fair out-of-sample comparison.
+⚠️ roberta airline-tweet result is near-in-domain. Its ★ result (0.656) is the fair number.
+On the mixed-domain held-out set, **both sentiment.ai models beat roberta with statistical
+significance** (CIs entirely above zero — see R accuracy tab for the full bootstrap results).
 
-**The harder, fairer test:** on a mixed-domain corpus (Amazon/IMDB/financial/verbatims),
-`sentimentai-py e5-base` reaches macro-F1 **0.899**, matching paid OpenAI (0.886).
-twitter-roberta would be expected to *under*perform there — it was never trained on
-financial news or long-form reviews. Domain-specialised models look best on their own
-domain; cross-domain transfer is where `sentiment.ai`'s generalisation shines.
+## Multilingual
 
-**When to use each:**
+Corpus: 892 GPT-4o-mini synthetic examples (50 per class per language); macOS aarch64 CPU.
+*vader and roberta are English-only — non-English scores are shown to illustrate their limits.*
 
-| | sentimentai e5-small | sentimentai e5-base | twitter-roberta | vaderSentiment |
+| method | overall | english | spanish | french | german | portuguese | arabic |
+|:-------|:-------:|:-------:|:-------:|:------:|:------:|:----------:|:------:|
+| **sentimentai e5-base** | **0.827** | **0.890** | **0.926** | **0.868** | **0.870** | 0.560 | **0.791** |
+| sentimentai e5-small | 0.761 | 0.865 | 0.787 | 0.784 | 0.747 | 0.570 | 0.766 |
+| vader | 0.432 | 0.710 | 0.484 | 0.322 | 0.291 | 0.271 | 0.457 |
+| twitter-roberta | N/A | 0.837 | *N/A* | *N/A* | *N/A* | *N/A* | *N/A* |
+
+On English, e5-base (0.890) edges roberta (0.837). On every other language, roberta and vader
+cannot compete. vader collapses to F1=0.271 on German (roughly chance-level on 3-class).
+
+**Portuguese note:** both e5 models score ~0.56 on Portuguese — a genuine gap worth
+acknowledging. Possible causes: Portuguese underrepresentation in the e5 training mix, or
+synthetic corpus artefacts. Use `e5-base` for Portuguese but validate on your own data.
+
+*Corpus note:* synthetic text generated by GPT-4o-mini tends to be cleaner and less ambiguous
+than real-world text. Absolute F1 figures are optimistic vs messy real text; the relative
+ordering across languages and methods is the reliable signal.
+
+## When to use each
+
+| | e5-small | e5-base | twitter-roberta | vaderSentiment |
 |:--|:--:|:--:|:--:|:--:|
-| Cross-domain accuracy | ✓ | **✓✓** | ✗ (domain-locked) | ✗ |
-| Multilingual (~100 lang) | **✓** | **✓** | ✗ (English only) | ✗ |
+| Cross-domain (★ F1) | 0.734 | **0.823** | 0.656 | — |
+| Multilingual (6 lang) | **✓** | **✓** | ✗ English only | ✗ English only |
 | Calibrated confidence | **✓** | **✓** | ✗ | ✗ |
 | Tunable poles | **✓** | **✓** | ✗ | ✗ |
 | Speed (CPU) | ~500 t/s | ~175 t/s | ~20 t/s | ~5,000 t/s |

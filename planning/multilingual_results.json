@@ -1,0 +1,47 @@
+{
+  "sentimentai_e5_small": {
+    "macro_f1_overall": 0.761,
+    "by_language": {
+      "english": 0.865,
+      "spanish": 0.787,
+      "french": 0.784,
+      "german": 0.747,
+      "portuguese": 0.57,
+      "arabic": 0.766
+    },
+    "pct_agree": 0.759
+  },
+  "sentimentai_e5_base": {
+    "macro_f1_overall": 0.827,
+    "by_language": {
+      "english": 0.89,
+      "spanish": 0.926,
+      "french": 0.868,
+      "german": 0.87,
+      "portuguese": 0.56,
+      "arabic": 0.791
+    },
+    "pct_agree": 0.824
+  },
+  "vader": {
+    "macro_f1_overall": 0.432,
+    "by_language": {
+      "english": 0.71,
+      "spanish": 0.484,
+      "french": 0.322,
+      "german": 0.291,
+      "portuguese": 0.271,
+      "arabic": 0.457
+    },
+    "pct_agree": 0.452,
+    "note": "English-only rule-based lexicon"
+  },
+  "roberta": {
+    "macro_f1_overall": null,
+    "by_language": {
+      "english": 0.837
+    },
+    "note": "English-only; non-English results omitted",
+    "pct_agree_english": 0.847
+  }
+}
