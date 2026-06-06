@@ -21,3 +21,16 @@ test_that(".activate_env passes envname and has no invalid assign(pos = -2) fail
   expect_false(grepl("pos\\s*=\\s*-2", src),
                label = "assign(pos = -2) must not reappear in .activate_env")
 })
+
+test_that(".autoinit_envname parses the sentiment.ai.autoinit opt-in", {
+  # off -> NULL (no eager init on attach)
+  expect_null(sentiment.ai:::.autoinit_envname(""))
+  expect_null(sentiment.ai:::.autoinit_envname(FALSE))
+  expect_null(sentiment.ai:::.autoinit_envname(NULL))
+  # truthy -> the default env
+  expect_equal(sentiment.ai:::.autoinit_envname(TRUE), "r-sentiment-ai")
+  expect_equal(sentiment.ai:::.autoinit_envname("true"), "r-sentiment-ai")
+  expect_equal(sentiment.ai:::.autoinit_envname("YES"), "r-sentiment-ai")
+  # a custom env name passes through
+  expect_equal(sentiment.ai:::.autoinit_envname("my-env"), "my-env")
+})

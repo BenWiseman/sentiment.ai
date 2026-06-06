@@ -101,8 +101,14 @@ successfully, if not, it is called.
 \description{
 Install and Setup sentiment.ai package
 
-Initializes the sentiment.ai environment by setting up the Python environment and loading the specified model.
-This function must be called before using any other functions in the package that require a model.
+Loads the embedding model into the session so repeated scoring is fast.
+You normally do not need to call it explicitly: the scoring functions
+(\code{\link{sentiment_score}}, \code{\link{sentiment}}, \code{\link{sentiment_match}})
+load the model automatically on first use. Call it yourself to control \emph{when} the
+(few-second) load happens, or to switch models. To load eagerly when the package is
+attached, set \code{options(sentiment.ai.autoinit = TRUE)} (or the
+\code{SENTIMENTAI_AUTOINIT} environment variable) before \code{library(sentiment.ai)} --
+it then initialises on attach if the backend is already installed.
 }
 \details{
 \code{install_sentiment.ai()} sets up the Python environment for the backend. The

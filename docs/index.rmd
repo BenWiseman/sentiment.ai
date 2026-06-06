@@ -218,6 +218,14 @@ init_sentiment.ai(model = "e5-base")   # larger on-device model
 # init_sentiment.ai(model = "en.large")  # legacy USE (needs legacy install)
 ```
 
+To load the model **eagerly when you attach the package** (so the first score isn't the
+slow one), set this once — e.g. in your `.Rprofile` — and it initialises on
+`library(sentiment.ai)` whenever the backend is already installed:
+
+```{r autoinit, echo=TRUE, eval=FALSE}
+options(sentiment.ai.autoinit = TRUE)   # or Sys.setenv(SENTIMENTAI_AUTOINIT = "true")
+```
+
 <br><hr><br>
 
 # Sentiment analysis

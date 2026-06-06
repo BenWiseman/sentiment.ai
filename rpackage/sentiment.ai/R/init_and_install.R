@@ -332,8 +332,14 @@ install_scoring_model <- function(model   =  DEFAULT_MODEL,
 #' Initialize sentiment.ai Environment
 #' @rdname setup
 #'
-#' @description Initializes the sentiment.ai environment by setting up the Python environment and loading the specified model.
-#' This function must be called before using any other functions in the package that require a model.
+#' @description Loads the embedding model into the session so repeated scoring is fast.
+#' You normally do not need to call it explicitly: the scoring functions
+#' (\code{\link{sentiment_score}}, \code{\link{sentiment}}, \code{\link{sentiment_match}})
+#' load the model automatically on first use. Call it yourself to control \emph{when} the
+#' (few-second) load happens, or to switch models. To load eagerly when the package is
+#' attached, set \code{options(sentiment.ai.autoinit = TRUE)} (or the
+#' \code{SENTIMENTAI_AUTOINIT} environment variable) before \code{library(sentiment.ai)} --
+#' it then initialises on attach if the backend is already installed.
 #'
 #' @param silent logical flag indicating whether to suppress console logging. Note:
 #'        this does not affect Python or native (C++) output.
@@ -482,8 +488,7 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
 check_sentiment.ai <- function(...){
 
   if(is.null(sentiment.ai::sentiment.env$embed)){
-    message("Preparing model (this may take a while).\n",
-            "Consider running init_sentiment.ai().")
+    message("sentiment.ai: loading the model on first use (a few seconds)...")
     init_sentiment.ai(...)
   } else{
     # commented out for now - this may get annoying for users to see every time

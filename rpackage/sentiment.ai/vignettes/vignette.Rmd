@@ -67,6 +67,11 @@ install_sentiment.ai()                 # TensorFlow-free default
 # install_sentiment.ai(legacy = TRUE)  # opt into the legacy USE models
 ```
 
+Once the backend is set up you don't need to call `init_sentiment.ai()` yourself — the
+model loads automatically on the first `sentiment_score()` / `sentiment()` /
+`sentiment_match()` call. To load it eagerly the moment you attach the package (e.g. from
+your `.Rprofile`), set `options(sentiment.ai.autoinit = TRUE)`.
+
 # Choosing a model
 
 `init_sentiment.ai(model = ...)` loads a model into memory:
