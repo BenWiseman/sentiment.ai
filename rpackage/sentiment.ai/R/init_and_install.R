@@ -550,8 +550,8 @@ check_sentiment.ai <- function(...){
             length(envname) == 1)
 
   if(envname %ni% all_envs){
-    stop(envname, " environment not available. ",
-         "run sentiment.ai_install() on envname '", envname, "' first.",
+    stop("the '", envname, "' Python backend is not set up yet. Run ",
+         "install_sentiment.ai() once (TensorFlow-free) to set it up, then try again.",
          call. = FALSE)
   }
 
