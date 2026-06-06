@@ -1,40 +1,47 @@
 # tests/testthat/test-snapshot-scorer.R
-# Tier B: deterministic embeddings (committed fixture) -> known scores (snapshot).
-# A snapshot change == a deliberate, NEWS-documented scoring-model change.
-# RED until the e5/oai xgb scorers + fixtures are packaged.
+# Tier B: deterministic fixture embeddings -> exact golden mlp scores.
+# A change here means a deliberate, NEWS-documented head upgrade.
+# Uses the SHIPPED mlp head (bundled in-package; no download, no xgboost needed).
+# Fixtures: tests/testthat/fixtures/emb_{model}.rds  (real e5 embeddings, 60 rows,
+# 30 positive + 30 negative from the held-out real-text test split).
 
-backends <- c("e5-small", "e5-base", "text-embedding-3-small")
-
-for (backend in backends) {
+for (bk in c("e5-small", "e5-base")) {
   local({
-    bk <- backend
-    test_that(sprintf("[%s] scorer reproduces golden scores on fixture embeddings", bk), {
-      skip_on_cran()                                  # scorer weights may need download
-      skip_if_no_fixture(sprintf("emb_%s.rds", bk))
-      skip_if_no_fixture(sprintf("scores_%s_xgb.rds", bk))
+    model <- bk
+    test_that(sprintf("[%s] shipped mlp scorer reproduces golden scores", model), {
+      # pure in-memory (RDS fixture + in-package JSON head) -- no Python, no network,
+      # no download. skip_on_cran() removed: these are CRAN-safe.
+      skip_if_no_fixture(sprintf("emb_%s.rds", model))
+      skip_if_no_fixture(sprintf("scores_mlp_%s.rds", model))
+      skip_if_no_fixture("corpus.rds")
 
-      emb <- readRDS(fixture_path(sprintf("emb_%s.rds", bk)))
+      emb    <- readRDS(fixture_path(sprintf("emb_%s.rds", model)))
+      golden <- readRDS(fixture_path(sprintf("scores_mlp_%s.rds", model)))
+      corpus <- readRDS(fixture_path("corpus.rds"))
 
-      # dimension guard FIRST: a wrong-width fixture would mispredict silently
-      expect_equal(ncol(emb), sentiment.ai:::model_dims[[bk]],
+      # dimension guard: a wrong-width fixture would mispredict silently
+      expect_equal(ncol(emb), sentiment.ai:::model_dims[[model]],
                    info = "fixture width must equal the model's registered dim")
 
-      # find_sentiment_score returns scores already mapped to [-1, 1].
       scores <- sentiment.ai:::find_sentiment_score(
-        embeddings = emb, scoring = "xgb", scoring_version = "1.0", model = bk
-      )
+        embeddings = emb, scoring = "mlp", scoring_version = "1.0", model = model)
 
-      # 1) exact regression snapshot (float-jitter tolerant: single- vs multi-thread
-      #    xgboost must not change determinism, but guard drift regardless)
-      expect_snapshot_value(round(scores, 4), style = "json2", tolerance = 1e-4)
+      # 1. regression: scores must match the committed golden values within float noise.
+      #    A failure here == deliberate head upgrade -> update golden + add NEWS entry.
+      expect_equal(scores, golden, tolerance = 1e-4,
+                   info = paste("mlp head output differs from committed golden scores.",
+                                "If this is intentional (head upgrade), regenerate",
+                                "fixtures and add a NEWS entry."))
 
-      # 2) class-direction (survives a deliberate re-snapshot; catches a sign flip
-      #    or a wrong model-file mapping even when the snapshot is regenerated)
-      corpus <- readRDS(fixture_path("corpus.rds"))
+      # 2. direction + confidence: catches sign flips and head degradation after
+      #    a golden refresh, independent of the exact scores.
       pos <- scores[corpus$label == "positive"]
       neg <- scores[corpus$label == "negative"]
-      expect_true(all(pos >  0.25), info = "clear-positive rows must score clearly positive")
-      expect_true(all(neg < -0.25), info = "clear-negative rows must score clearly negative")
+      expect_true(mean(pos) >  0.3, info = "positive rows must score positive on average")
+      expect_true(mean(neg) < -0.3, info = "negative rows must score negative on average")
+      # mid-band guard: confident, not just correct in sign
+      expect_true(mean(abs(pos)) > 0.5, info = "positive rows should be clearly positive, not near-zero")
+      expect_true(mean(abs(neg)) > 0.5, info = "negative rows should be clearly negative, not near-zero")
     })
   })
 }

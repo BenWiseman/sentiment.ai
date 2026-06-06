@@ -1,78 +1,124 @@
 # data-raw/make_test_fixtures.R
-# Run ONCE, offline, with the real embedders installed. Commits:
-#   tests/testthat/fixtures/corpus.rds              ~15 sentences, labelled pos/neg/neutral
-#   tests/testthat/fixtures/emb_<backend>.rds       native-dim embedding matrix per backend
-#   tests/testthat/fixtures/scores_<backend>_xgb.rds golden scores from the CURRENT scorer
-#   tests/testthat/fixtures/emb_e5-small_prefixed.rds    embed of "query: I love this"
-#   tests/testthat/fixtures/emb_e5-small_unprefixed.rds  embed of "I love this"
-#   tests/testthat/fixtures/PROVENANCE.md           HF revision hashes + neutral_band source
-# These are the regression anchors; the test run NEVER re-derives them.
+# Run ONCE from the repo root when you need to regenerate the test fixtures.
+# Requires the (separate) sentiment.ai_training repository on the same machine.
 #
-# NOT part of R CMD check. Do not call from a test. Requires a live embedder
-# (sentence-transformers for e5, OPENAI_API_KEY for the openai backend) and the
-# packaged xgb scorers (e5-small.xgb / e5-base.xgb in inst/scoring/xgb/1.0/).
+# Commits:
+#   tests/testthat/fixtures/corpus.rds            60 real-text rows (30 pos, 30 neg)
+#   tests/testthat/fixtures/emb_e5-small.rds      (60, 384) float64 embedding matrix
+#   tests/testthat/fixtures/emb_e5-base.rds       (60, 768) float64 embedding matrix
+#   tests/testthat/fixtures/scores_mlp_e5-small.rds  golden scores from the shipped mlp head
+#   tests/testthat/fixtures/scores_mlp_e5-base.rds
+#   tests/testthat/fixtures/PROVENANCE.md         source + revision record
+#
+# After regeneration:
+#   1. Confirm the HF revision hashes in PROVENANCE.md are current.
+#   2. Run `NOT_CRAN=true Rscript -e 'devtools::test()'` to verify the new fixtures pass.
+#   3. If golden scores changed, add a NEWS entry (= deliberate head upgrade).
+#
+# NOT part of R CMD check. Do not call from tests.
 
-library(sentiment.ai)
+# --- configuration -----------------------------------------------------------
+TRAINING_BASE <- file.path(path.expand("~"), "sentiment.ai_training",
+                            "sentiment.ai_training")
+FIXTURE_DIR   <- "tests/testthat/fixtures"
+N_PER_CLASS   <- 30L   # rows per clear-polarity class
 
-fixt <- "tests/testthat/fixtures"
-dir.create(fixt, showWarnings = FALSE, recursive = TRUE)
+# --- setup -------------------------------------------------------------------
+stopifnot(dir.exists(TRAINING_BASE))
+suppressMessages(devtools::load_all("."))
+dir.create(FIXTURE_DIR, showWarnings = FALSE, recursive = TRUE)
 
-corpus <- data.frame(
-  text  = c(
-    # clear positive
-    "I love this, it is absolutely wonderful",
-    "Fantastic service and the staff were so kind",
-    "Best purchase I have made all year",
-    "This made me so happy, highly recommend",
-    "Brilliant, exceeded every expectation",
-    # clear negative
-    "This is terrible and a complete waste of money",
-    "Awful experience, I want a refund",
-    "The worst product I have ever used",
-    "Deeply disappointed, would not recommend",
-    "Broken on arrival and support ignored me",
-    # genuinely neutral (the rows that matter for the neutral band)
-    "The package arrived on Tuesday afternoon",
-    "It is a blue rectangular box with a lid",
-    "The meeting is scheduled for 3pm",
-    "The document has twelve pages",
-    "The store opens at nine in the morning"
-  ),
-  label = c(rep("positive", 5), rep("negative", 5), rep("neutral", 5)),
+# --- corpus: 30 pos + 30 neg from the real test split -----------------------
+message("building corpus...")
+idx  <- read.csv(file.path(TRAINING_BASE, "bakeoff", "full_idx.csv"))
+meta <- read.csv(file.path(TRAINING_BASE, "training_data", "all_data.csv"))
+te   <- merge(idx[idx$split != "train", c("index","sentiment_score")],
+              meta[!meta$is_synthetic,], by = "index")
+clear_pos <- te[te$sentiment_score ==  1L, ]
+clear_neg <- te[te$sentiment_score == -1L, ]
+corpus_df <- rbind(
+  head(clear_pos, N_PER_CLASS),
+  head(clear_neg, N_PER_CLASS)
+)
+corpus_out <- data.frame(
+  text  = corpus_df$text,
+  label = ifelse(corpus_df$sentiment_score == 1L, "positive", "negative"),
+  score = corpus_df$sentiment_score,
   stringsAsFactors = FALSE
 )
-saveRDS(corpus, file.path(fixt, "corpus.rds"))
+saveRDS(corpus_out, file.path(FIXTURE_DIR, "corpus.rds"))
+message("corpus: ", nrow(corpus_out), " rows")
 
-for (backend in c("e5-small", "e5-base", "text-embedding-3-small")) {
-  init_sentiment.ai(model = backend)                  # real embedder (prefix injected internally)
-  emb <- embed_text(corpus$text, model = backend)     # native dim: 384 / 768 / 1536
-  saveRDS(emb, file.path(fixt, sprintf("emb_%s.rds", backend)))
-  scores <- sentiment_score(emb, model = backend)     # CURRENT scorer = the golden anchor
-  saveRDS(scores, file.path(fixt, sprintf("scores_%s_xgb.rds", backend)))
+# --- embeddings: extract from the pre-computed training CSVs ----------------
+# The training repo caches e5 embeddings per row; extract the corpus rows.
+row_ids <- corpus_df$index
+
+extract_rows <- function(csv_path, ids) {
+  out <- list()
+  con <- file(csv_path, "r")
+  header <- strsplit(readLines(con, n = 1L), ",")[[1]]
+  feat_cols <- startsWith(header, "V")
+  while(TRUE) {
+    chunk <- read.csv(textConnection(
+      c(paste(header, collapse = ","), readLines(con, n = 20000L))),
+      stringsAsFactors = FALSE)
+    if(nrow(chunk) == 0L) break
+    sub <- chunk[chunk$index %in% ids, ]
+    if(nrow(sub)) out[[length(out) + 1L]] <- sub
+  }
+  close(con)
+  do.call(rbind, out)
 }
 
-# Prefix-on vs prefix-off pair for the e5 KNOWN-STRING regression. Bypass the
-# internal prefixer by hitting the raw embedder closure directly so we capture
-# BOTH the prefixed and un-prefixed embedding of the same sentence.
-init_sentiment.ai(model = "e5-small")
-raw_embed <- sentiment.env$embed
-emb_pre <- t(as.matrix(raw_embed("query: I love this")))
-emb_raw <- t(as.matrix(raw_embed("I love this")))
-saveRDS(emb_pre, file.path(fixt, "emb_e5-small_prefixed.rds"))
-saveRDS(emb_raw, file.path(fixt, "emb_e5-small_unprefixed.rds"))
+for(pair in list(
+    list(tag = "me5_small_full", model = "e5-small", dim = 384L),
+    list(tag = "me5_base_full",  model = "e5-base",  dim = 768L))) {
 
-# PROVENANCE.md: fill from the training repo's eval. DO NOT invent the band here.
-# Record one line:  neutral_band: 0.NN   (taken from the training-repo neutral eval)
-# plus the HuggingFace revision hash per model so the embeddings are reproducible.
-cat(
-  "# Fixture provenance\n\n",
-  "Generated by data-raw/make_test_fixtures.R on ", as.character(Sys.Date()), "\n\n",
-  "## HuggingFace revisions (fill in from the resolved snapshot)\n",
-  "intfloat/multilingual-e5-small: <rev>\n",
-  "intfloat/multilingual-e5-base:  <rev>\n\n",
-  "## OpenAI model\n",
-  "text-embedding-3-small: API (no local revision)\n\n",
-  "## Neutral band (READ from the training-repo eval, do not invent)\n",
-  "neutral_band: <fill from training-repo neutral eval>\n",
-  sep = "", file = file.path(fixt, "PROVENANCE.md")
-)
+  message("extracting embeddings for ", pair$model, "...")
+  csv <- file.path(TRAINING_BASE, "bakeoff",
+                   paste0("sub_emb_", pair$tag, ".csv"))
+  stopifnot(file.exists(csv))
+
+  emb_df <- extract_rows(csv, row_ids)
+  # match corpus row order
+  emb_df  <- merge(data.frame(index = row_ids), emb_df, by = "index", sort = FALSE)
+  feat    <- grep("^V", names(emb_df), value = TRUE)
+  mat     <- as.matrix(emb_df[, feat])
+  rownames(mat) <- corpus_out$text
+  stopifnot(nrow(mat) == nrow(corpus_out), ncol(mat) == pair$dim)
+
+  fname_emb   <- file.path(FIXTURE_DIR, paste0("emb_", pair$model, ".rds"))
+  fname_score <- file.path(FIXTURE_DIR, paste0("scores_mlp_", pair$model, ".rds"))
+  saveRDS(mat, fname_emb)
+  scores <- find_sentiment_score(mat, "mlp", "1.0", pair$model)
+  saveRDS(round(scores, 6L), fname_score)
+  message("  saved ", basename(fname_emb), " and ", basename(fname_score))
+}
+
+# --- PROVENANCE.md -----------------------------------------------------------
+writeLines(c(
+  "# Fixture provenance",
+  "",
+  paste("Generated:", as.character(Sys.Date()), "by data-raw/make_test_fixtures.R"),
+  "",
+  "## Corpus",
+  paste0("60 real-text rows (", N_PER_CLASS, " positive + ", N_PER_CLASS, " negative,"),
+  "no neutral rows — corpus is clear-polarity by design). Source: held-out test",
+  "split of training_data/all_data.csv, is_synthetic == FALSE.",
+  "",
+  "## HuggingFace revision hashes (from rpackage/sentiment.ai/R/model_meta.R)",
+  paste0("intfloat/multilingual-e5-small: ",
+         sentiment.ai:::model_revision["e5-small"]),
+  paste0("intfloat/multilingual-e5-base:  ",
+         sentiment.ai:::model_revision["e5-base"]),
+  "",
+  "## Scoring heads",
+  "Shipped mlp JSON heads (inst/scoring/mlp/1.0/). Golden scores rounded to 6 dp.",
+  "",
+  "## After regeneration",
+  "- If golden scores changed: add a NEWS entry.",
+  "- Update HF hashes above if the model was upgraded.",
+  "- Run: NOT_CRAN=true Rscript -e 'devtools::test()' to verify."
+), file.path(FIXTURE_DIR, "PROVENANCE.md"))
+
+message("done -- all fixtures written to ", FIXTURE_DIR)
