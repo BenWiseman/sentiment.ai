@@ -1,7 +1,7 @@
 ---
 image: "media/nnet_big.svg"
 title: sentiment.ai
-subtitle: Sentiment analysis from sentence embeddings — multilingual, on-device, TensorFlow-free
+subtitle: "Quite possibly the best on-device sentiment scoring in the R/Python ecosystem."
 output:
   html_document:
     toc: yes
@@ -71,6 +71,17 @@ knitr::opts_chunk$set(echo = TRUE)
 `sentiment.ai` turns text into sentiment scores using a sentence-embedding model plus
 a small, bundled scoring head. The default backend is the on-device multilingual model
 **`multilingual-e5-small`** — **no TensorFlow, no API key, no data leaving your machine**.
+
+<div class="new-in-v2">
+**Quite possibly the best on-device sentiment scoring in the R/Python ecosystem.**
+
+On a real mixed-domain held-out benchmark (Amazon / IMDB / financial news / tweets,
+n = 1,247), `e5-base` beats a fine-tuned Twitter transformer by **F1 +0.167**
+(95% CI [+0.134, +0.199] — entirely above zero). On a 6-language synthetic benchmark,
+`e5-base` reaches macro-F1 0.827 overall; the Twitter model can't score outside English,
+and VADER collapses to F1 = 0.27 on German. All benchmarks run locally — no API calls,
+no data sent anywhere. See the [Benchmarks](#benchmarks) section for full results and CIs.
+</div>
 
 <div class="new-in-v2">
 **What's new in v2 (1.0.1)**

@@ -1869,8 +1869,8 @@ border-radius: 0px;
 
 
 <h1 class="title toc-ignore">sentiment.ai</h1>
-<h3 class="subtitle">Sentiment analysis from sentence embeddings —
-multilingual, on-device, TensorFlow-free</h3>
+<h3 class="subtitle">Quite possibly the best on-device sentiment scoring
+in the R/Python ecosystem.</h3>
 
 </div>
 
@@ -1920,6 +1920,19 @@ sentence-embedding model plus a small, bundled scoring head. The default
 backend is the on-device multilingual model
 <strong><code>multilingual-e5-small</code></strong> — <strong>no
 TensorFlow, no API key, no data leaving your machine</strong>.</p>
+<div class="new-in-v2">
+<p><strong>Quite possibly the best on-device sentiment scoring in the
+R/Python ecosystem.</strong></p>
+<p>On a real mixed-domain held-out benchmark (Amazon / IMDB / financial
+news / tweets, n = 1,247), <code>e5-base</code> beats a fine-tuned
+Twitter transformer by <strong>F1 +0.167</strong> (95% CI [+0.134,
++0.199] — entirely above zero). On a 6-language synthetic benchmark,
+<code>e5-base</code> reaches macro-F1 0.827 overall; the Twitter model
+can’t score outside English, and VADER collapses to F1 = 0.27 on German.
+All benchmarks run locally — no API calls, no data sent anywhere. See
+the <a href="#benchmarks">Benchmarks</a> section for full results and
+CIs.</p>
+</div>
 <div class="new-in-v2">
 <p><strong>What’s new in v2 (1.0.1)</strong></p>
 <ul>
