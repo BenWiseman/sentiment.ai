@@ -1,0 +1,17 @@
+# sentiment.ai v2 — verified-working Python dependency baseline
+# Captured 2026-06-06 from a clean install on macOS aarch64 (Apple Silicon).
+# torch is NOT listed here; it is installed separately via the CPU/GPU index
+# (see install_sentiment.ai(gpu=) for that path).
+#
+# Purpose: auto-fallback when a 'latest' install fails.
+# Use:     install_sentiment.ai(pin_versions = TRUE)  — always use these
+#          install_sentiment.ai()                     — try latest, snap to these on failure
+certifi==2024.8.30
+huggingface-hub==0.26.2
+numpy==2.0.2
+openai==1.54.4
+safetensors==0.4.5
+sentence-transformers==3.3.0
+sentencepiece==0.2.0
+tokenizers==0.20.3
+transformers==4.46.2

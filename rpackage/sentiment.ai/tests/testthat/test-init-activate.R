@@ -89,3 +89,12 @@ test_that(".autoinit_envname parses the sentiment.ai.autoinit opt-in", {
   # a custom env name passes through
   expect_equal(sentiment.ai:::.autoinit_envname("my-env"), "my-env")
 })
+
+test_that(".read_pinned_requirements parses requirements.txt correctly", {
+  pkgs <- sentiment.ai:::.read_pinned_requirements()
+  expect_true(length(pkgs) > 0)
+  # every entry should be "name==version" or just "name"
+  expect_true(all(grepl("^[a-zA-Z0-9._-]+(==[0-9.]+)?$", pkgs)))
+  # sentence-transformers must be in the baseline
+  expect_true(any(grepl("^sentence-transformers", pkgs)))
+})

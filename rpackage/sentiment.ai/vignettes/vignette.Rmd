@@ -64,6 +64,10 @@ After installing from CRAN, set up the Python backend once with
   CUDA build (Linux/Windows with an NVIDIA GPU). macOS is always CPU/MPS. The setup
   walkthrough offers this as a menu choice.
 * `fast` — use `uv` (if installed) for a much faster install; falls back to pip safely.
+* `pin_versions` — `NA` (default) tries the latest packages, then automatically retries
+  with the bundled verified-working baseline if something doesn't land correctly. Set
+  `TRUE` to always use the pinned baseline (useful after a future breaking release of
+  `sentence-transformers`); set `FALSE` to skip the check entirely.
 * `legacy` — set `TRUE` to also install TensorFlow / TF-Hub for the opt-in legacy
   Universal Sentence Encoder models.
 

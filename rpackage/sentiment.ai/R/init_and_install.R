@@ -116,6 +116,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  fresh_install   = TRUE,
                                  restart_session = TRUE,
                                  fast    = NA,
+                                 pin_versions    = NA,
                                  ...){
 
   method <- match.arg(method)
@@ -162,6 +163,22 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   } else if(gpu && legacy && "tensorflow" %in% names(modules)){
     message("gpu flag is TRUE; installation needs CUDA configured")
     names(modules)[names(modules) == "tensorflow"] <- "tensorflow-gpu"
+  }
+
+  # When pin_versions = TRUE, substitute the verified-working baseline versions
+  # for any "latest" entries (torch is handled separately; legacy TF stack keeps "latest").
+  if(isTRUE(pin_versions) && is.null(attr(modules, "user_supplied"))){
+    pinned <- .read_pinned_requirements()
+    if(length(pinned)){
+      pinned_map <- setNames(
+        sub("^([^=]+)==(.+)$", "\\2", pinned),
+        sub("^([^=]+)==.+$",   "\\1", pinned)
+      )
+      for(nm in names(modules)){
+        if(modules[[nm]] == "latest" && nm %in% names(pinned_map))
+          modules[[nm]] <- pinned_map[[nm]]
+      }
+    }
   }
 
   # make sure that all modules have length 1
@@ -253,6 +270,46 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
       ...
     )
   }
+
+  # --- post-install verification and auto-fallback ----------------------------
+  # pin_versions = NA (default): verify key packages landed; if not, retry with
+  # the bundled pinned baseline so the user doesn't land in dependency hell.
+  # pin_versions = TRUE:  already installed from pinned — just verify.
+  # pin_versions = FALSE: skip check entirely (escape hatch for power users).
+  if(!isFALSE(pin_versions)){
+    st_ok <- tryCatch({
+      pkgs <- tolower(reticulate::py_list_packages(envname)$package)
+      "sentence-transformers" %in% pkgs
+    }, error = function(e) FALSE)
+
+    if(!st_ok){
+      if(is.na(pin_versions)){
+        message(
+          "The 'latest' install did not place sentence-transformers correctly.\n",
+          "Retrying automatically with the verified-working pinned baseline\n",
+          "(install_sentiment.ai(pin_versions = TRUE) to always use this)...")
+        pinned <- .read_pinned_requirements()
+        if(length(pinned)){
+          tryCatch(
+            reticulate::py_install(packages = pinned, envname = envname,
+                                   method = method, pip = TRUE, ...),
+            error = function(e)
+              warning("Pinned fallback also failed: ", conditionMessage(e),
+                      "\nTry: install_sentiment.ai(pin_versions = TRUE)",
+                      call. = FALSE))
+        } else {
+          warning("inst/python/requirements.txt not found in installed package; ",
+                  "cannot auto-fall back. Run: install_sentiment.ai(pin_versions=TRUE)",
+                  call. = FALSE)
+        }
+      } else {
+        # pin_versions = TRUE but still failed — unusual; warn loudly
+        warning("Pinned baseline install did not verify. Check your environment: ",
+                envname, call. = FALSE)
+      }
+    }
+  }
+  # --------------------------------------------------------------------------
 
   message("Successfully created ", method, " environment: ", envname)
 
@@ -572,6 +629,15 @@ check_sentiment.ai <- function(...){
 
 # Is uv (the fast Python installer) on the PATH?
 .uv_available <- function() nzchar(Sys.which("uv"))
+
+# Read inst/python/requirements.txt and return a character vector of
+# "package==version" strings (comments and blank lines stripped).
+.read_pinned_requirements <- function(){
+  req <- system.file("python", "requirements.txt", package = "sentiment.ai")
+  if(!nzchar(req) || !file.exists(req)) return(character(0))
+  lines <- readLines(req, warn = FALSE)
+  trimws(lines[!startsWith(lines, "#") & nzchar(trimws(lines))])
+}
 
 # pip index for torch: NULL means "use the default" (CUDA on Linux/Windows, CPU/MPS on mac).
 # The default here is the small CPU-only build on Linux/Windows; gpu = TRUE keeps CUDA.
