@@ -500,6 +500,10 @@ For `e5-base` scoring slightly lower than `e5-small` on this specific sample: th
 within sampling variance (different 1000-row draw) — the full-corpus benchmark
 (n = 1,247 real-only) shows e5-base at 0.899 vs e5-small at 0.854.
 
+Both `sentiment.ai` models were trained on Amazon reviews, IMDB, and financial news — *not*
+on Twitter data. The F1 figures above reflect cross-domain transfer, which is the practically
+relevant test for most users.
+
 ## Python — speed
 
 Measured on 1,000 airline tweets, macOS aarch64, CPU-only (median of 3 runs):
@@ -521,16 +525,26 @@ Macro-F1 on the same 1,000 airline-tweet sample (3-class neg/neu/pos against cro
 
 | method | macro-F1 | % agreement | notes |
 |:-------|:--------:|:-----------:|:------|
-| HF twitter-roberta (fine-tuned) | **0.777** | **77.0%** | trained on this domain |
-| **sentimentai-py (e5-small)** | **0.615** | **71.4%** | multilingual, ~100 languages |
+| HF twitter-roberta (fine-tuned) | 0.777 | 77.0% | ⚠️ trained on Twitter data — see note |
+| **sentimentai-py (e5-small)** | **0.615** | **71.4%** | trained on Amazon/IMDB/financial mix |
 | vaderSentiment | 0.473 | 55.9% | weak on neutral; airline vocab mismatch |
 | TextBlob | 0.349 | 43.3% | general-purpose, not tuned |
 
+⚠️ **Important caveat on twitter-roberta:** `cardiffnlp/twitter-roberta-base-sentiment-latest`
+is fine-tuned on the TweetEval corpus, which overlaps substantially with the airline-tweet-style
+Twitter data used here. Its F1=0.777 reflects in-domain or near-in-domain performance, not
+a fair out-of-sample comparison. Treat it as "upper bound when you fine-tune on your target
+domain" rather than a general-purpose accuracy number.
+
+`sentimentai-py`'s F1=0.615 on airline tweets is arguably *more impressive* in context: it
+was trained on a general mix (Amazon reviews, IMDB, financial news, short verbatims) and
+transfers to a Twitter domain with no adaptation.
+
 **When to use each:**
 
-- **twitter-roberta**: highest accuracy on English Twitter; 25× slower on CPU; no multilingual support; ~500 MB download; not tunable.
-- **sentimentai-py**: best accuracy across languages; tunable poles; calibrated confidence; auditable provenance; matches the R package bit-for-bit.
-- **vaderSentiment / TextBlob**: when you need sub-millisecond speed and accuracy is secondary.
+- **twitter-roberta**: if you need maximum accuracy on English Twitter and are comfortable with a ~500 MB model that is slow on CPU, not multilingual, and not tunable. Check for overlap with your test domain before trusting the numbers.
+- **sentimentai-py**: generalises across languages and domains; tunable poles; calibrated confidence; auditable provenance; matches the R package bit-for-bit.
+- **vaderSentiment / TextBlob**: when you need sub-millisecond speed and accuracy is a distant second priority.
 
 ---
 
