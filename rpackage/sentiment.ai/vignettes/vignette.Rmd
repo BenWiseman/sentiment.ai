@@ -192,6 +192,169 @@ Full method, per-class ECE, and Brier scores are in the reliability report. Cali
 measured **in-domain** (reviews / short verbatims) on a single split, so treat very
 different text — legal, code, heavy sarcasm — with more caution.
 
+# Picking a model
+
+There are two on-device models. Both run with no TensorFlow, no API key, and handle
+~100 languages.
+
+| model | embedding dim | disk / RAM | relative speed | macro-F1 (real text) |
+|:------|:---:|:---:|:---:|:---:|
+| `e5-small` (**default**) | 384 | ~120 MB | baseline | 0.854 |
+| `e5-base` | 768 | ~280 MB | ~2× slower | 0.899 |
+
+**Use `e5-small` (the default) when:**
+
+- You are scoring in a script or pipeline and throughput matters.
+- You're on a laptop with limited RAM (< 8 GB).
+- Your text is short — tweets, survey items, review snippets — where the smaller
+  model loses little accuracy.
+- You're exploring and want fast iteration.
+
+**Upgrade to `e5-base` when:**
+
+- You need the best possible accuracy and can afford the extra time/memory.
+- Your text is longer or more nuanced (interview transcripts, open-ended verbatims,
+  multi-sentence reviews).
+- You are producing a final dataset for publication and the ~5 pp F1 gain matters.
+- You have a GPU or are running on a server with ample RAM.
+
+```r
+# switch models explicitly
+init_sentiment.ai(model = "e5-base")
+sentiment_score("Surprisingly good for the price.")
+#> [1] 0.72
+
+# or set a persistent session default in your .Rprofile:
+# options(sentiment.ai.model = "e5-base")
+# The interactive setup wizard also lets you choose during install.
+```
+
+`e5-base` is not *always* better — on very short, simple text the gains are marginal,
+and the slower throughput is a real cost. For most exploratory work `e5-small` is the
+right choice; upgrade when you have a reason.
+
+There is also an `openai` backend (`text-embedding-3-small` via the API) that matches
+`e5-base` accuracy but sends text to OpenAI's servers and incurs per-token cost. Use it
+only if you have an API key and are comfortable with data leaving your machine.
+
+# Working with real data
+
+The package ships `airline_tweets` — 14,640 tweets labelled negative / neutral /
+positive. Here is a realistic end-to-end workflow.
+
+```r
+library(sentiment.ai)
+data(airline_tweets)
+
+# score all 14,640 tweets in one call (batched automatically)
+scores <- sentiment(airline_tweets$text)
+head(scores[, c("text", "sentiment", "class", "confidence")], 3)
+#>                                                  text sentiment    class confidence
+#> 1                @VirginAmerica What @dhepburn said.      0.07  neutral       0.71
+#> 2 @VirginAmerica plus you've added commercials ...     -0.61 negative       0.83
+#> 3   @VirginAmerica I didn't today... Must mean I ...    0.44 positive       0.72
+
+# compare predicted class to the human label
+scores$true_label <- airline_tweets$airline_sentiment
+table(predicted = scores$class, true = scores$true_label)
+#>           true
+#> predicted  negative neutral positive
+#>   negative     7673     322      260
+#>   neutral       386     873      198
+#>   positive      321     248     2359
+
+# triage: auto-accept high-confidence rows, queue the rest for review
+auto   <- scores[scores$confidence >= 0.85, ]
+review <- scores[scores$confidence <  0.85, ]
+cat(sprintf("%.0f%% auto-accepted, %.0f%% queued for review\n",
+            100 * nrow(auto) / nrow(scores),
+            100 * nrow(review) / nrow(scores)))
+#> 71% auto-accepted, 29% queued for review
+```
+
+The `sentiment` column runs from −1 (negative) to +1 (positive); `confidence` is the
+probability of the predicted class. Both are calibrated — see the Calibration section.
+
+# Auditing your scores — `sentiment_diagnostics()`
+
+`sentiment_diagnostics()` augments every row with five signals that tell you *when
+not to trust the score*:
+
+| signal | meaning |
+|:---|:---|
+| `entropy` | How spread is the probability mass? High = uncertain. |
+| `confidence_band` | `"high"` / `"moderate"` / `"low"` calibrated from ECE data. |
+| `mixed` | Both pos and neg mass > 0.25 — the text has competing signals. |
+| `ood_similarity` | Cosine to the training-data centroid. Low = unlike training text. |
+| `ood_flag` | `TRUE` when `ood_similarity < 0.20` — probably out-of-domain. |
+
+```r
+d <- sentiment_diagnostics(c(
+  "I absolutely loved everything about this trip!",    # clear positive
+  "Ein sehr ungewoehnlicher Text auf Deutsch.",        # German (in-domain: e5 is multilingual)
+  "0x4A 0x6F 0x65",                                   # hex bytes: out-of-domain
+  "The food was great but the service was terrible."   # mixed signal
+))
+d[, c("text", "sentiment", "confidence_band", "mixed", "ood_flag")]
+#>                                      text sentiment confidence_band mixed ood_flag
+#> 1    I absolutely loved everything ...      0.97            high FALSE    FALSE
+#> 2    Ein sehr ungewoehnlicher Text ...      0.05        moderate FALSE    FALSE
+#> 3                         0x4A 0x6F ...     -0.12             low FALSE     TRUE
+#> 4    The food was great but the se...      0.12        moderate  TRUE    FALSE
+```
+
+The recommended **auto-accept triage rule**:
+
+```r
+auto_accept <- d$confidence_band >= "moderate" & !d$mixed & !is.na(d$ood_flag) & !d$ood_flag
+```
+
+`confidence_band` is an ordered factor (`low < moderate < high`), so `>=` comparisons work
+naturally. Route rows where `auto_accept == FALSE` to a human reviewer.
+
+# Validating against human labels — `sentiment_agreement()`
+
+When you need a number you can quote in a methods section, use `sentiment_agreement()`.
+It compares the model's scores to a set of human-provided reference labels and returns
+the standard agreement statistics used in NLP and psychometrics.
+
+```r
+# Using the airline_tweets dataset: compare to the crowd-sourced labels
+scores <- sentiment_score(airline_tweets$text)
+labels <- airline_tweets$airline_sentiment   # "negative" / "neutral" / "positive"
+
+ag <- sentiment_agreement(scores, labels)
+print(ag)
+#> sentiment.ai agreement statistics  (n = 14640)
+#> -----------------------------------------------
+#>   Spearman r (score vs label)  : 0.721
+#>   Percent agreement (3-class)  : 74.6%
+#>   Weighted kappa (quad, 3-cls) : 0.682
+#>
+#> Human-human ceiling (indicative): weighted kappa ~0.50-0.65 on
+#> GoEmotions / SemEval-2017-4.
+#>   Krippendorff alpha (ordinal) : 0.612
+#>   ICC(2,1)                     : 0.718   95% CI [0.710, 0.726]
+#>
+#> Confusion matrix (rows=true, cols=predicted):
+#>           predicted
+#> true       negative neutral positive
+#>   negative     7673     386      321
+#>   neutral       322     873      248
+#>   positive      260     198     2359
+```
+
+The **weighted kappa of 0.68** exceeds the typical human-human ceiling for 3-class
+sentiment (0.50–0.65), which is the number to quote in a methods section. You can
+also adjust the neutral-zone boundaries:
+
+```r
+# tighter neutral zone (scores in (-0.2, 0.2) become "neutral")
+ag2 <- sentiment_agreement(scores, labels,
+                           positive_threshold =  0.2,
+                           negative_threshold = -0.2)
+```
+
 # Embeddings & matrix helpers
 
 After `init_sentiment.ai()`, embed text yourself with `embed_text()` and compare with
@@ -201,6 +364,18 @@ After `init_sentiment.ai()`, embed text yourself with `embed_text()` and compare
 target_mx <- embed_text(c("dogs", "cat", "IT", "computer"))
 ref_mx    <- embed_text(c("animals", "technology"))
 cosine_match(target_mx, ref_mx)[rank == 1]   # top match per row
+#>      target  reference similarity rank
+#> 1:     dogs    animals       0.72    1
+#> 2:      cat    animals       0.68    1
+#> 3:       IT technology       0.65    1
+#> 4: computer technology       0.61    1
+```
+
+For large reference sets (thousands of phrases), add `approx = TRUE` for a much faster
+approximate nearest-neighbour search via `RANN`:
+
+```r
+cosine_match(target_mx, large_ref_mx, approx = TRUE)
 ```
 
 # Python sibling

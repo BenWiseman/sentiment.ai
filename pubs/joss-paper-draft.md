@@ -8,7 +8,7 @@ tags:
   - sentence embeddings
 authors:
   - name: Ben Wiseman
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0000-0000-0000   # TODO: add your real ORCID before submission
     corresponding: true
     affiliation: 1
   - name: Steven W. Nydick
@@ -30,24 +30,45 @@ bibliography: paper.bib
 `sentiment.ai` is an R package that turns sentence embeddings into three-class
 (negative / neutral / positive) sentiment scores. Rather than matching words
 against a fixed lexicon, it embeds each document with a transformer model and
-then maps that embedding to a sentiment score with a small gradient-boosted
-classifier (`xgboost`). This decoupling — a swappable *embedding backend* feeding
-a lightweight, portable *scoring head* — lets the same package score text on a
-student laptop with no GPU, score it through a paid embedding API, or, for
-backward compatibility, score it with the legacy TensorFlow Universal Sentence
-Encoder backend that the original release shipped with.
+then maps that embedding to a sentiment score with a small, pure-R scoring head
+(a two-layer MLP or logistic classifier, stored as a bundled JSON file — no
+`xgboost` and no TensorFlow at score time). This decoupling — a swappable
+*embedding backend* feeding a lightweight, portable *scoring head* — lets the
+same package score text on a student laptop with no GPU, score it through a paid
+embedding API, or, for backward compatibility, use the legacy TensorFlow
+Universal Sentence Encoder backend the original release shipped with.
 
 Version 2 is a substantial rewrite of the engine first released in 2021
-[@sentimentai2021]. The headline change is that the default path **no longer
-depends on TensorFlow**. The original release pinned TensorFlow, TensorFlow Hub,
-and `tensorflow-text` to specific versions, which made installation the single
-largest source of user friction (especially on Apple Silicon). The v2 default
-backend is a modern multilingual sentence-transformer (`multilingual-e5-small`)
-that runs on-device via PyTorch with no TensorFlow at all; TensorFlow is demoted
-to an opt-in compatibility layer for users who need bit-for-bit continuity with
-v1. The package also exposes a context-tunable mode, `sentiment_match()`, that
-lets a user *define what positive and negative mean for their domain* instead of
-accepting a single fixed polarity scale.
+[@sentimentai2021]. The headline changes are:
+
+- **TensorFlow-free by default.** The original release pinned TensorFlow,
+  TensorFlow Hub, and `tensorflow-text` to specific versions, making
+  installation the single largest source of user friction (especially on Apple
+  Silicon). The v2 default backend is `multilingual-e5-small` running on-device
+  via PyTorch with no TensorFlow; TensorFlow is demoted to an opt-in
+  compatibility layer.
+
+- **Tidy, calibrated output.** The new `sentiment()` verb returns a per-row
+  data frame with `text`, `sentiment` (score in $[-1, 1]$), `prob_neg`,
+  `prob_neu`, `prob_pos`, `class`, and `confidence`. The class probabilities are
+  **temperature-scaled** (expected calibration error ≈ 0.015 for `e5-small` on
+  held-out real text), so `confidence` means what it says and can be used to
+  triage rows for human review.
+
+- **Context-tunable matching.** `sentiment_match()` lets a user define what
+  *positive* and *negative* mean for their domain via a set of poles; the same
+  calibrated score is returned alongside a nearest-phrase explanation.
+
+- **Diagnostic and validation surfaces.** `sentiment_diagnostics()` augments
+  every scored row with entropy, a calibrated confidence band, a mixed-sentiment
+  flag, and an out-of-distribution similarity signal. `sentiment_agreement()`
+  compares model scores to human labels, returning Spearman correlation,
+  percent agreement, quadratic-weighted Cohen's $\kappa$, Krippendorff's
+  $\alpha$, and ICC(2,1) — the statistics needed to validate a scoring pipeline
+  and quote a defensible number in a methods section.
+
+- **Python sibling.** The same scoring heads ship as `sentimentai-py` on PyPI,
+  with a forward pass verified bit-for-bit against the R package.
 
 # Statement of need
 

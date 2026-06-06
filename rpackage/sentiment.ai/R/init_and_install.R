@@ -624,7 +624,41 @@ setup_sentiment.ai <- function(){
                     "  # add gpu = TRUE (CUDA), method = \"conda\", or legacy = TRUE as needed"); FALSE },
     FALSE)
 
+  # If we actually installed the backend, offer a model choice
+  if(isTRUE(done)){
+    model_choice <- utils::menu(
+      choices = c(
+        "e5-small  (default — fast, ~384-d, ~100 languages; good for most tasks)",
+        "e5-base   (best on-device quality — 768-d, ~2x slower, ~4x more RAM)"),
+      title = paste0(
+        "Which embedding model would you like to use by default?\n",
+        "  Both are multilingual and run on-device with no TensorFlow or API key.\n",
+        "  You can always change this later with init_sentiment.ai(model = ...)."))
+    chosen_model <- switch(as.character(model_choice),
+      "1" = "e5-small",
+      "2" = "e5-base",
+      NULL)
+    if(!is.null(chosen_model)){
+      .set_default_model(chosen_model)
+      message("sentiment.ai: default model set to '", chosen_model, "' for this session.\n",
+              "  To make this permanent, add to your .Rprofile:\n",
+              "    options(sentiment.ai.model = \"", chosen_model, "\")")
+    }
+  }
+
   invisible(isTRUE(done))
+}
+
+# Update DEFAULT_MODEL for the current session and persist as an option.
+# Uses unlockBinding so functions that use DEFAULT_MODEL as a default argument
+# pick up the new value immediately.
+.set_default_model <- function(model){
+  ns <- asNamespace("sentiment.ai")
+  unlockBinding("DEFAULT_MODEL", ns)
+  assign("DEFAULT_MODEL", model, envir = ns)
+  lockBinding("DEFAULT_MODEL", ns)
+  options(sentiment.ai.model = model)
+  invisible(model)
 }
 
 # 3. HELPER FUNCTIONS ==========================================================

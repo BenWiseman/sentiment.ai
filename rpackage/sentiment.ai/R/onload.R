@@ -10,6 +10,18 @@
   }
 }
 
+.onLoad <- function(libname, pkgname){
+  # If the user has options(sentiment.ai.model = "e5-base") in their .Rprofile,
+  # honour it by updating DEFAULT_MODEL before any function default is evaluated.
+  user_model <- getOption("sentiment.ai.model", NULL)
+  if(!is.null(user_model) && nzchar(user_model)){
+    ns <- asNamespace(pkgname)
+    unlockBinding("DEFAULT_MODEL", ns)
+    assign("DEFAULT_MODEL", as.character(user_model), envir = ns)
+    lockBinding("DEFAULT_MODEL", ns)
+  }
+}
+
 .onAttach <- function(libname, pkgname) {
 
   # Opt-in EAGER init: if the user asked for it (options(sentiment.ai.autoinit=) or the

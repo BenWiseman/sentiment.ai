@@ -4,16 +4,16 @@
 \alias{matrix_similarity}
 \alias{cosine}
 \alias{cosine_match}
-\title{Cosine Similarity}
+\title{Cosine similarity and nearest-phrase matching}
 \usage{
 cosine(x, y = NULL)
 
 cosine_match(target, reference, keep_target_order = FALSE, approx = FALSE)
 }
 \arguments{
-\item{x}{A numeric vector or matrix}
+\item{x}{A numeric vector or matrix.}
 
-\item{y}{A numeric vector or matrix of the same dimensions as x}
+\item{y}{A numeric vector or matrix of the same column-dimension as x.}
 
 \item{target}{numeric matrix of j values where each row is one observation.
 Use row names as ID.}
@@ -37,19 +37,32 @@ target and reference. When \code{approx = TRUE} only rank-1 rows are
 returned.
 }
 \description{
-Cosine Similarity
-
-cosine_match()
+Two related helpers for working directly with embedding matrices.
+\code{cosine(x, y)} returns the full pairwise cosine-similarity matrix.
+\code{cosine_match()} ranks reference rows by similarity to each target row
+and is the engine behind \code{\link{sentiment_match}}.
 }
 \examples{
 \dontrun{
-n <- 5
-d <- 384  # embedding width (e.g. e5-small)
-y <- matrix(rnorm(n * d), ncol = d)
+# cosine: full pairwise similarity
+n <- 5; d <- 384
 x <- matrix(rnorm(n * d), ncol = d)
+y <- matrix(rnorm(n * d), ncol = d)
+cosine(x, y)   # n x n matrix in [-1, 1]
 
-all.equal(cosine(x, y),
-          text2vec::sim2(x, y))
+# cosine_match: top reference phrase per target
+init_sentiment.ai()
+tgt <- embed_text(c("dogs", "cat", "keyboard", "mouse"))
+ref <- embed_text(c("animals", "technology"))
+cosine_match(tgt, ref)[rank == 1]
+#>      target  reference similarity rank
+#> 1:     dogs    animals       0.72    1
+#> 2:      cat    animals       0.68    1
+#> 3: keyboard technology       0.65    1
+#> 4:    mouse technology       0.57    1
+
+# approx=TRUE for large reference sets (requires RANN)
+cosine_match(tgt, ref, approx = TRUE)
 }
 
 }

@@ -83,6 +83,28 @@ accuracy while dropping all of TensorFlow. (Real *neutral* text is scarce in the
 benchmark, so pos/neg accuracy is the most reliable read; see `NEWS.md` for the full
 table.)
 
+# Why not just use tidytext / vader / sentimentr?
+
+Lexicon-based tools are fast and easy to inspect, but they have a hard ceiling: they
+score **words in a fixed dictionary**, so out-of-vocabulary terms, misspellings, and
+new phrasings get missed; negation and context are handled only by hand-written rules;
+and most convenient lexicons are **English-only**. `sentiment.ai` avoids those limits
+because it never looks at individual words — it maps the whole sentence to an embedding
+vector and then classifies that vector:
+
+- **Handles ~100 languages** from a single model (no separate multilingual lexicons).
+- **Scores phrases a dictionary has never seen** — slang, domain jargon, product names.
+- **Explicitly models neutral** as a third class (not just "not positive, not negative").
+- **Calibrated confidence** — the `confidence` value from `sentiment()` matches
+  empirical accuracy (ECE ≈ 0.015), so you can triage on it.
+- **Tunable context** — `sentiment_match()` lets you define what *positive* and
+  *negative* mean for your domain instead of accepting a generic polarity scale.
+
+The tradeoff is setup: lexicon tools install with no Python dependency; `sentiment.ai`
+needs a one-time `install_sentiment.ai()` to download a ~120 MB on-device model. After
+that there is no API key, no internet connection, and scoring is deterministic across
+machines.
+
 # Sentiment analysis
 
 `sentiment_score()` returns one score per input in `[-1, 1]`. `sentiment_match()` returns
