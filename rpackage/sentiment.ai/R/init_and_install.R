@@ -515,20 +515,21 @@ check_sentiment.ai <- function(...){
 
   # use py_install_method_detect but give note that default behavior is different!
 
-  # exception handle
+  # exception handle: if detection fails, recover the method from where envname is found
+  # (conda takes priority if present, else virtualenv). `<<-` updates the `method` in the
+  # enclosing .activate_env frame -- the old assign(pos = -2) was invalid and crashed here.
   auto_failover <- function(e){
     message(e)
     if(!silent) message("Attempting failover which will prioritise conda if available.")
-    # change env method based on where envname is found
-    if(method == "auto" && envname %in% venv_envs) assign(method, value = "virtualenv", pos = -2, inherits = TRUE)
-    # priority to conda (not better, just most popular)
-    if(method == "auto" && envname %in% conda_envs) assign(method, value = "conda", pos = -2, inherits = TRUE)
+    if(envname %in% conda_envs)     method <<- "conda"
+    else if(envname %in% venv_envs) method <<- "virtualenv"
   }
 
   # find method
   if(method == "auto"){
-    # Find preferred install method
-    tryCatch(method <- suppressWarnings(py_install_method_detect()),
+    # Find preferred install method (must pass envname -- without it the detector hits a
+    # version check on a missing value and errors)
+    tryCatch(method <- suppressWarnings(py_install_method_detect(envname = envname)),
              error = function(e) auto_failover(e))
 
     # sanity check
