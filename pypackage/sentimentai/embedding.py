@@ -22,8 +22,12 @@ def _as_list(text: "str | Sequence[str]") -> list[str]:
 
 
 @lru_cache(maxsize=4)
-def _load_st(hf_id: str):
-    """Load (and cache) a sentence-transformers embedder, never importing TensorFlow."""
+def _load_st(hf_id: str, revision: "str | None" = None):
+    """Load (and cache) a sentence-transformers embedder, never importing TensorFlow.
+
+    ``revision`` pins an immutable HuggingFace commit SHA so the downloaded weights are
+    auditable / reproducible; ``None`` falls back to ``main``.
+    """
     os.environ.setdefault("USE_TF", "0")          # transformers must not pull TF
     os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
     try:
@@ -32,7 +36,7 @@ def _load_st(hf_id: str):
         raise ImportError(
             "the default on-device backend needs `sentence-transformers` "
             "(pip install --pre sentimentai-py).") from exc
-    return SentenceTransformer(hf_id)
+    return SentenceTransformer(hf_id, revision=revision)
 
 
 def _embed_openai(texts: list[str], api_key: "str | None" = None,
@@ -69,7 +73,7 @@ def embed_text(
     texts = _as_list(text)
 
     if backend.kind == "sentence-transformers":
-        st = _load_st(backend.hf_id)
+        st = _load_st(backend.hf_id, backend.revision)
         prefix = backend.prefix                                  # e5 expects "query: "
         # idempotent, like R: don't double-prefix text that already carries it
         prefixed = [t if (not prefix or t.startswith(prefix)) else prefix + t

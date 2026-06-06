@@ -6,8 +6,9 @@ trained on that embedder's vector space and shipped inside the wheel
 No xgboost, no TensorFlow at score time.
 
 Lineup LOCKED 2026-06-03: multilingual-by-default (e5), OpenAI as the optional paid
-tier, legacy USE models opt-in only (require TensorFlow). macro-F1 values are from the
-v2 subsample bake-off and are PROVISIONAL pending the full-data run.
+tier, legacy USE models opt-in only (require TensorFlow). Benchmark numbers live in the
+package docs (not here), so the registry cannot drift from them. e5 backends pin an
+immutable HuggingFace commit (revision) so the downloaded weights are auditable.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -21,22 +22,24 @@ class Backend:
     kind: str              # "sentence-transformers" | "openai" | "tfhub-legacy"
     needs_tf: bool         # True => legacy, opt-in (install_sentiment.ai(legacy=TRUE))
     prefix: str            # text prefix the embedder expects (e5 wants "query: ")
-    f1: float | None       # provisional subsample macro-F1
+    revision: str | None   # pinned HF commit SHA (on-device); None for API/legacy
     note: str
 
 
 BACKENDS: dict[str, Backend] = {
     "e5-small": Backend(
         "e5-small", "intfloat/multilingual-e5-small", 384,
-        "sentence-transformers", False, "query: ", 0.813,
+        "sentence-transformers", False, "query: ",
+        "614241f622f53c4eeff9890bdc4f31cfecc418b3",
         "DEFAULT — tiny, fast, ~100 languages, no TensorFlow"),
     "e5-base": Backend(
         "e5-base", "intfloat/multilingual-e5-base", 768,
-        "sentence-transformers", False, "query: ", 0.860,
+        "sentence-transformers", False, "query: ",
+        "d128750597153bb5987e10b1c3493a34e5a4502a",
         "best on-device — ties OpenAI, ~100 languages, no TensorFlow"),
     "openai": Backend(
         "openai", None, 1536,
-        "openai", False, "", 0.861,
+        "openai", False, "", None,
         "text-embedding-3-small — best overall, paid API, text leaves device"),
     # --- legacy: opt-in, requires TensorFlow. install_sentiment.ai(legacy=TRUE). ---
     # Each has a strictly-better TF-free migration target (see note).

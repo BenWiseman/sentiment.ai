@@ -28,7 +28,7 @@ os.environ["USE_TORCH"] = "1"   # transformers: use the PyTorch backend
 # ---------------------------------------------------------------------------
 # v2 default: sentence-transformers (e5 and friends)
 # ---------------------------------------------------------------------------
-def load_st_embedder(hf_id, prefix=""):
+def load_st_embedder(hf_id, prefix="", revision=None):
     """
     Build a sentence-transformers embedding callable.
 
@@ -40,6 +40,11 @@ def load_st_embedder(hf_id, prefix=""):
         Literal string prepended to every input before encoding. The e5
         family expects "query: " (note the trailing space); pass "" for
         models that need no prefix. R supplies this from model_prefix.
+    revision : str or None
+        Immutable HuggingFace commit SHA to pin (R supplies it from
+        model_revision). When given, the model is resolved to exactly this
+        commit instead of a moving ``main`` -- this is what makes the
+        downloaded weights auditable/reproducible. ``None`` -> ``main``.
 
     Returns
     -------
@@ -51,7 +56,8 @@ def load_st_embedder(hf_id, prefix=""):
     from sentence_transformers import SentenceTransformer
 
     # Device is chosen automatically by sentence-transformers (CUDA / MPS / CPU).
-    model = SentenceTransformer(hf_id)
+    # `revision` pins the exact commit (auditable); None falls back to main.
+    model = SentenceTransformer(hf_id, revision=revision)
 
     pre = prefix if prefix is not None else ""
 

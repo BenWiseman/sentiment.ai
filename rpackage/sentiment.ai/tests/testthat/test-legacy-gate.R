@@ -20,7 +20,7 @@ for (m in names(legacy_repl)) {
                       model_m, repl_m), {
       skip_unless_tf_absent()
       err <- expect_error(
-        init_sentiment.ai(model = model_m),
+        suppressWarnings(init_sentiment.ai(model = model_m)),  # USE end-of-life warning
         regexp = "legacy"        # message must talk about the legacy backend
       )
       msg <- conditionMessage(err)
@@ -41,11 +41,24 @@ test_that("the gate short-circuits at the R level BEFORE any Python import", {
     .package = "reticulate",
     source_python = function(...) { called$py <- TRUE; stop("python reached!") }
   )
-  expect_error(init_sentiment.ai(model = "multi.large"), "legacy")
+  expect_error(suppressWarnings(init_sentiment.ai(model = "multi.large")), "legacy")
   expect_false(called$py, info = "legacy gate must stop before touching Python")
 })
 
 test_that("sentiment_score(model='multi.large') without TF errors the same way", {
   skip_unless_tf_absent()
-  expect_error(sentiment_score("anything", model = "multi.large"), "legacy")
+  expect_error(suppressWarnings(sentiment_score("anything", model = "multi.large")),
+               "legacy")
+})
+
+test_that("requesting a legacy USE model warns that USE is end-of-life", {
+  skip_unless_tf_absent()
+  senv <- get("sentiment.env", envir = asNamespace("sentiment.ai"))
+  old  <- senv$warned_use_eol; senv$warned_use_eol <- NULL
+  withr::defer(senv$warned_use_eol <- old)
+  # the warning fires for ANY legacy request, before the gate errors
+  expect_warning(
+    tryCatch(init_sentiment.ai(model = "multi.large"), error = function(e) NULL),
+    "Universal Sentence Encoder"
+  )
 })

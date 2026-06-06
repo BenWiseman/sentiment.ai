@@ -50,18 +50,17 @@ model_source_url <- c(
   multi                    = "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
 )
 
-# Pinned HuggingFace revision (git commit SHA) per model. PIN THESE before
-# release: resolve each model's current `main` to its immutable commit SHA and
-# freeze it here (HfApi().model_info(repo_id).sha, or GET
-# https://huggingface.co/api/models/<id> -> `sha`). The ST loader forwards
-# `revision=` to snapshot_download, so the pin only binds the on-device e5 path;
-# OpenAI is an API (no downloadable artifact -> NA) and the legacy USE models are
-# fetched via TF Hub, not HF revisions (-> NA).
-# Until pinned, e5 rows default to "main" -- a moving target -- and the loader
-# should warn once that an unpinned revision is in use.
+# Pinned HuggingFace revision (immutable git commit SHA) per model. The e5 rows
+# are frozen to the exact commit a user downloads, so "what you got" is auditable
+# and reproducible: load_st_embedder() forwards `revision=` to sentence-transformers
+# (-> huggingface_hub), which resolves to this commit instead of a moving `main`.
+# Re-pin (and re-run the parity fixtures) only on a deliberate model upgrade.
+# OpenAI is an API (no downloadable artifact -> NA); legacy USE models are fetched
+# via TF Hub, not HF revisions (-> NA). SHAs resolved from
+# https://huggingface.co/api/models/<id> on 2026-06-06.
 model_revision <- c(
-  `e5-small`               = "main",  # TODO: pin to commit SHA at release
-  `e5-base`                = "main",  # TODO: pin to commit SHA at release
+  `e5-small`               = "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+  `e5-base`                = "d128750597153bb5987e10b1c3493a34e5a4502a",
   `text-embedding-3-small` = NA,      # OpenAI API -- not a downloadable artifact
   `text-embedding-3-large` = NA,      # OpenAI API -- not a downloadable artifact
   `text-embedding-ada-002` = NA,      # OpenAI API -- not a downloadable artifact

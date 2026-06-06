@@ -272,7 +272,13 @@ find_sentiment_score <- function(embeddings,
     p_pos   <- c(1 / (1 + exp(-cbind(1, embeddings) %*% weights)))
     score   <- (p_pos - 0.5) * 2
 
-  } else {  # xgb
+  } else {  # xgb (legacy, opt-in: xgboost is Suggested, not a hard dependency)
+    if(!requireNamespace("xgboost", quietly = TRUE)){
+      stop("scoring = \"xgb\" is a legacy option and needs the 'xgboost' package. ",
+           "Install it with install.packages(\"xgboost\"), or use the default ",
+           "scoring = \"mlp\", which ships in the package and needs no extra dependency.",
+           call. = FALSE)
+    }
     xgb_model <- xgboost::xgb.load(paste0(model_path, ".xgb"))
     preds     <- predict(object = xgb_model, newdata = embeddings)
 
@@ -298,6 +304,15 @@ find_sentiment_score <- function(embeddings,
 score_json_head <- function(embeddings, path){
   h <- jsonlite::fromJSON(path, simplifyVector = TRUE,
                           simplifyDataFrame = FALSE, simplifyMatrix = TRUE)
+
+  # serve-time guard: the head's input width must match the embedding space, so a
+  # head/model mismatch fails loudly here instead of as a cryptic matmul error.
+  in_dim <- if(identical(h$type, "mlp")) ncol(h$layers[[1]]$W) else ncol(h$coef)
+  if(!is.null(in_dim) && !is.na(in_dim) && ncol(embeddings) != in_dim){
+    stop(sprintf(paste0("scoring head expects %d-dim embeddings but got %d -- the head ",
+                        "and the embedding model do not match (head: %s)."),
+                 in_dim, ncol(embeddings), basename(path)), call. = FALSE)
+  }
 
   if(identical(h$type, "mlp")){
     z  <- embeddings

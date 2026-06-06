@@ -127,6 +127,10 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                     `sentence-transformers` = "latest",
                     openai                  = "latest")
     if(legacy){
+      message("Installing the legacy TensorFlow / Universal Sentence Encoder backend. ",
+              "Note that USE is end-of-life -- Google has retired it and TF Hub is ",
+              "winding down -- so it is unsupported and kept only for backward ",
+              "compatibility. The modern default ('e5-small'/'e5-base') needs none of this.")
       modules <- c(modules, list(tensorflow       = "latest",
                                  `tensorflow-hub` = "latest"))
       # tensorflow-text is unavailable on Apple Silicon; add it elsewhere only.
@@ -199,10 +203,10 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 
   message("Successfully created ", method, " environment: ", envname)
 
-  # Since they already have internet here, install.
-  message("Installing default scoring model from Github")
-  install_scoring_model(scoring = "xgb")
-  install_scoring_model(scoring = "glm")
+  # The default v2 scoring heads (mlp / logistic JSON) ship inside the package, so a
+  # default install downloads no scorer at all. The legacy xgb/glm scorers are opt-in:
+  # call install_scoring_model(scoring = "xgb") on demand (xgb also needs the suggested
+  # 'xgboost' package).
 
   # restart session if needed
   if(restart_session && rstudioapi::hasFun("restartSession")){
@@ -260,6 +264,13 @@ install_scoring_model <- function(model   =  DEFAULT_MODEL,
   model   <- model[1]
   scoring <- scoring[1]
   scoring_version <- scoring_version[1]
+
+  # legacy scorers are opt-in and no longer fetched by default
+  if(scoring %in% c("xgb", "glm")){
+    message("Note: scoring = '", scoring, "' is a legacy scorer, kept for backward ",
+            "compatibility and not installed by default. The v2 default (mlp) ships ",
+            "in the package -- no download, and no xgboost, required.")
+  }
 
   # file extension per scoring type: glm=csv, mlp/logistic=json (ship in package), else <scoring>
   file_ext   <- switch(scoring, glm = "csv", mlp = "json", logistic = "json", scoring)
@@ -372,6 +383,22 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
   env$prefix  <- ""
   env$backend <- cls   # "st" | "openai" | "legacy" -- which backend was selected
 
+  # USE is end-of-life: Google retired it and TF Hub is winding down. Warn once for ANY
+  # legacy request, before the gate/load below, so the notice always precedes the
+  # error-or-load.
+  if(cls == "legacy" && !isTRUE(env$warned_use_eol)){
+    warning(
+      "The legacy Universal Sentence Encoder (USE) backend is no longer actively ",
+      "maintained or supported. Google has retired the USE models and TF Hub itself ",
+      "is winding down, so this path is frozen in place and kept only for backward ",
+      "compatibility. The modern default ('e5-small' / 'e5-base') is on-device, ",
+      "multilingual, and TensorFlow-free. (Another one for the Google graveyard -- ",
+      "at Linnet we would rather keep your scores reproducible than keep your ",
+      "dependencies guessing.)",
+      call. = FALSE)
+    env$warned_use_eol <- TRUE
+  }
+
   # ---- gates that must fire BEFORE activating Python -------------------------
   # OpenAI is an HTTP API: it needs neither reticulate nor a Python env.
   if(cls == "openai"){
@@ -433,8 +460,13 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
   # The "query: " prefix is applied R-side in embed_text (consistent + testable), so
   # the embedder is loaded as a PLAIN encoder.
   env$prefix <- { p <- model_prefix[model_name]; if(is.na(p)) "" else unname(p) }
-  if(!silent) message("Loading sentence-transformers model: ", model_id)
-  env$embed <- load_st_embedder(model_id, "")
+  # pin to the immutable commit SHA so the downloaded weights are auditable
+  rev <- model_revision[model_name]
+  rev <- if(length(rev) == 0L || is.na(rev)) NULL else unname(rev)
+  env$revision <- rev
+  if(!silent) message("Loading sentence-transformers model: ", model_id,
+                      if(is.null(rev)) "" else paste0(" @ ", substr(rev, 1, 12)))
+  env$embed <- load_st_embedder(model_id, "", revision = rev)
   env$st    <- TRUE
 
 
