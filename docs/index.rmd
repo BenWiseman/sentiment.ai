@@ -157,6 +157,39 @@ figure. Full method and numbers in `planning/benchmark-v2.md`.)
 
 <br><hr><br>
 
+# Calibration — how much to trust a score
+
+`sentiment.ai` doesn't just pick a class — its probabilities are **calibrated**, so the
+`confidence` from `sentiment()` means what it says: among rows scored at 0.8 confidence,
+about 80% really are that class. Confidence becomes something you can act on — auto-accept
+the easy rows, route the unsure ones to a human.
+
+On the held-out test set the **expected calibration error (ECE) is about 0.015**
+(`e5-small`) / **0.017** (`e5-base`) — well-calibrated (an uncalibrated model is typically
+0.05–0.15) — and it holds on real, non-synthetic text:
+
+| stated confidence (e5-small) | actually correct |
+|---:|---:|
+| ~0.55 | 53% |
+| ~0.70 | 73% |
+| ~0.84 | 81% |
+| ~0.90 | 92% |
+| ~0.98 | 99% |
+
+So you can triage on it:
+
+```{r calib, echo=TRUE, eval=FALSE}
+s      <- sentiment(reviews)
+sure   <- s[s$confidence >= 0.85, ]   # trust these
+review <- s[s$confidence <  0.85, ]   # route these to a human
+```
+
+Full method, per-class ECE, and Brier scores are in `planning/reliability-report.md`.
+Calibration is measured **in-domain** (reviews / short verbatims, single split), so treat
+very different text — legal, code, heavy sarcasm — with more caution.
+
+<br><hr><br>
+
 # Installation & setup
 
 After installing from CRAN, set up the Python backend once. The default install is

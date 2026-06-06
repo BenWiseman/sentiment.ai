@@ -146,6 +146,37 @@ sentiment_provenance("e5-small")
 #>   scoring  : mlp 1.0 (mlp, T=...)
 ```
 
+# Calibration — how much to trust a score
+
+`sentiment.ai` doesn't just pick a class — its probabilities are **calibrated**, so the
+`confidence` returned by `sentiment()` means what it says: among the rows it scores at 0.8
+confidence, about 80% really are that class. That makes `confidence` a number you can act
+on — auto-accept the easy rows, send the unsure ones to a human.
+
+On the held-out test set the **expected calibration error (ECE) is about 0.015** for
+`e5-small` and **0.017** for `e5-base` — well-calibrated (an uncalibrated model is typically
+0.05–0.15) — and it holds on real, non-synthetic text:
+
+| stated confidence (e5-small) | actually correct |
+|---:|---:|
+| ~0.55 | 53% |
+| ~0.70 | 73% |
+| ~0.84 | 81% |
+| ~0.90 | 92% |
+| ~0.98 | 99% |
+
+So you can triage on it:
+
+```r
+s      <- sentiment(reviews)
+sure   <- s[s$confidence >= 0.85, ]   # trust these
+review <- s[s$confidence <  0.85, ]   # route these to a human
+```
+
+Full method, per-class ECE, and Brier scores are in the reliability report. Calibration is
+measured **in-domain** (reviews / short verbatims) on a single split, so treat very
+different text — legal, code, heavy sarcasm — with more caution.
+
 # Embeddings & matrix helpers
 
 After `init_sentiment.ai()`, embed text yourself with `embed_text()` and compare with
