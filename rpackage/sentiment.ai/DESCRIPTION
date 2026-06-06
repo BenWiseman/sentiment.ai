@@ -63,7 +63,6 @@ Suggests:
     rstudioapi,
     tensorflow (>= 2.2.0),
     testthat (>= 3.0.0),
-    text2vec (>= 0.6),
     tfhub (>= 0.8.0),
     withr,
     xgboost

@@ -173,6 +173,12 @@ sentiment_match <- function(x        = NULL,
     return(NULL)
   }
 
+  # need at least two poles to have an axis (matches the Python package's contract)
+  if(!is.null(phrases) && length(phrases) < 2L){
+    stop("sentiment_match() needs at least two poles (e.g. positive/negative); got ",
+         length(phrases), ".", call. = FALSE)
+  }
+
   # replace missing values with index numbers (can't handle missing)
   na_index  <- as.character(which(is.na(x)))
   x_index   <- as.character(which(x == ""))

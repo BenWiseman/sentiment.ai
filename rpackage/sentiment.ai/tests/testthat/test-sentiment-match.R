@@ -108,6 +108,12 @@ test_that("the bundled default poles are the balanced 40/40 shared set", {
     "8c26694cccf2adcf32c1c9602c33af52")
 })
 
+test_that("sentiment_match requires at least two poles (parity with Python)", {
+  expect_error(
+    sentiment_match("anything", phrases = list(only = c("a", "b")), model = "e5-small"),
+    "at least two poles")
+})
+
 test_that("a real input equal to a missing-row placeholder is not blanked (regression)", {
   local_st_fake()
   testthat::local_mocked_bindings(

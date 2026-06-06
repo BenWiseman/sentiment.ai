@@ -11,7 +11,7 @@ embed_topics <- function(phrases = NULL,
                          model   = DEFAULT_MODEL){
 
   # fix global variable declaration for using data.table (to pass CRAN checks)
-  phrase <- NULL
+  phrase <- n_class <- NULL
 
   # make vector of repeating phrase labels per entry
   class_to_vec <- function(phrases){
@@ -236,7 +236,7 @@ openai_embed <- function(text, request_limit=3000, token_limit=300000) {
   embedings <- matrix(unlist(embed_function(text[1])), ncol=1)
 
   # Initialize progress bar
-  pb <- txtProgressBar(min = 0, max = n, style = 3, char = "|")
+  pb <- utils::txtProgressBar(min = 0, max = n, style = 3, char = "|")
 
   for(i in seq_along(text[-1])) {
     # Update progress bar
@@ -263,7 +263,7 @@ openai_embed <- function(text, request_limit=3000, token_limit=300000) {
     token_count <- token_count + this_tokens
 
     # increment progress bar
-    setTxtProgressBar(pb, index)
+    utils::setTxtProgressBar(pb, index)
   }
 
   # Close progress bar

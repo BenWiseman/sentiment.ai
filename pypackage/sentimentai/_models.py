@@ -59,9 +59,17 @@ BACKENDS: dict[str, Backend] = {
 
 DEFAULT_MODEL = "e5-small"
 
+# accept the raw OpenAI id as well as the "openai" shorthand, so the same handle
+# works in both the R and Python packages. The OpenAI backend here is
+# text-embedding-3-small.
+_ALIASES: dict[str, str] = {
+    "text-embedding-3-small": "openai",
+}
+
 
 def resolve(model: str) -> Backend:
     """Look up a backend by name; raise a helpful error listing the options."""
+    model = _ALIASES.get(model, model)
     if model not in BACKENDS:
         raise KeyError(f"unknown model {model!r}; choose from {sorted(BACKENDS)}")
     return BACKENDS[model]

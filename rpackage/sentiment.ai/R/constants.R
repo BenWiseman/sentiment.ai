@@ -8,6 +8,7 @@ default_models <- c(`e5-small` = "intfloat/multilingual-e5-small",
 
 # OpenAI embedding models (API backend).
 openai_models <- c(
+  openai                   = "text-embedding-3-small",   # shorthand alias (-> 3-small)
   `text-embedding-3-small` = "text-embedding-3-small",
   `text-embedding-3-large` = "text-embedding-3-large",
   `text-embedding-ada-002` = "text-embedding-ada-002"
@@ -23,6 +24,7 @@ legacy_models <- c(en.large    = "universal-sentence-encoder-large/5",
 
 # Embedding width per model (kills the old hard-coded 512 assumption).
 model_dims <- c(`e5-small` = 384L, `e5-base` = 768L,
+                openai = 1536L,
                 `text-embedding-3-small` = 1536L,
                 `text-embedding-3-large` = 3072L,
                 `text-embedding-ada-002` = 1536L,

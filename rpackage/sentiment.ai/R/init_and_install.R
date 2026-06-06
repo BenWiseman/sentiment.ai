@@ -139,9 +139,10 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
     }
   }
 
-  # if method is default, figure out method using reticulate
+  # if method is default, figure out method using the vendored detector (no `:::`
+  # into reticulate's private namespace -- see R/local_from_reticulate.R)
   if(method == "auto"){
-    method <- reticulate:::py_install_method_detect(envname = envname, ...)
+    method <- install_method_detect(envname = envname)
   }
 
   # GPU applies only to the legacy TensorFlow stack (the e5/torch backend selects its
@@ -209,7 +210,8 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # 'xgboost' package).
 
   # restart session if needed
-  if(restart_session && rstudioapi::hasFun("restartSession")){
+  if(restart_session && requireNamespace("rstudioapi", quietly = TRUE) &&
+     rstudioapi::hasFun("restartSession")){
     rstudioapi::restartSession()
   } else{
     message("Please restart your R session")
