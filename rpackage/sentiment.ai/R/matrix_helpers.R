@@ -47,33 +47,80 @@ rescale <- function(x){
   x / sqrt(sx)
 }
 
-# ToDo add approximate NN hash matching for speed on large data
-hash_match <- function(){
-   # RANN already has c++ ANN lookup
-   # eg  test_nn <- nn2(centers, matrix(c(test, rnorm(512)), byrow = TRUE, nrow = 2), k = 1)
-}
-
-
 #' cosine_match()
 #'
-#' @param target numeric matrix of j values where each row is one observation. Use row names as ID.
-#' @param reference  numeric matrix of j values where each row is one observation. Use row names as ID.
-#' @param keep_target_order logical include column indicating original row order of target matrix.
+#' @param target numeric matrix of j values where each row is one observation.
+#'   Use row names as ID.
+#' @param reference numeric matrix of j values where each row is one
+#'   observation. Use row names as ID.
+#' @param keep_target_order logical; include column indicating original row
+#'   order of target matrix.
+#' @param approx logical; when \code{TRUE} and the \code{RANN} package is
+#'   available, uses an approximate k-d tree nearest-neighbour search instead
+#'   of the full pairwise cosine matrix. Much faster when \code{reference} is
+#'   large (thousands of rows). Only returns the rank-1 match per target row
+#'   (versus all pairs for the exact path). Falls back to exact with a message
+#'   if \code{RANN} is not installed. Default \code{FALSE}.
 #'
-#' @return data.table containing ranked (1 = top) pairwise similarities between target and reference
+#' @return data.table containing ranked (1 = top) pairwise similarities between
+#'   target and reference. When \code{approx = TRUE} only rank-1 rows are
+#'   returned.
 #'
 #' @importFrom data.table
 #'             data.table
 #'             setnames
 #' @rdname matrix_similarity
 #' @export
-cosine_match <- function(target, reference, keep_target_order=FALSE){
+cosine_match <- function(target, reference,
+                         keep_target_order = FALSE,
+                         approx            = FALSE){
 
   # fix global variable declaration for using data.table (to pass CRAN checks)
   id__temp__ <- rn <- value <- target_order <- similarity <- ..columns <- NULL
 
   # columns has issues, so removing to prevent those issues!
   rm(..columns)
+
+  # --- approximate nearest-neighbour path (opt-in, requires RANN) -----------
+  if(approx){
+    if(!requireNamespace("RANN", quietly = TRUE)){
+      message("cosine_match(): approx=TRUE requires RANN; falling back to exact.")
+      approx <- FALSE
+    }
+  }
+
+  if(approx){
+    # For unit-normalised vectors: L2^2 = 2 - 2*cos => cos = 1 - L2^2/2.
+    # The e5 embeddings are already L2-normalised; rescale() is a safe no-op.
+    tgt_norm <- rescale(target)
+    ref_norm <- rescale(reference)
+
+    # RANN::nn2: data = reference pool, query = target items
+    nn <- RANN::nn2(data  = ref_norm,
+                    query = tgt_norm,
+                    k     = 1L)
+
+    cos_sim <- as.numeric(1 - nn$nn.dists[, 1L]^2 / 2)
+    cos_sim <- round(pmax(-1, pmin(1, cos_sim)), 6)   # clamp float noise
+
+    tgt_names <- if(!is.null(rownames(target)))
+                   rownames(target) else as.character(seq_len(nrow(target)))
+    ref_names <- if(!is.null(rownames(reference)))
+                   rownames(reference) else as.character(seq_len(nrow(reference)))
+
+    result <- data.table::data.table(
+      target     = tgt_names,
+      reference  = ref_names[nn$nn.idx[, 1L]],
+      similarity = cos_sim,
+      rank       = 1L
+    )
+    if(keep_target_order) result[, target_order := seq_len(.N)]
+
+    columns <- c("target", "reference", "similarity", "rank")
+    if(keep_target_order) columns <- c(columns, "target_order")
+    return(result[, ..columns])
+  }
+  # --- end approximate path --------------------------------------------------
 
   # TODO: explore hashing the reference table
   # ie reduce to local search only

@@ -63,7 +63,9 @@ sentiment_agreement <- function(scores,
 
   # accept a sentiment() data.frame: extract the 'sentiment' column
   if(is.data.frame(scores)){
-    stopifnot("sentiment" %in% names(scores))
+    if(!"sentiment" %in% names(scores))
+      stop("scores data.frame must contain a 'sentiment' column; found: ",
+           paste(names(scores), collapse = ", "), call. = FALSE)
     scores <- scores$sentiment
   }
   scores <- as.numeric(scores)
@@ -75,6 +77,12 @@ sentiment_agreement <- function(scores,
   labels <- as.numeric(labels)
 
   stopifnot(length(scores) == length(labels))
+
+  # guard against out-of-range numeric labels (accepted values: -1, 0, 1)
+  bad_labels <- labels[!is.na(labels) & !labels %in% c(-1, 0, 1)]
+  if(length(bad_labels))
+    stop("labels must be in c(-1, 0, 1); found: ",
+         paste(sort(unique(bad_labels)), collapse = ", "), call. = FALSE)
 
   # drop NA pairs
   ok     <- !is.na(scores) & !is.na(labels)
@@ -107,7 +115,7 @@ sentiment_agreement <- function(scores,
     percent_agreement    = round(pct_agree, 4),
     weighted_kappa       = NA_real_,
     krippendorff_alpha   = NA_real_,
-    icc                  = NULL,
+    icc                  = list(value = NA_real_, lower = NA_real_, upper = NA_real_),
     confusion_matrix     = conf,
     thresholds           = c(negative = negative_threshold,
                              positive = positive_threshold)
@@ -115,26 +123,41 @@ sentiment_agreement <- function(scores,
 
   # ---- stats from irr (Suggests) ---------------------------------------------
   if(requireNamespace("irr", quietly = TRUE)){
-    # quadratic-weighted kappa on ordinal 3-class (rater1=labels, rater2=model)
-    # irr::kappa2 uses a 2-column matrix of rater ratings
-    rat_mat <- cbind(match(l,        lvls),
-                     match(pred_num, lvls))
+    # quadratic-weighted kappa on ordinal 3-class (rater1=labels, rater2=model).
+    # Pin both columns to 3 fixed levels so the weight matrix is always 3x3,
+    # even when some classes are absent from this sample.
+    rat_mat <- cbind(
+      factor(match(l,        lvls), levels = 1:3),
+      factor(match(pred_num, lvls), levels = 1:3)
+    )
     k2 <- tryCatch(
       irr::kappa2(rat_mat, weight = "squared"),
-      error = function(e) NULL)
+      error = function(e){
+        warning("weighted_kappa computation failed: ", conditionMessage(e),
+                call. = FALSE)
+        NULL
+      })
     if(!is.null(k2)) result$weighted_kappa <- round(k2$value, 4)
 
-    # Krippendorff alpha (ordinal): 2-rater matrix, each row = one rater, each col = one item
+    # Krippendorff alpha (ordinal): 2-rater matrix, each row = one rater
     kr_mat <- rbind(l, pred_num)
-    kr <- tryCatch(irr::kripp.alpha(kr_mat, method = "ordinal"),
-                   error = function(e) NULL)
+    kr <- tryCatch(
+      irr::kripp.alpha(kr_mat, method = "ordinal"),
+      error = function(e){
+        warning("krippendorff_alpha computation failed: ", conditionMessage(e),
+                call. = FALSE)
+        NULL
+      })
     if(!is.null(kr)) result$krippendorff_alpha <- round(kr$value, 4)
 
-    # ICC(2,1) two-way mixed: scores and numeric labels as two raters of the same items
+    # ICC(2,1) two-way mixed: continuous scores and numeric labels as two raters
     icc_df <- data.frame(label = l, score = s)
     ic <- tryCatch(
       irr::icc(icc_df, model = "twoway", type = "agreement", unit = "single"),
-      error = function(e) NULL)
+      error = function(e){
+        warning("ICC computation failed: ", conditionMessage(e), call. = FALSE)
+        NULL
+      })
     if(!is.null(ic)){
       result$icc <- list(value = round(ic$value, 4),
                          lower = round(ic$lbound, 4),
@@ -162,19 +185,20 @@ print.sentiment_agreement <- function(x, ...){
   cat("sentiment.ai agreement statistics  (n =", x$n, ")\n")
   cat("-----------------------------------------------\n")
   cat("  Spearman r (score vs label)  :", x$spearman_r, "\n")
-  cat("  Percent agreement (3-class)  :", scales_pct(x$percent_agreement), "\n")
-  if(!is.na(x$weighted_kappa))
+  cat("  Percent agreement (3-class)  :", .scales_pct(x$percent_agreement), "\n")
+  if(!is.na(x$weighted_kappa)){
     cat("  Weighted kappa (quad, 3-cls) :", x$weighted_kappa, "\n")
+    cat("\nHuman-human ceiling (indicative): weighted kappa ~0.50-0.65 on ",
+        "GoEmotions / SemEval-2017-4.\n", sep = "")
+  }
   if(!is.na(x$krippendorff_alpha))
     cat("  Krippendorff alpha (ordinal) :", x$krippendorff_alpha, "\n")
-  if(!is.null(x$icc))
+  if(!is.na(x$icc$value))
     cat("  ICC(2,1)                     :", x$icc$value,
         sprintf("  95%% CI [%.4f, %.4f]\n", x$icc$lower, x$icc$upper))
   cat("\nConfusion matrix (rows=true, cols=predicted):\n")
   print(x$confusion_matrix)
-  cat("\nHuman-human ceiling (indicative): weighted kappa ~0.50-0.65 on ",
-      "GoEmotions / SemEval-2017-4.\n", sep = "")
   invisible(x)
 }
 
-scales_pct <- function(x) paste0(round(100 * x, 1), "%")
+.scales_pct <- function(x) paste0(round(100 * x, 1), "%")

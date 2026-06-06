@@ -65,6 +65,7 @@ Suggests:
     testthat (>= 3.0.0),
     tfhub (>= 0.8.0),
     irr,
+    RANN,
     withr,
     xgboost
 Config/testthat/edition: 3
@@ -86,3 +87,5 @@ Collate:
     'globals.R'
     'local_from_reticulate.R'
     'onload.R'
+    'diagnostics.R'
+    'agreement.R'
