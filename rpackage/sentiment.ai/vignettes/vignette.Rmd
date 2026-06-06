@@ -59,6 +59,10 @@ After installing from CRAN, set up the Python backend once with
 
 * `envname` — name of the Python environment (default `"r-sentiment-ai"`).
 * `method` — `"auto"` (default), `"virtualenv"`, or `"conda"`.
+* `gpu` — `FALSE` (default) installs the smaller **CPU-only** PyTorch; `TRUE` installs the
+  CUDA build (Linux/Windows with an NVIDIA GPU). macOS is always CPU/MPS. The setup
+  walkthrough offers this as a menu choice.
+* `fast` — use `uv` (if installed) for a much faster install; falls back to pip safely.
 * `legacy` — set `TRUE` to also install TensorFlow / TF-Hub for the opt-in legacy
   Universal Sentence Encoder models.
 

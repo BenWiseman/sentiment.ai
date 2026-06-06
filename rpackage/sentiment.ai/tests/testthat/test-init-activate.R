@@ -32,6 +32,14 @@ test_that(".backend_ready reflects whether the named env exists", {
   expect_false(sentiment.ai:::.backend_ready("nope"))
 })
 
+test_that(".torch_index defaults to the smaller CPU build off macOS", {
+  testthat::local_mocked_bindings(is.os_mac = function() FALSE, .package = "roperators")
+  expect_match(sentiment.ai:::.torch_index(gpu = FALSE), "whl/cpu")  # default = CPU torch
+  expect_null(sentiment.ai:::.torch_index(gpu = TRUE))               # CUDA = default index
+  testthat::local_mocked_bindings(is.os_mac = function() TRUE, .package = "roperators")
+  expect_null(sentiment.ai:::.torch_index(gpu = FALSE))              # mac is always CPU/MPS
+})
+
 test_that("setup_sentiment.ai is a script-safe no-op (FALSE) when non-interactive", {
   # tests run non-interactively -> the walkthrough must not prompt or install
   expect_false(suppressMessages(setup_sentiment.ai()))

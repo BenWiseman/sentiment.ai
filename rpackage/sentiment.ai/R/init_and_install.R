@@ -5,9 +5,11 @@
 #' @param method Installation method. By default, "auto" automatically finds a
 #'        method that will work in the local environment. Change the default to
 #'        force a specific installation method ("virtualenv" or "conda").
-#' @param gpu logical; only relevant when \code{legacy = TRUE}: enables GPU for the
-#'        legacy TensorFlow stack (ignored on macOS). The default e5 backend uses
-#'        PyTorch, which selects its own device automatically.
+#' @param gpu logical; \code{FALSE} (default) installs the smaller CPU-only build of
+#'        PyTorch (on Linux/Windows the default PyPI build is the large CUDA one).
+#'        \code{TRUE} installs the CUDA build (and enables GPU for the legacy TensorFlow
+#'        stack). Ignored on macOS, which is always CPU/MPS (no CUDA wheels). The e5
+#'        backend selects its device automatically at run time.
 #' @param modules Named list of Python modules to install. Defaults to \code{NULL},
 #'        which selects the correct set for \code{legacy}. Only change this if you
 #'        know what you are doing.
@@ -151,8 +153,9 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
     method <- install_method_detect(envname = envname)
   }
 
-  # GPU applies only to the legacy TensorFlow stack (the e5/torch backend selects its
-  # own device automatically).
+  # GPU choice: the default (gpu = FALSE) installs the much smaller CPU-only torch; gpu =
+  # TRUE installs the CUDA build (and the legacy TF-GPU stack). macOS is always CPU/MPS (no
+  # CUDA wheels) so gpu is forced FALSE there. The e5 backend picks its device at run time.
   if(gpu && roperators::is.os_mac()){
     warning("gpu not available for OSX; setting gpu flag to FALSE", call. = FALSE)
     gpu <- FALSE
@@ -184,8 +187,13 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # reticulate ephemeral env). We then VERIFY the key package landed; any failure (or a
   # missing package) falls straight through to the standard installer below, so the fast
   # path can never leave you worse off than the proven one.
+  # default to the smaller CPU-only torch (Linux/Windows); gpu = TRUE keeps the CUDA build
+  torch_index <- .torch_index(gpu)
+
   installed_via_uv <- FALSE
-  use_uv <- fresh_install && method == "virtualenv" &&
+  # the uv one-shot installs the whole stack together, so use it only when no torch-specific
+  # index is needed; CPU torch on Linux/Windows is staged in the standard path below instead
+  use_uv <- fresh_install && method == "virtualenv" && is.null(torch_index) &&
             (isTRUE(fast) || (is.na(fast) && .uv_available()))
   if(use_uv){
     installed_via_uv <- tryCatch({
@@ -220,6 +228,18 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
       message("Because 'fresh_install = FALSE', not creating environment before installing.\n",
               "Only do this if you know what you are doing, as you might have conflicting\n",
               "installations and/or reticulate might not be able to find the correct environment.")
+    }
+
+    # install the platform-appropriate torch first (the smaller CPU build by default) so
+    # the rest of the stack does not pull the large default (CUDA) build. Fallback-safe:
+    # if this step fails, the normal install below pulls the default torch instead.
+    if(!is.null(torch_index) && method == "virtualenv"){
+      message("Installing CPU-only torch (smaller download; pass gpu = TRUE for CUDA)...")
+      tryCatch(
+        reticulate::py_install(packages = "torch", envname = envname, method = method,
+                               pip = TRUE, pip_options = c("--index-url", torch_index), ...),
+        error = function(e) message("  CPU-torch step skipped (", conditionMessage(e),
+                                    "); installing the default torch instead."))
     }
 
     reticulate::py_install(
@@ -551,6 +571,14 @@ check_sentiment.ai <- function(...){
 # Is uv (the fast Python installer) on the PATH?
 .uv_available <- function() nzchar(Sys.which("uv"))
 
+# pip index for torch: NULL means "use the default" (CUDA on Linux/Windows, CPU/MPS on mac).
+# The default here is the small CPU-only build on Linux/Windows; gpu = TRUE keeps CUDA.
+# macOS has no CUDA wheels, so torch is CPU/MPS there regardless -> no special index.
+.torch_index <- function(gpu = FALSE){
+  if(roperators::is.os_mac() || isTRUE(gpu)) return(NULL)
+  "https://download.pytorch.org/whl/cpu"
+}
+
 #' Interactive first-run setup for the Python backend
 #'
 #' @description A friendly walkthrough for the one-time, TensorFlow-free Python setup. It
@@ -575,7 +603,9 @@ setup_sentiment.ai <- function(){
   fast <- .uv_available()
   choice <- utils::menu(
     choices = c(
-      paste0("Quick setup  (recommended", if(fast) " -- fast, via uv" else "", ")"),
+      paste0("Quick setup  (recommended; CPU-only, smaller",
+             if(fast) " -- fast, via uv" else "", ")"),
+      "GPU / CUDA setup  (larger download; needs an NVIDIA GPU)",
       "Use conda instead of a virtualenv",
       "Also include the legacy TensorFlow USE models",
       "Just show me the command to run myself",
@@ -585,10 +615,11 @@ setup_sentiment.ai <- function(){
 
   done <- switch(as.character(choice),
     "1" = { install_sentiment.ai(restart_session = FALSE); TRUE },
-    "2" = { install_sentiment.ai(method = "conda", restart_session = FALSE); TRUE },
-    "3" = { install_sentiment.ai(legacy = TRUE, restart_session = FALSE); TRUE },
-    "4" = { message("Run this once (TensorFlow-free):\n  install_sentiment.ai()\n",
-                    "  # add method = \"conda\" or legacy = TRUE if you want those"); FALSE },
+    "2" = { install_sentiment.ai(gpu = TRUE, restart_session = FALSE); TRUE },
+    "3" = { install_sentiment.ai(method = "conda", restart_session = FALSE); TRUE },
+    "4" = { install_sentiment.ai(legacy = TRUE, restart_session = FALSE); TRUE },
+    "5" = { message("Run this once (TensorFlow-free):\n  install_sentiment.ai()\n",
+                    "  # add gpu = TRUE (CUDA), method = \"conda\", or legacy = TRUE as needed"); FALSE },
     FALSE)
 
   invisible(isTRUE(done))

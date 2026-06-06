@@ -43,9 +43,11 @@ if that is unset, then the \code{r-reticulate} environment will be used.}
 method that will work in the local environment. Change the default to
 force a specific installation method ("virtualenv" or "conda").}
 
-\item{gpu}{logical; only relevant when \code{legacy = TRUE}: enables GPU for the
-legacy TensorFlow stack (ignored on macOS). The default e5 backend uses
-PyTorch, which selects its own device automatically.}
+\item{gpu}{logical; \code{FALSE} (default) installs the smaller CPU-only build of
+PyTorch (on Linux/Windows the default PyPI build is the large CUDA one).
+\code{TRUE} installs the CUDA build (and enables GPU for the legacy TensorFlow
+stack). Ignored on macOS, which is always CPU/MPS (no CUDA wheels). The e5
+backend selects its device automatically at run time.}
 
 \item{legacy}{logical; if TRUE, also install the opt-in TensorFlow / TF-Hub stack
 for the legacy Universal Sentence Encoder models. Default FALSE -- v2 is
