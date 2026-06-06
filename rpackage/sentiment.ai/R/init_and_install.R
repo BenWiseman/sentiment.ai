@@ -395,8 +395,8 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
       "is winding down, so this path is frozen in place and kept only for backward ",
       "compatibility. The modern default ('e5-small' / 'e5-base') is on-device, ",
       "multilingual, and TensorFlow-free. (Another one for the Google graveyard -- ",
-      "at Linnet we would rather keep your scores reproducible than keep your ",
-      "dependencies guessing.)",
+      "we would rather keep your scores reproducible than keep your dependencies ",
+      "guessing.)",
       call. = FALSE)
     env$warned_use_eol <- TRUE
   }
