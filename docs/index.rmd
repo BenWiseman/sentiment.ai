@@ -199,6 +199,20 @@ sentiment_score(c("Will you marry me?", "Oh, you're breaking up with me..."))
 #>  0.54  -0.66
 ```
 
+## `sentiment()`
+
+The whole picture rather than one number — per-class probabilities, a label, and a
+confidence — as a tidy data frame. Use it when the neutral mass matters or to triage
+low-confidence rows.
+
+```{r tidy, echo=TRUE, eval=FALSE}
+sentiment(c("I love this!", "it's fine", "this is terrible"))
+#>               text sentiment prob_neg prob_neu prob_pos    class confidence
+#> 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96
+#> 2        it's fine      0.10     0.08     0.74     0.18  neutral       0.74
+#> 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95
+```
+
 ## `sentiment_match()`
 
 The **same `sentiment` score** as `sentiment_score()`, plus a nearest-phrase

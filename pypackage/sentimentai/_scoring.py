@@ -40,13 +40,14 @@ def load_packaged_head(model: str, scoring: str = "mlp", version: str = "1.0") -
     return json.loads(res.read_text(encoding="utf-8"))
 
 
-def score_with_head(embeddings: np.ndarray, head: Mapping[str, Any]) -> np.ndarray:
-    """Forward pass identical to R score_json_head: returns P(pos) - P(neg) per row, in [-1, 1].
+def probs_with_head(embeddings: np.ndarray, head: Mapping[str, Any]) -> np.ndarray:
+    """Forward pass identical to R score_json_probs: the full [neg, neutral, pos]
+    probability matrix, shape ``(n, 3)``, each row summing to 1.
 
-    Mirrors R exactly (R/sentiment.R:300-319):
+    Mirrors R exactly:
       - mlp:      loop layers, z = z @ W.T + b, ReLU on all but the last layer
       - logistic: z = x @ coef.T + intercept
-      - then z / T (temperature), numerically-stable softmax, P[:,pos] - P[:,neg]
+      - then z / T (temperature) and a numerically-stable softmax
     float64 throughout to match R's double precision for bit-level parity.
     """
     X = np.asarray(embeddings, dtype=np.float64)
@@ -74,7 +75,12 @@ def score_with_head(embeddings: np.ndarray, head: Mapping[str, Any]) -> np.ndarr
 
     z = z - z.max(axis=1, keepdims=True)                   # numerically-stable softmax
     p = np.exp(z)
-    p = p / p.sum(axis=1, keepdims=True)                   # columns: [neg, neutral, pos]
+    return p / p.sum(axis=1, keepdims=True)                # columns: [neg, neutral, pos]
+
+
+def score_with_head(embeddings: np.ndarray, head: Mapping[str, Any]) -> np.ndarray:
+    """Collapse the head to P(pos) - P(neg) per row, in [-1, 1] (R score_json_head)."""
+    p = probs_with_head(embeddings, head)
     return p[:, _POS] - p[:, _NEG]
 
 
@@ -86,3 +92,13 @@ def score(
 ) -> np.ndarray:
     """Convenience: load the packaged head for (model, scoring) and score `embeddings`."""
     return score_with_head(embeddings, load_packaged_head(model, scoring, version))
+
+
+def probs(
+    embeddings: np.ndarray,
+    model: str,
+    scoring: str = "mlp",
+    version: str = "1.0",
+) -> np.ndarray:
+    """Convenience: load the packaged head and return the (n, 3) [neg, neu, pos] matrix."""
+    return probs_with_head(embeddings, load_packaged_head(model, scoring, version))

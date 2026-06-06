@@ -88,6 +88,53 @@ def sentiment_score(
     return scores
 
 
+def sentiment(
+    x: "str | Sequence[str]",
+    model: str = DEFAULT_MODEL,
+    scoring: str = "mlp",
+    batch_size: int = 100,
+    scoring_version: str = "1.0",
+    **kwargs,
+) -> list[dict]:
+    """Tidy three-class sentiment: the whole picture the head computes, not just a scalar.
+
+    R equivalent: ``sentiment(x, model, scoring, ...)``. Each row carries the same fields
+    as the R data.frame — ``text``, ``sentiment`` (= ``prob_pos - prob_neg``, in
+    ``[-1, 1]``), ``prob_neg``, ``prob_neu``, ``prob_pos`` (the head's temperature-scaled
+    class probabilities, summing to 1), ``class`` (the most probable label), and
+    ``confidence`` (that class's probability). Use it when you need the neutral mass, a
+    label, or a confidence to triage rows. Only the JSON heads (``"mlp"`` / ``"logistic"``)
+    expose probabilities. Missing inputs (``None``/``NaN``/``""``) yield ``NaN``/``None`` rows.
+    """
+    if x is None:
+        return []
+    texts = [x] if isinstance(x, str) else list(x)
+    miss = _missing_mask(texts, include_empty=True)
+    safe = [_PLACEHOLDER if m else t for t, m in zip(texts, miss)]
+
+    emb = embed_text(safe, model=model, batch_size=batch_size, **kwargs)
+    p = _scoring.probs(emb, model=model, scoring=scoring, version=scoring_version)   # (n, 3)
+    classes = ("negative", "neutral", "positive")
+
+    out: list[dict] = []
+    for r, text in enumerate(texts):
+        if miss[r]:
+            out.append({"text": text, "sentiment": np.nan,
+                        "prob_neg": np.nan, "prob_neu": np.nan, "prob_pos": np.nan,
+                        "class": None, "confidence": np.nan})
+            continue
+        pn, pu, pp = float(p[r, 0]), float(p[r, 1]), float(p[r, 2])
+        j = int(np.argmax(p[r]))
+        out.append({
+            "text": text,
+            "sentiment": pp - pn,
+            "prob_neg": pn, "prob_neu": pu, "prob_pos": pp,
+            "class": classes[j],
+            "confidence": float(p[r, j]),
+        })
+    return out
+
+
 def sentiment_match(
     x: "str | Sequence[str]",
     phrases: "Mapping[str, Sequence[str]] | None" = None,

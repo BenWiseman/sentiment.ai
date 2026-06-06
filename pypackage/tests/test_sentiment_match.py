@@ -12,12 +12,14 @@ What we lock down:
   * the poles drive only the nearest-phrase explanation (phrase/class/similarity).
 """
 import hashlib
+import importlib
 
 import numpy as np
 import pytest
 
 import sentimentai
-from sentimentai import sentiment as _sent
+# the submodule (sentimentai.sentiment is shadowed by the exported sentiment() function)
+_sent = importlib.import_module("sentimentai.sentiment")
 
 _DIM = {"e5-small": 384, "e5-base": 768}
 

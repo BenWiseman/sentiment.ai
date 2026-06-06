@@ -146,6 +146,18 @@ install_sentiment.ai(legacy = TRUE)   # installs the TensorFlow USE backend
   install the legacy backend (`install_sentiment.ai(legacy = TRUE)`) and name a USE model
   explicitly (e.g. `model = "en.large"`).
 - The default install no longer pulls in TensorFlow, `tensorflow-text`, or the old version pins.
+- **New `sentiment()`** returns the full three-class signal as a tidy data frame — `text`,
+  `sentiment`, `prob_neg`, `prob_neu`, `prob_pos`, `class`, `confidence` — instead of only the
+  collapsed scalar from `sentiment_score()` (which is unchanged). The probabilities are the
+  head's temperature-scaled outputs (a calibration report is on the roadmap). Mirrored in the
+  Python package as `sentiment()`.
+- **Legacy scorers shelved.** `xgboost` moved from Imports to Suggests; the default install no
+  longer downloads the `xgb`/`glm` scorers (the bundled `mlp`/`logistic` JSON heads need
+  neither a download nor xgboost). Pass `scoring = "xgb"` only if you deliberately want the
+  legacy path.
+- **Embedder revisions are pinned.** `e5-small` / `e5-base` resolve to immutable HuggingFace
+  commit SHAs (not a moving `main`), so a score is reproducible; `sentiment_provenance()`
+  reports the pinned revision.
 - `sentiment_match()` is now first-class: its `sentiment` column is the same score
   as `sentiment_score()`, and the context-tunable poles only drive the nearest-phrase
   explanation. The output columns are `text`, `sentiment`, `phrase`, `class`, `similarity`

@@ -94,6 +94,22 @@ time).
 sentiment_score(c("Will you marry me?", "Oh, you're breaking up with me..."))
 ```
 
+## `sentiment()`
+
+When you need the whole picture rather than one number — the per-class probabilities, a
+label, and a confidence — use `sentiment()`. It returns a tidy data frame.
+
+```r
+sentiment(c("I love this!", "it's fine", "this is terrible"))
+#>               text sentiment prob_neg prob_neu prob_pos    class confidence
+#> 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96
+#> 2        it's fine      0.10     0.08     0.74     0.18  neutral       0.74
+#> 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95
+```
+
+`sentiment` is `prob_pos - prob_neg`; `class` is the most probable class; `confidence` is
+its probability. The probabilities are the head's temperature-scaled outputs.
+
 ## `sentiment_match()`
 
 The **same calibrated `sentiment`** as `sentiment_score()`, plus a nearest-phrase

@@ -108,6 +108,92 @@ sentiment_score <- function(x          = NULL,
   return(scores)
 }
 
+#' Tidy sentiment with the full three-class signal
+#'
+#' Like [sentiment_score()], but instead of collapsing to one number it returns the whole
+#' picture the scoring head computes: the per-row probability of each class plus a derived
+#' scalar. Reach for this when you need the neutral mass, a class label, or a confidence to
+#' triage rows for human review.
+#'
+#' @inheritParams sentiment_score
+#'
+#' @return A \code{data.frame} with one row per input and columns: \code{text};
+#'   \code{sentiment} (= \code{prob_pos - prob_neg}, in \code{[-1, 1]}); \code{prob_neg},
+#'   \code{prob_neu}, \code{prob_pos} (the head's temperature-scaled class probabilities,
+#'   summing to 1); \code{class} (an ordered factor negative < neutral < positive -- the
+#'   most probable class); and \code{confidence} (the probability of that class). Missing
+#'   inputs yield \code{NA} rows.
+#'
+#' @description
+#' Returns the head's three-class probabilities (negative / neutral / positive) plus a
+#' class label and a confidence. Only the bundled JSON heads (\code{"mlp"}, the default,
+#' or \code{"logistic"}) expose probabilities; legacy scorers stay scalar-only via
+#' [sentiment_score()].
+#'
+#' @examples
+#' \dontrun{
+#'   init_sentiment.ai(model = "e5-small")
+#'   sentiment(c("I love this!", "it's fine", "this is terrible"))
+#' }
+#' @export
+sentiment <- function(x               = NULL,
+                      model           = DEFAULT_MODEL,
+                      scoring         = c("mlp", "logistic"),
+                      scoring_version = "1.0",
+                      batch_size      = 100,
+                      ...){
+  model           <- model[1]
+  scoring         <- match.arg(scoring)
+  scoring_version <- match.arg(scoring_version)
+
+  if(is.null(x)) return(NULL)
+
+  na_index <- which(is.na(x))
+
+  if(is.character(x)){
+    text_col    <- x                              # keeps original NAs (copy-on-modify)
+    x[na_index] <- as.character(na_index)         # placeholder -> reverts to NA below
+    check_sentiment.ai(model = model, ...)
+    embeddings  <- embed_text(x, batch_size, model)
+  } else if(is.matrix(x)){
+    exp_dim <- model_dims[[model]]
+    if(!is.null(exp_dim) && ncol(x) != exp_dim){
+      stop(sprintf("embedding matrix has %d columns but model '%s' expects %d",
+                   ncol(x), model, exp_dim), call. = FALSE)
+    }
+    text_col    <- rownames(x)
+    x[na_index] <- 0
+    embeddings  <- x
+  } else {
+    stop("x must be a character vector or a precomputed numeric embedding matrix.",
+         call. = FALSE)
+  }
+
+  install_scoring_model(model, scoring, scoring_version, ...)
+  p <- find_sentiment_probs(embeddings, scoring, scoring_version, model)
+
+  lvls <- c("negative", "neutral", "positive")
+  cls  <- factor(lvls[max.col(p, ties.method = "first")], levels = lvls, ordered = TRUE)
+  out  <- data.frame(
+    text       = if(is.null(text_col)) seq_len(nrow(p)) else text_col,
+    sentiment  = unname(p[, "prob_pos"] - p[, "prob_neg"]),
+    prob_neg   = unname(p[, "prob_neg"]),
+    prob_neu   = unname(p[, "prob_neu"]),
+    prob_pos   = unname(p[, "prob_pos"]),
+    class      = cls,
+    confidence = unname(apply(p, 1, max)),
+    stringsAsFactors = FALSE
+  )
+
+  # blank out missing rows (text already carries the original NA)
+  if(length(na_index)){
+    out[na_index, c("sentiment", "prob_neg", "prob_neu", "prob_pos", "confidence")] <- NA
+    out$class[na_index] <- NA
+  }
+
+  out
+}
+
 #' Sentiment Matching
 #'
 #' @inheritParams sentiment_score
@@ -302,12 +388,12 @@ find_sentiment_score <- function(embeddings,
   setNames(object = score, nm = rownames(embeddings))
 }
 
-# Pure-R forward pass for a JSON scoring head (MLP or multinomial logistic).
-# Returns the [-1, 1] score = P(pos) - P(neg). No xgboost, no Python; the head
-# ships inside the package (a few KB-MB of weights + a temperature). Classes are
-# ordered [neg, neutral, pos]; weight matrices follow the torch convention [out, in].
+# Pure-R forward pass for a JSON scoring head (MLP or multinomial logistic), returning
+# the full [neg, neutral, pos] probability matrix. No xgboost, no Python; the head ships
+# inside the package (a few KB-MB of weights + a temperature). Classes are ordered
+# [neg, neutral, pos]; weight matrices follow the torch convention [out, in].
 #' @importFrom jsonlite fromJSON
-score_json_head <- function(embeddings, path){
+score_json_probs <- function(embeddings, path){
   h <- jsonlite::fromJSON(path, simplifyVector = TRUE,
                           simplifyDataFrame = FALSE, simplifyMatrix = TRUE)
 
@@ -334,6 +420,27 @@ score_json_head <- function(embeddings, path){
   if(!is.null(h$T)) z <- z / h$T         # temperature scaling
   z <- z - apply(z, 1, max)              # numerically stable softmax
   p <- exp(z); p <- p / rowSums(p)       # columns: [neg, neutral, pos]
-  setNames(object = p[, 3] - p[, 1], nm = rownames(embeddings))
+  colnames(p) <- c("prob_neg", "prob_neu", "prob_pos")
+  rownames(p) <- rownames(embeddings)
+  p
+}
+
+# Collapse the 3-class head to the [-1, 1] scalar score = P(pos) - P(neg).
+score_json_head <- function(embeddings, path){
+  p <- score_json_probs(embeddings, path)
+  setNames(object = p[, "prob_pos"] - p[, "prob_neg"], nm = rownames(p))
+}
+
+# 3-class probabilities for the JSON heads (mlp / logistic) -- the basis for sentiment().
+# Legacy scalar scorers (xgb / glm) do not expose a calibrated neutral mass, so the
+# probability surface is JSON-head only.
+find_sentiment_probs <- function(embeddings, scoring, scoring_version, model){
+  if(!scoring %in% c("mlp", "logistic")){
+    stop("the 3-class probability output (sentiment()) needs a JSON scoring head ",
+         "('mlp' or 'logistic'); got '", scoring, "'.", call. = FALSE)
+  }
+  score_dir <- file.path(system.file("scoring", package = utils::packageName()),
+                         scoring, scoring_version)
+  score_json_probs(embeddings, paste0(file.path(score_dir, model[1]), ".json"))
 }
 

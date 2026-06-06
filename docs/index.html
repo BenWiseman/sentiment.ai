@@ -2143,6 +2143,17 @@ scoring head is <code>&quot;mlp&quot;</code> (default) or
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">sentiment_score</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>))</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;  0.54  -0.66</span></span></code></pre></div>
 </div>
+<div id="sentiment" class="section level2">
+<h2><code>sentiment()</code></h2>
+<p>The whole picture rather than one number — per-class probabilities, a
+label, and a confidence — as a tidy data frame. Use it when the neutral
+mass matters or to triage low-confidence rows.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">sentiment</span>(<span class="fu">c</span>(<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;it&#39;s fine&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;               text sentiment prob_neg prob_neu prob_pos    class confidence</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; 2        it&#39;s fine      0.10     0.08     0.74     0.18  neutral       0.74</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95</span></span></code></pre></div>
+</div>
 <div id="sentiment_match" class="section level2">
 <h2><code>sentiment_match()</code></h2>
 <p>The <strong>same <code>sentiment</code> score</strong> as
@@ -2151,14 +2162,14 @@ against <strong>tunable poles</strong> — you decide what the poles mean
 for your domain. The poles only shape the explanation
 (<code>phrase</code> / <code>class</code> / <code>similarity</code>),
 never the score:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>my_categories <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">positive =</span> <span class="fu">c</span>(<span class="st">&quot;excited&quot;</span>, <span class="st">&quot;loving&quot;</span>, <span class="st">&quot;content&quot;</span>, <span class="st">&quot;happy&quot;</span>),</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>                      <span class="at">negative =</span> <span class="fu">c</span>(<span class="st">&quot;lame&quot;</span>, <span class="st">&quot;lonely&quot;</span>, <span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>))</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">sentiment_match</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                <span class="at">phrases =</span> my_categories)</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;                                text sentiment phrase    class similarity</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1                Will you marry me?      0.54 loving positive       0.82</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 2 Oh, you&#39;re breaking up with me...     -0.66    sad negative       0.79</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>my_categories <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">positive =</span> <span class="fu">c</span>(<span class="st">&quot;excited&quot;</span>, <span class="st">&quot;loving&quot;</span>, <span class="st">&quot;content&quot;</span>, <span class="st">&quot;happy&quot;</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>                      <span class="at">negative =</span> <span class="fu">c</span>(<span class="st">&quot;lame&quot;</span>, <span class="st">&quot;lonely&quot;</span>, <span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">sentiment_match</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>                <span class="at">phrases =</span> my_categories)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;                                text sentiment phrase    class similarity</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 1                Will you marry me?      0.54 loving positive       0.82</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 2 Oh, you&#39;re breaking up with me...     -0.66    sad negative       0.79</span></span></code></pre></div>
 <p>Pass any set of poles, not just positive/negative, for arbitrary
 category matching, or omit <code>phrases</code> to use the bundled
 balanced 40/40 default poles.</p>
@@ -2167,13 +2178,13 @@ balanced 40/40 default poles.</p>
 <h2><code>sentiment_provenance()</code></h2>
 <p>See exactly what produced a score — the encoder, its
 license/source/revision, the embedding prefix, and the scoring head:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">sentiment_provenance</span>(<span class="st">&quot;e5-small&quot;</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; sentiment.ai provenance</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;   model    : e5-small (st, dim 384)</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   prefix   : &quot;query: &quot;</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   license  : MIT</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   source   : https://huggingface.co/intfloat/multilingual-e5-small</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   scoring  : mlp 1.0 (mlp, T=...)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sentiment_provenance</span>(<span class="st">&quot;e5-small&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; sentiment.ai provenance</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt;   model    : e5-small (st, dim 384)</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;   prefix   : &quot;query: &quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt;   license  : MIT</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt;   source   : https://huggingface.co/intfloat/multilingual-e5-small</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;   scoring  : mlp 1.0 (mlp, T=...)</span></span></code></pre></div>
 <br>
 <hr>
 <p><br></p>
@@ -2185,24 +2196,24 @@ license/source/revision, the embedding prefix, and the scoring head:</p>
 with <code>embed_text()</code> and compare embeddings with
 <code>cosine()</code> / <code>cosine_match()</code> (handy for
 clustering or nearest-neighbour matching):</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>target_mx <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;dogs&quot;</span>, <span class="st">&quot;cat&quot;</span>, <span class="st">&quot;IT&quot;</span>, <span class="st">&quot;computer&quot;</span>))</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>ref_mx    <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;animals&quot;</span>, <span class="st">&quot;technology&quot;</span>))</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">cosine_match</span>(target_mx, ref_mx)[rank <span class="sc">==</span> <span class="dv">1</span>]   <span class="co"># top match per row</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt;      target  reference similarity rank</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; 1:     dogs    animals       0.80    1</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; 2:      cat    animals       0.61    1</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; 3:       IT technology       0.44    1</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 4: computer technology       0.67    1</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>target_mx <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;dogs&quot;</span>, <span class="st">&quot;cat&quot;</span>, <span class="st">&quot;IT&quot;</span>, <span class="st">&quot;computer&quot;</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>ref_mx    <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;animals&quot;</span>, <span class="st">&quot;technology&quot;</span>))</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">cosine_match</span>(target_mx, ref_mx)[rank <span class="sc">==</span> <span class="dv">1</span>]   <span class="co"># top match per row</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;      target  reference similarity rank</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 1:     dogs    animals       0.80    1</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; 2:      cat    animals       0.61    1</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; 3:       IT technology       0.44    1</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; 4: computer technology       0.67    1</span></span></code></pre></div>
 </div>
 <div id="python-sibling" class="section level1">
 <h1>Python sibling</h1>
 <p>The same engine is available in Python as <a href="https://pypi.org/project/sentimentai-py/"><code>sentimentai-py</code></a>
 — it ships the <strong>same</strong> scoring heads, and its forward pass
 is verified bit-for-bit against this package:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--pre</span> sentimentai-py</span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="im">import</span> sentimentai <span class="im">as</span> sa</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>sa.sentiment_score([<span class="st">&quot;I love this&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--pre</span> sentimentai-py</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="im">import</span> sentimentai <span class="im">as</span> sa</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>sa.sentiment_score([<span class="st">&quot;I love this&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>])</span></code></pre></div>
 <br>
 <hr>
 <p><br></p>

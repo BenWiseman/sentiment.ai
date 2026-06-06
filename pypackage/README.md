@@ -27,6 +27,11 @@ import sentimentai as sa
 sa.sentiment_score(["I love this", "this is terrible"])
 # array([ 0.9, -0.9])   # about 1 = positive, about -1 = negative
 
+# the whole picture, not just the scalar: one dict per row with text, sentiment,
+# prob_neg / prob_neu / prob_pos, class, and confidence. Use it when the neutral mass
+# matters or to triage low-confidence rows.
+sa.sentiment(["I love this", "it's fine", "this is terrible"])
+
 # same head score, plus a nearest-phrase explanation (text/sentiment/phrase/
 # class/similarity). Pass tunable poles to define what they mean for your domain,
 # or omit `phrases` for the bundled balanced 40/40 defaults — the score is identical
@@ -63,6 +68,7 @@ Full method + the synthetic-vs-real breakdown are in the R package's `NEWS.md` /
 |---|---|---|
 | `embed_text()` | `embed_text()` | done (e5 / openai; legacy TF raises) |
 | `sentiment_score()` | `sentiment_score()` | done (mlp / logistic heads) |
+| `sentiment()` | `sentiment()` | done (3-class tidy output) |
 | `sentiment_match()` | `sentiment_match()` | done (tunable phrase poles) |
 | `score_json_head()` | `_scoring.score()` | done — verified bit-identical to R |
 | `install_sentiment.ai()` / `init_sentiment.ai()` | `ensure_model()` | done (no reticulate dance) |

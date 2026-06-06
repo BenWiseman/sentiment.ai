@@ -116,6 +116,24 @@ sentiment_score(my_comments)            # default: e5-small + mlp head
 Key arguments: `x` (text or a pre-computed embedding matrix), `model` (default
 `"e5-small"`), `scoring` (`"mlp"` default, or `"logistic"`), and `batch_size`.
 
+## `sentiment()`
+
+The same score, but with the whole picture the head computes instead of just one number:
+the per-class probabilities, a label, and a confidence. Reach for it when the neutral mass
+matters, or to triage rows for review.
+
+```r
+sentiment(c("I love this!", "it's fine", "this is terrible"))
+#>               text sentiment prob_neg prob_neu prob_pos    class confidence
+#> 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96
+#> 2        it's fine      0.10     0.08     0.74     0.18  neutral       0.74
+#> 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95
+```
+
+`sentiment` is `prob_pos - prob_neg`; `class` is the most probable of negative / neutral /
+positive; `confidence` is that class's probability. (The probabilities are the head's
+temperature-scaled outputs — a calibration report is on the roadmap, not yet shipped.)
+
 ## `sentiment_match()`
 
 The **same `sentiment` score** as `sentiment_score()`, plus a nearest-phrase
