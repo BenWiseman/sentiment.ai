@@ -233,7 +233,9 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
     # install the platform-appropriate torch first (the smaller CPU build by default) so
     # the rest of the stack does not pull the large default (CUDA) build. Fallback-safe:
     # if this step fails, the normal install below pulls the default torch instead.
-    if(!is.null(torch_index) && method == "virtualenv"){
+    # conda envs with pip=TRUE also accept --index-url, so the same CPU-torch
+    # pre-install works for both virtualenv and conda (both use pip under the hood here)
+    if(!is.null(torch_index) && method %in% c("virtualenv", "conda")){
       message("Installing CPU-only torch (smaller download; pass gpu = TRUE for CUDA)...")
       tryCatch(
         reticulate::py_install(packages = "torch", envname = envname, method = method,
