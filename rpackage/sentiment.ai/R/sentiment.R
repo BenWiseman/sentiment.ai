@@ -52,6 +52,7 @@ sentiment_score <- function(x          = NULL,
                             scoring    = c("mlp", "logistic", "xgb", "glm"),
                             scoring_version = "1.0",
                             batch_size = 100,
+                            head_path  = NULL,
                             ...){
 
   # setup everything (don't use arg.match for model ...)
@@ -100,7 +101,8 @@ sentiment_score <- function(x          = NULL,
   scores <- find_sentiment_score(embeddings = text_embed,
                                  scoring    = scoring,
                                  scoring_version = scoring_version,
-                                 model      = model)
+                                 model      = model,
+                                 head_path  = head_path)
 
   # add back nas
   scores[na_index] <- NA
@@ -142,9 +144,14 @@ sentiment <- function(x               = NULL,
                       scoring         = c("mlp", "logistic"),
                       scoring_version = "1.0",
                       batch_size      = 100,
+                      head_path       = NULL,
                       ...){
-  model           <- model[1]
-  scoring         <- match.arg(scoring)
+  model   <- model[1]
+  if(!is.null(scoring) && scoring[1] %in% c("xgb","glm"))
+    stop("scoring = '", scoring[1], "' is a legacy scalar head that lacks the 3-class ",
+         "probability mass required by sentiment(). Use scoring = 'mlp' (default) or ",
+         "'logistic' instead.", call. = FALSE)
+  scoring <- match.arg(scoring)
   scoring_version <- match.arg(scoring_version)
 
   if(is.null(x)) return(NULL)
@@ -171,7 +178,8 @@ sentiment <- function(x               = NULL,
   }
 
   install_scoring_model(model, scoring, scoring_version, ...)
-  p <- find_sentiment_probs(embeddings, scoring, scoring_version, model)
+  p <- find_sentiment_probs(embeddings, scoring, scoring_version, model,
+                            head_path = head_path)
 
   lvls <- c("negative", "neutral", "positive")
   cls  <- factor(lvls[max.col(p, ties.method = "first")], levels = lvls, ordered = TRUE)
@@ -341,7 +349,15 @@ sentiment_match <- function(x        = NULL,
 find_sentiment_score <- function(embeddings,
                                  scoring,
                                  scoring_version,
-                                 model){
+                                 model,
+                                 head_path = NULL){
+
+  # custom head: bypass system.file resolution entirely
+  if(!is.null(head_path)){
+    if(!file.exists(head_path))
+      stop("head_path '", head_path, "' does not exist.", call. = FALSE)
+    return(score_json_head(embeddings, head_path))
+  }
 
   # locate the scoring object: inst/scoring/<scoring>/<version>/<model>.{xgb,csv}
   score_dir  <- file.path(system.file("scoring", package = utils::packageName()),
@@ -435,7 +451,13 @@ score_json_head <- function(embeddings, path){
 # 3-class probabilities for the JSON heads (mlp / logistic) -- the basis for sentiment().
 # Legacy scalar scorers (xgb / glm) do not expose a calibrated neutral mass, so the
 # probability surface is JSON-head only.
-find_sentiment_probs <- function(embeddings, scoring, scoring_version, model){
+find_sentiment_probs <- function(embeddings, scoring, scoring_version, model,
+                                 head_path = NULL){
+  if(!is.null(head_path)){
+    if(!file.exists(head_path))
+      stop("head_path '", head_path, "' does not exist.", call. = FALSE)
+    return(score_json_probs(embeddings, head_path))
+  }
   if(!scoring %in% c("mlp", "logistic")){
     stop("the 3-class probability output (sentiment()) needs a JSON scoring head ",
          "('mlp' or 'logistic'); got '", scoring, "'.", call. = FALSE)

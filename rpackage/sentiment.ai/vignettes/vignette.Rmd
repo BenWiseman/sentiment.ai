@@ -14,8 +14,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(sentiment.ai)
+```{r setup, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages(library(sentiment.ai))
 ```
 
 `sentiment.ai` turns text into sentiment scores using a sentence-embedding model
@@ -31,13 +31,14 @@ multilingual model `multilingual-e5-small` — **no TensorFlow and no API key**.
 # one-time setup of the (TensorFlow-free) Python backend
 install_sentiment.ai()
 
-# load the default model, then score some text
-init_sentiment.ai(model = "e5-small")
+# the model loads automatically on first use — no explicit init needed
 sentiment_score(c("I love this!", "this is terrible"))
 #> [1]  0.9  -0.9
 ```
 
 Scores are rescaled to `[-1, 1]` — about `1` is positive, about `-1` is negative.
+`init_sentiment.ai()` is optional; use it only for eager loading (e.g. at the top
+of a benchmark script so the load time doesn't skew your first timing).
 
 # Why embeddings?
 
@@ -156,9 +157,10 @@ sentiment_provenance("e5-small")
 #> sentiment.ai provenance
 #>   model    : e5-small (st, dim 384)
 #>   prefix   : "query: "
+#>   revision : 614241f622f53c4eeff9890bdc4f31cfecc418b3
 #>   license  : MIT
 #>   source   : https://huggingface.co/intfloat/multilingual-e5-small
-#>   scoring  : mlp 1.0 (mlp, T=...)
+#>   scoring  : mlp 1.0 (mlp, T=1.281)
 ```
 
 # Calibration — how much to trust a score
@@ -390,9 +392,28 @@ pip install --pre sentimentai-py
 # Troubleshooting
 
 This bridges R and Python via `reticulate`, so environment activation is the usual
-snag. If reticulate won't switch environments (common in RStudio, projects, or
-containers), it's normally because `RETICULATE_PYTHON` is set — restart R, set the
-interpreter under *Tools > Global Options > Python*, or install into the base
-`r-reticulate` environment. The legacy TensorFlow models additionally need a working
-TensorFlow setup (`install_sentiment.ai(legacy = TRUE)`); the default e5 path avoids
-all of that.
+snag.
+
+**Most common fix — `RETICULATE_PYTHON` is set:**
+
+```r
+# 1. Check whether the variable is pointing at the wrong interpreter:
+Sys.getenv("RETICULATE_PYTHON")
+
+# 2. If it is, clear it and restart R, then re-run install_sentiment.ai():
+Sys.unsetenv("RETICULATE_PYTHON")
+# then: restart R (Session > Restart R in RStudio) and run install_sentiment.ai()
+```
+
+In RStudio, the most reliable fix is *Tools > Global Options > Python > Select
+Interpreter* — point it at the `r-sentiment-ai` virtualenv. This writes the path
+to your user profile so it survives restarts.
+
+**Other common causes:**
+
+- *Wrong working directory or an `.Rprofile`/`.Renviron` in the project root* setting
+  `RETICULATE_PYTHON` — check with `readLines(".Renviron")`.
+- *Running inside a Docker container or CI* with a system Python active — pass
+  `envname = "r-sentiment-ai"` explicitly to `init_sentiment.ai()`.
+- *Legacy TensorFlow models* need `install_sentiment.ai(legacy = TRUE)`; the default
+  e5 path avoids TensorFlow entirely.

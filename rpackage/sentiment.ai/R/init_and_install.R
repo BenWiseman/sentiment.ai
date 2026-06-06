@@ -653,6 +653,10 @@ setup_sentiment.ai <- function(){
 # Uses unlockBinding so functions that use DEFAULT_MODEL as a default argument
 # pick up the new value immediately.
 .set_default_model <- function(model){
+  model <- match.arg(model[1],
+                     choices = c(names(default_models),
+                                 names(openai_models),
+                                 names(legacy_models)))
   ns <- asNamespace("sentiment.ai")
   unlockBinding("DEFAULT_MODEL", ns)
   assign("DEFAULT_MODEL", model, envir = ns)

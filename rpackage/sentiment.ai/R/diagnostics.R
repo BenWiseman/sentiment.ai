@@ -52,7 +52,12 @@ sentiment_diagnostics <- function(x               = NULL,
                                   scoring         = c("mlp", "logistic"),
                                   scoring_version = "1.0",
                                   batch_size      = 100,
+                                  head_path       = NULL,
                                   ...){
+  if(!is.null(scoring) && scoring[1] %in% c("xgb","glm"))
+    stop("scoring = '", scoring[1], "' is a legacy scalar head that lacks the 3-class ",
+         "probability mass required by sentiment_diagnostics(). Use scoring = 'mlp' ",
+         "(default) or 'logistic' instead.", call. = FALSE)
   scoring <- match.arg(scoring)
   if(is.null(x)) return(NULL)
 
@@ -67,7 +72,8 @@ sentiment_diagnostics <- function(x               = NULL,
   embs <- embed_text(x_emb, batch_size = batch_size, model = model)
 
   out <- sentiment(x = embs, model = model, scoring = scoring,
-                   scoring_version = scoring_version, batch_size = batch_size, ...)
+                   scoring_version = scoring_version, batch_size = batch_size,
+                   head_path = head_path, ...)
 
   # restore original text (sentiment() on a matrix uses rownames)
   if(is.character(x)) out$text <- x else out$text <- rownames(embs)

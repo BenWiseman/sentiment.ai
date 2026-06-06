@@ -24,6 +24,7 @@
 model_license <- c(
   `e5-small`               = "MIT",
   `e5-base`                = "MIT",
+  openai                   = "OpenAI API ToS",   # shorthand alias -> text-embedding-3-small
   `text-embedding-3-small` = "OpenAI API ToS",
   `text-embedding-3-large` = "OpenAI API ToS",
   `text-embedding-ada-002` = "OpenAI API ToS",
@@ -41,6 +42,7 @@ model_license <- c(
 model_source_url <- c(
   `e5-small`               = "https://huggingface.co/intfloat/multilingual-e5-small",
   `e5-base`                = "https://huggingface.co/intfloat/multilingual-e5-base",
+  openai                   = "https://platform.openai.com/docs/guides/embeddings",
   `text-embedding-3-small` = "https://platform.openai.com/docs/guides/embeddings",
   `text-embedding-3-large` = "https://platform.openai.com/docs/guides/embeddings",
   `text-embedding-ada-002` = "https://platform.openai.com/docs/guides/embeddings",
@@ -61,6 +63,7 @@ model_source_url <- c(
 model_revision <- c(
   `e5-small`               = "614241f622f53c4eeff9890bdc4f31cfecc418b3",
   `e5-base`                = "d128750597153bb5987e10b1c3493a34e5a4502a",
+  openai                   = NA,      # OpenAI API shorthand alias
   `text-embedding-3-small` = NA,      # OpenAI API -- not a downloadable artifact
   `text-embedding-3-large` = NA,      # OpenAI API -- not a downloadable artifact
   `text-embedding-ada-002` = NA,      # OpenAI API -- not a downloadable artifact

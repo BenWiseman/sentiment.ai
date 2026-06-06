@@ -10,6 +10,7 @@ sentiment(
   scoring = c("mlp", "logistic"),
   scoring_version = "1.0",
   batch_size = 100,
+  head_path = NULL,
   ...
 )
 }

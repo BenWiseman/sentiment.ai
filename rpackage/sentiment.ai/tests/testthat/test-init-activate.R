@@ -66,6 +66,17 @@ test_that("check_sentiment.ai inits (no setup prompt) when the backend is ready"
   expect_true(flag$init)
 })
 
+test_that(".set_default_model updates the namespace binding and the option", {
+  original <- get("DEFAULT_MODEL", envir = asNamespace("sentiment.ai"))
+  withr::defer({
+    sentiment.ai:::.set_default_model(original)
+    options(sentiment.ai.model = NULL)
+  })
+  sentiment.ai:::.set_default_model("e5-base")
+  expect_equal(get("DEFAULT_MODEL", envir = asNamespace("sentiment.ai")), "e5-base")
+  expect_equal(getOption("sentiment.ai.model"), "e5-base")
+})
+
 test_that(".autoinit_envname parses the sentiment.ai.autoinit opt-in", {
   # off -> NULL (no eager init on attach)
   expect_null(sentiment.ai:::.autoinit_envname(""))
