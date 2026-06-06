@@ -55,6 +55,6 @@ test_that("find_sentiment_score does not assume a 512-wide output", {
   # independent of embedding width.
   skip_if_no_fixture("emb_e5-base.rds")       # 768-d
   emb    <- readRDS(fixture_path("emb_e5-base.rds"))
-  scores <- sentiment.ai:::find_sentiment_score(emb, "xgb", "1.0", "e5-base")
+  scores <- sentiment.ai:::find_sentiment_score(emb, "mlp", "1.0", "e5-base")
   expect_length(scores, nrow(emb))
 })

@@ -8,21 +8,33 @@
 \usage{
 cosine(x, y = NULL)
 
-cosine_match(target, reference, keep_target_order = FALSE)
+cosine_match(target, reference, keep_target_order = FALSE, approx = FALSE)
 }
 \arguments{
 \item{x}{A numeric vector or matrix}
 
 \item{y}{A numeric vector or matrix of the same dimensions as x}
 
-\item{target}{numeric matrix of j values where each row is one observation. Use row names as ID.}
+\item{target}{numeric matrix of j values where each row is one observation.
+Use row names as ID.}
 
-\item{reference}{numeric matrix of j values where each row is one observation. Use row names as ID.}
+\item{reference}{numeric matrix of j values where each row is one
+observation. Use row names as ID.}
 
-\item{keep_target_order}{logical include column indicating original row order of target matrix.}
+\item{keep_target_order}{logical; include column indicating original row
+order of target matrix.}
+
+\item{approx}{logical; when \code{TRUE} and the \code{RANN} package is
+available, uses an approximate k-d tree nearest-neighbour search instead
+of the full pairwise cosine matrix. Much faster when \code{reference} is
+large (thousands of rows). Only returns the rank-1 match per target row
+(versus all pairs for the exact path). Falls back to exact with a message
+if \code{RANN} is not installed. Default \code{FALSE}.}
 }
 \value{
-data.table containing ranked (1 = top) pairwise similarities between target and reference
+data.table containing ranked (1 = top) pairwise similarities between
+target and reference. When \code{approx = TRUE} only rank-1 rows are
+returned.
 }
 \description{
 Cosine Similarity
