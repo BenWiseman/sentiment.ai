@@ -1,3 +1,78 @@
+# sentiment.ai 1.0.1
+
+This release adds the diagnostic, validation, and reliability features that make v2
+production-ready — plus a set of polish fixes found by multi-perspective code review.
+
+## New functions
+
+- **`sentiment_diagnostics()`** — augments every scored row with five signals that say
+  *when not to trust the score*: `entropy` (head certainty), `confidence_band`
+  (`"low"` / `"moderate"` / `"high"`), `mixed` (competing positive and negative mass),
+  `ood_similarity` (cosine to training centroids), and `ood_flag` (out-of-domain detector).
+  Use the triage rule `confidence_band >= "moderate" & !mixed & !ood_flag` to auto-accept
+  easy rows and route the rest to human review.
+
+- **`sentiment_agreement()`** — compares model scores to a set of human-provided labels
+  and returns the agreement statistics needed for a methods section: Spearman *r*, percent
+  agreement, quadratic-weighted Cohen's κ (pinned 3×3 weight matrix), Krippendorff's α
+  (ordinal), and ICC(2,1) with 95% CI. Accepts numeric labels (`-1`/`0`/`1`), string
+  labels (`"negative"`/`"neutral"`/`"positive"`), or the full `sentiment()` data frame.
+
+## New capabilities on existing functions
+
+- **`cosine_match(approx = TRUE)`** — opt-in approximate nearest-neighbour search via
+  `RANN`'s k-d tree for large reference sets. Exact cosine is still the default; the approx
+  path returns rank-1 only and falls back gracefully with a message if `RANN` is absent.
+  `RANN` added to Suggests.
+
+- **`head_path =` argument** on `sentiment_score()`, `sentiment()`, and
+  `sentiment_diagnostics()` — supply an absolute path to a custom or retrained JSON head
+  to bypass the bundled `inst/scoring/` resolution. Unlocks domain-adapted heads without
+  monkey-patching the installed package.
+
+- **`pin_versions = NA` argument** on `install_sentiment.ai()` — the default (`NA`) tries
+  the latest Python packages, then automatically retries with the bundled
+  `inst/python/requirements.txt` baseline if `sentence-transformers` does not land
+  correctly. Use `pin_versions = TRUE` to always install the known-working baseline; use
+  `pin_versions = FALSE` for the old no-check behaviour. The requirements file captures the
+  verified-working stack (sentence-transformers 3.3.0, numpy 2.0.2, etc.).
+
+- **Model selection in the setup wizard** — `setup_sentiment.ai()` now offers a second
+  menu after install to pick a default embedding model (`e5-small` vs `e5-base`). The
+  choice is written to `options(sentiment.ai.model)` for the session, with a `.Rprofile`
+  hint to make it permanent.
+
+- **`options(sentiment.ai.model)` support** — set `options(sentiment.ai.model = "e5-base")`
+  in your `.Rprofile` to override the default model at package load time. `.onLoad`
+  honours this option before any function default is evaluated.
+
+## Bug fixes
+
+- `sentiment_provenance("openai")` was returning `NA` for license, source, and revision
+  because the `"openai"` shorthand alias was missing from three of the four model-meta
+  registries. Fixed.
+
+- `sentiment()` and `sentiment_diagnostics()` now give a clear, attributed error when
+  `scoring = "xgb"` or `"glm"` is passed (those legacy scalar heads lack the 3-class
+  probability mass the tidy output requires). Previously the error came from inside
+  `match.arg` with no explanation.
+
+- `sentiment_diagnostics()` now blanks `entropy` and `confidence_band` for NA/blank input
+  rows, matching the NA contract of the other diagnostic columns.
+
+- `sentiment_agreement()`: the `kappa2` rating matrix is now pinned to 3 fixed factor
+  levels, so the quadratic weight matrix is always 3×3 regardless of which classes appear
+  in the sample. Previously a sparse validation set (e.g. no neutral predictions) produced
+  a 2×2 weight matrix and a numerically incomparable κ value.
+
+- Vignette setup chunk suppresses startup messages (fixes verbatim `.onAttach` output in
+  CRAN-rendered HTML).
+
+- `sentiment_provenance()` example in the vignette replaced with real output (revision SHA,
+  actual temperature `T=1.281`).
+
+---
+
 # sentiment.ai 1.0.0
 
 `sentiment.ai` 1.0 makes the package fast, modern, and install-clean by default. The big

@@ -33,13 +33,19 @@ Sentiment analysis from sentence embeddings — multilingual, on-device, and
 install.packages("sentiment.ai")        # from CRAN
 library(sentiment.ai)
 
-# one-time setup of the (TensorFlow-free) Python backend
-install_sentiment.ai()
+# one-time setup — TensorFlow-free, runs on your machine
+install_sentiment.ai()   # interactive wizard walks you through it
 
-# load the default model (multilingual e5-small), then score some text
-init_sentiment.ai(model = "e5-small")
+# model loads on first use — no explicit init() needed
 sentiment_score(c("I love this!", "this is terrible"))
 #> [1]  0.9  -0.9   (about 1 = positive, about -1 = negative)
+
+# tidy output with class probabilities and calibrated confidence
+sentiment(c("I love this!", "it's fine", "this is terrible"))
+#>               text sentiment    class confidence
+#> 1     I love this!      0.95 positive       0.96
+#> 2        it's fine      0.10  neutral       0.74
+#> 3 this is terrible     -0.93 negative       0.95
 ```
 
 No TensorFlow, no API key, and the model runs on your machine.

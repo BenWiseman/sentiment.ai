@@ -1,0 +1,30 @@
+[
+  {
+    "method": "sentimentai-py (e5-small)",
+    "texts_per_sec": 485,
+    "macro_f1": 0.615,
+    "pct_agree": 0.738,
+    "median_sec": 2.06
+  },
+  {
+    "method": "vaderSentiment",
+    "texts_per_sec": 4875,
+    "macro_f1": 0.473,
+    "pct_agree": 0.507,
+    "median_sec": 0.205
+  },
+  {
+    "method": "TextBlob",
+    "texts_per_sec": 4182,
+    "macro_f1": 0.349,
+    "pct_agree": 0.327,
+    "median_sec": 0.239
+  },
+  {
+    "method": "HF twitter-roberta (fine-tuned)",
+    "texts_per_sec": 19,
+    "macro_f1": 0.777,
+    "pct_agree": 0.832,
+    "median_sec": 53.76
+  }
+]

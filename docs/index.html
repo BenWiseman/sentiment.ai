@@ -1891,7 +1891,6 @@ width: 200px;
 height: 80px;
 line-height: 80px;
 margin: 10px 10px 10px 20px;
-//background-image: url("media/nnetsmall.png");
 background-size: contain;
 background-position: center center;
 background-repeat: no-repeat;
@@ -1899,9 +1898,15 @@ background-repeat: no-repeat;
 #TOC{
 border:none;
 }
+.new-in-v2 {
+background: #f0f7ff;
+border-left: 4px solid #2c7bb6;
+padding: 12px 16px;
+border-radius: 4px;
+margin: 16px 0;
+}
 </style>
 <!-- [START BADGES] -->
-<!-- Please keep comment here to allow auto update -->
 <p align="left">
 <a href="https://CRAN.R-project.org/package=sentiment.ai"><img role="img" aria-label="CRAN version" src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3OCIgaGVpZ2h0PSIyMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJjcmFuOiB2MC4xLjEiPjx0aXRsZT5jcmFuOiB2MC4xLjE8L3RpdGxlPjxnIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3Qgd2lkdGg9IjMzIiBoZWlnaHQ9IjIwIiBmaWxsPSIjNTU1Ii8+PHJlY3QgeD0iMzMiIHdpZHRoPSI0NSIgaGVpZ2h0PSIyMCIgZmlsbD0iI2VhNzIzMyIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMTAiPjx0ZXh0IHg9IjE3NSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iMjMwIj5jcmFuPC90ZXh0Pjx0ZXh0IHg9IjU0NSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iMzUwIj52MC4xLjE8L3RleHQ+PC9nPjwvc3ZnPg==" alt="CRAN version" /></a>
 <a href="https://CRAN.R-project.org/package=sentiment.ai"><img role="img" aria-label="MIT License" src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjIiIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0ibGljZW5zZTogTUlUICsgZmlsZSBMSUNFTlNFIj48dGl0bGU+bGljZW5zZTogTUlUICsgZmlsZSBMSUNFTlNFPC90aXRsZT48ZyBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxyZWN0IHdpZHRoPSI0NyIgaGVpZ2h0PSIyMCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9IjQ3IiB3aWR0aD0iMTE1IiBoZWlnaHQ9IjIwIiBmaWxsPSIjMDA3ZWM2Ii8+PC9nPjxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJWZXJkYW5hLEdlbmV2YSxEZWphVnUgU2FucyxzYW5zLXNlcmlmIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBmb250LXNpemU9IjExMCI+PHRleHQgeD0iMjQ1IiB5PSIxNDAiIHRyYW5zZm9ybT0ic2NhbGUoLjEpIiBmaWxsPSIjZmZmIiB0ZXh0TGVuZ3RoPSIzNzAiPmxpY2Vuc2U8L3RleHQ+PHRleHQgeD0iMTAzNSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iMTA1MCI+TUlUICsgZmlsZSBMSUNFTlNFPC90ZXh0PjwvZz48L3N2Zz4=" alt="MIT License" /></a>
@@ -1910,53 +1915,107 @@ border:none;
 <!-- [END BADGES] -->
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p><code>sentiment.ai</code> turns text into a sentiment score using a
-sentence-embedding model plus a small, bundled scoring head. As of v2
-the default backend is the on-device multilingual model
+<p><code>sentiment.ai</code> turns text into sentiment scores using a
+sentence-embedding model plus a small, bundled scoring head. The default
+backend is the on-device multilingual model
 <strong><code>multilingual-e5-small</code></strong> — <strong>no
-TensorFlow, no API key</strong>. The legacy Universal Sentence Encoder
-models still work, opt-in, for anyone who needs them.</p>
-<p>Compared with lexicon/dictionary sentiment methods, this
-approach:</p>
-<ol style="list-style-type: decimal">
-<li><p><strong>Is more robust</strong> — it tolerates spelling mistakes
-and mixed case, and the default model handles <strong>~100
-languages</strong>.</p></li>
-<li><p><strong>Doesn’t need a rigid lexicon</strong> — text is reduced
-to an embedding vector, so you get sensible scores for words and
-phrasings no dictionary lists.</p></li>
-<li><p><strong>Lets you choose the context</strong> — with
-<code>sentiment_match()</code> you define what <em>positive</em> and
-<em>negative</em> mean for your domain (e.g. <code>&quot;high quality&quot;</code>
-vs <code>&quot;low quality&quot;</code> for product reviews).</p></li>
-<li><p><strong>Is auditable</strong> — scoring is deterministic, and
-<code>sentiment_provenance()</code> reports exactly which model and
-scoring head produced a score.</p></li>
-</ol>
+TensorFlow, no API key, no data leaving your machine</strong>.</p>
+<div class="new-in-v2">
+<p><strong>What’s new in v2 (1.0.1)</strong></p>
+<ul>
+<li><strong>No TensorFlow</strong> — default install is ~120 MB
+on-device, Apple-Silicon-clean.</li>
+<li><strong>Calibrated confidence</strong> — ECE ≈ 0.015;
+<code>confidence</code> actually means what it says.</li>
+<li><strong><code>sentiment()</code></strong> — tidy 3-class output
+(text, score, prob_neg/neu/pos, class, confidence).</li>
+<li><strong><code>sentiment_diagnostics()</code></strong> — know
+<em>when not to trust</em> a score: entropy, mixed-signal flag,
+out-of-domain detector.</li>
+<li><strong><code>sentiment_agreement()</code></strong> — validate
+against human labels; get weighted-κ, Krippendorff’s α, ICC.</li>
+<li><strong>Automatic dependency fallback</strong> — if a “latest” pip
+install breaks, <code>install_sentiment.ai()</code> snaps to the
+verified baseline automatically.</li>
+<li><strong>Model selection in the setup wizard</strong> — choose
+e5-small vs e5-base at install time.</li>
+</ul>
 </div>
-<div id="quick-start" class="section level1">
-<h1>Quick start</h1>
+<p>Compared with lexicon/dictionary methods:</p>
+<ol style="list-style-type: decimal">
+<li><strong>More robust</strong> — handles spelling mistakes, mixed
+case, and ~100 languages from one model.</li>
+<li><strong>No rigid lexicon</strong> — text becomes an embedding
+vector, so novel phrasing and domain jargon are handled naturally.</li>
+<li><strong>Tunable context</strong> — <code>sentiment_match()</code>
+lets you define what <em>positive</em> and <em>negative</em> mean for
+your domain.</li>
+<li><strong>Auditable</strong> — scoring is deterministic;
+<code>sentiment_provenance()</code> reports the exact model, revision
+SHA, and scoring head behind every score.</li>
+</ol>
+<hr />
+</div>
+<div id="getting-started" class="section level1 tabset tabset-fade tabset-pills">
+<h1 class="tabset tabset-fade tabset-pills">Getting started</h1>
+<div id="r-users" class="section level2">
+<h2>R users</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;sentiment.ai&quot;</span>)        <span class="co"># from CRAN</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(sentiment.ai)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># one-time setup of the (TensorFlow-free) Python backend</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># one-time setup — walks you through it interactively</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">install_sentiment.ai</span>()</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># load the default model (multilingual e5-small), then score some text</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">init_sentiment.ai</span>(<span class="at">model =</span> <span class="st">&quot;e5-small&quot;</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">sentiment_score</span>(<span class="fu">c</span>(<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>))</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; [1]  0.9  -0.9</span></span></code></pre></div>
-<p>Scores are rescaled to <code>[-1, 1]</code> — about <code>1</code> is
-positive, about <code>-1</code> is negative.</p>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># the model loads on first use — no explicit init() needed</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">sentiment_score</span>(<span class="fu">c</span>(<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; [1]  0.9  -0.9</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co"># full 3-class tidy output</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">sentiment</span>(<span class="fu">c</span>(<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;it&#39;s fine&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt;               text sentiment    class confidence</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt; 1     I love this!      0.95 positive       0.96</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; 2        it&#39;s fine      0.10  neutral       0.74</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co">#&gt; 3 this is terrible     -0.93 negative       0.95</span></span></code></pre></div>
+<p><code>init_sentiment.ai()</code> is optional — only needed for eager
+loading (e.g. to avoid a slow first call inside a benchmark loop). The
+model loads automatically on the first <code>sentiment_score()</code> /
+<code>sentiment()</code> / <code>sentiment_match()</code> call.</p>
+<p><strong>Persistent model default:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># In your .Rprofile — picks up at every library(sentiment.ai)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">options</span>(<span class="at">sentiment.ai.model =</span> <span class="st">&quot;e5-base&quot;</span>)</span></code></pre></div>
+</div>
+<div id="python-users" class="section level2">
+<h2>Python users</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--pre</span> sentimentai-py</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="im">import</span> sentimentai <span class="im">as</span> sa</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># simple score</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>sa.sentiment_score([<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>])</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># [-0.9, 0.9]  -- note: Python returns [neg, pos] ordering</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co"># tidy output</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>sa.sentiment([<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;it&#39;s fine&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>])</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#    text                  sentiment  class     confidence</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co"># 0  I love this!          0.95       positive  0.96</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co"># 1  it&#39;s fine             0.10       neutral   0.74</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co"># 2  this is terrible     -0.93       negative  0.95</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co"># same scoring heads as the R package — results are bit-for-bit identical</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>sa.sentiment_provenance(<span class="st">&quot;e5-small&quot;</span>)</span></code></pre></div>
+<p>Install options:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--pre</span> sentimentai-py                  <span class="co"># CPU (default)</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--pre</span> sentimentai-py<span class="pp">[</span><span class="ss">openai</span><span class="pp">]</span>          <span class="co"># + OpenAI API support</span></span></code></pre></div>
+<hr />
+</div>
 </div>
 <div id="a-quick-taste" class="section level1">
 <h1>A quick taste</h1>
-<p>Some real scores from the default model. Notice it shrugs off typos
-and reads context, not just keywords:</p>
+<p>Some real scores from the default model — it reads context, not just
+keywords:</p>
 <table>
 <thead>
 <tr class="header">
-<th align="left">review</th>
+<th align="left">text</th>
 <th align="center"><code>sentiment.ai</code></th>
 </tr>
 </thead>
@@ -1993,117 +2052,249 @@ poisoning</td>
 </tr>
 </tbody>
 </table>
-<p>(Scores from the default <code>e5-small</code> model — note the
-contrast between “<strong>a blast</strong> on my trip” and “<strong>The
-blast</strong> in Nagasaki”. Scoring is deterministic;
-<code>sentiment_provenance()</code> shows exactly which model and head
+<p>(Default <code>e5-small</code>. Note “<strong>a blast</strong> on my
+trip” vs “<strong>The blast</strong> in Nagasaki”. Scoring is
+deterministic; <code>sentiment_provenance()</code> logs exactly what
 produced each score.)</p>
+<hr />
 </div>
-<div id="models" class="section level1">
-<h1>Models</h1>
+<div id="why-not-just-use-tidytext-vader-sentimentr" class="section level1">
+<h1>Why not just use tidytext / vader / sentimentr?</h1>
+<p>Lexicon-based tools score words against a fixed dictionary. They are
+fast and easy to inspect, but share hard limits: out-of-vocabulary terms
+are missed, negation is handled only by hand-written rules, and most
+convenient lexicons are English-only. <code>sentiment.ai</code> maps the
+whole sentence to an embedding vector and classifies that vector:</p>
+<ul>
+<li><strong>Handles ~100 languages</strong> with one model, no separate
+multilingual lexicons.</li>
+<li><strong>Scores phrases no dictionary has ever seen</strong> — slang,
+domain jargon, product names.</li>
+<li><strong>Explicit neutral class</strong> — not just “not positive,
+not negative”.</li>
+<li><strong>Calibrated confidence</strong> (ECE ≈ 0.015) so you can
+triage on it.</li>
+<li><strong>Tunable context</strong> — redefine positive/negative for
+your domain.</li>
+</ul>
+<p>The tradeoff is setup time: lexicon tools install with no Python;
+<code>sentiment.ai</code> needs a one-time ~120 MB model download. After
+that there is no internet connection required and scoring is
+deterministic across machines.</p>
+<hr />
+</div>
+<div id="picking-a-model" class="section level1 tabset tabset-fade tabset-pills">
+<h1 class="tabset tabset-fade tabset-pills">Picking a model</h1>
+<div id="e5-small-default" class="section level2">
+<h2>e5-small (default)</h2>
 <table>
-<colgroup>
-<col width="48%" />
-<col width="24%" />
-<col width="28%" />
-</colgroup>
 <thead>
 <tr class="header">
-<th align="left"><code>model</code></th>
-<th align="center">dim</th>
-<th align="left">notes</th>
+<th align="left">property</th>
+<th align="left">value</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left"><code>e5-small</code></td>
-<td align="center">384</td>
-<td align="left"><strong>default</strong> — tiny, fast, ~100 languages,
-on-device, no TensorFlow</td>
+<td align="left">Embedding dim</td>
+<td align="left">384</td>
 </tr>
 <tr class="even">
-<td align="left"><code>e5-base</code></td>
-<td align="center">768</td>
-<td align="left">best on-device quality, ~100 languages, no
-TensorFlow</td>
+<td align="left">Disk / RAM</td>
+<td align="left">~120 MB</td>
 </tr>
 <tr class="odd">
-<td align="left"><code>openai</code></td>
-<td align="center">1536</td>
-<td align="left"><code>text-embedding-3-small</code> — paid API, text
-leaves your machine</td>
+<td align="left">Languages</td>
+<td align="left">~100</td>
 </tr>
 <tr class="even">
-<td align="left"><code>en</code> / <code>en.large</code> /
-<code>multi</code> / <code>multi.large</code></td>
-<td align="center">512</td>
-<td align="left">legacy Universal Sentence Encoder — <strong>opt-in,
-requires TensorFlow</strong></td>
+<td align="left">Speed</td>
+<td align="left">~310 texts/sec (CPU)</td>
+</tr>
+<tr class="odd">
+<td align="left">Macro-F1 (real text)</td>
+<td align="left">0.854</td>
 </tr>
 </tbody>
 </table>
-<p>The scoring head is <code>&quot;mlp&quot;</code> (default) or
-<code>&quot;logistic&quot;</code> — small, pure-R JSON heads bundled with the
-package. <strong>No xgboost and no TensorFlow at score
-time.</strong></p>
+<p><strong>Best for:</strong> scripts and pipelines where throughput
+matters, laptops with &lt; 8 GB RAM, short text (tweets, survey items,
+review snippets), exploratory work and fast iteration.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">sentiment_score</span>(texts)                  <span class="co"># uses e5-small by default</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">sentiment_score</span>(texts, <span class="at">model=</span><span class="st">&quot;e5-small&quot;</span>)  <span class="co"># explicit</span></span></code></pre></div>
 </div>
-<div id="benchmark" class="section level1">
-<h1>Benchmark</h1>
-<p>On a public test mix (Amazon / IMDB / tweets / financial-news reviews
-plus GPT-generated synthetic examples — <strong>no proprietary
-data</strong>), each embedder was scored with one identical XGBoost
-recipe so the ranking isolates <em>embedding quality</em>. Because the
-synthetic split is neutral-heavy, the table below shows macro-F1 on the
-<strong>real-only</strong> test slice (n = 1,247) and
-<strong>directional accuracy on the 1,187 real, clearly
-positive/negative examples</strong> — the most reliable real-world
-read.</p>
+<div id="e5-base-higher-accuracy" class="section level2">
+<h2>e5-base (higher accuracy)</h2>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Model</th>
-<th align="center">No TF</th>
-<th align="center">macro-F1 (real-only)</th>
-<th align="center">real pos/neg accuracy</th>
+<th align="left">property</th>
+<th align="left">value</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left"><code>openai</code></td>
-<td align="center">yes</td>
-<td align="center">0.886</td>
-<td align="center">94.3%</td>
+<td align="left">Embedding dim</td>
+<td align="left">768</td>
 </tr>
 <tr class="even">
-<td align="left"><code>e5-base</code></td>
-<td align="center">yes</td>
-<td align="center"><strong>0.899</strong></td>
-<td align="center">94.1%</td>
+<td align="left">Disk / RAM</td>
+<td align="left">~280 MB</td>
 </tr>
 <tr class="odd">
-<td align="left"><code>e5-small</code> (default)</td>
-<td align="center">yes</td>
-<td align="center">0.854</td>
-<td align="center">89.3%</td>
+<td align="left">Languages</td>
+<td align="left">~100</td>
 </tr>
 <tr class="even">
-<td align="left"><em>use-large (old TF default)</em></td>
-<td align="center"><em>no</em></td>
-<td align="center"><em>0.850</em></td>
-<td align="center"><em>88.9%</em></td>
+<td align="left">Speed</td>
+<td align="left">~141 texts/sec (CPU)</td>
+</tr>
+<tr class="odd">
+<td align="left">Macro-F1 (real text)</td>
+<td align="left">0.899</td>
 </tr>
 </tbody>
 </table>
-<p>Read-out: on real text the best on-device model
-(<strong>e5-base</strong>) ties paid OpenAI, and the default
-<strong>e5-small</strong> is level with the old TensorFlow USE default
-it replaces — so the TensorFlow-free default <em>matches</em> the old
-one on accuracy while dropping all of TensorFlow. (Real <em>neutral</em>
-text is scarce, so pos/neg accuracy is the more reliable figure. Full
-method and numbers in <code>planning/benchmark-v2.md</code>.)</p>
-<br>
-<hr>
-<p><br></p>
+<p><strong>Best for:</strong> final datasets for publication,
+longer/more nuanced text (interview transcripts, open-ended verbatims),
+servers with ample RAM, cases where the ~5 pp F1 gain matters.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sentiment_score</span>(texts, <span class="at">model =</span> <span class="st">&quot;e5-base&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># make e5-base your session default</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">init_sentiment.ai</span>(<span class="at">model =</span> <span class="st">&quot;e5-base&quot;</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co"># or permanent (in .Rprofile):</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">options</span>(<span class="at">sentiment.ai.model =</span> <span class="st">&quot;e5-base&quot;</span>)</span></code></pre></div>
+</div>
+<div id="openai-api" class="section level2">
+<h2>OpenAI API</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">property</th>
+<th align="left">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Embedding dim</td>
+<td align="left">1536</td>
+</tr>
+<tr class="even">
+<td align="left">Model</td>
+<td align="left"><code>text-embedding-3-small</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Speed</td>
+<td align="left">network-dependent</td>
+</tr>
+<tr class="even">
+<td align="left">Macro-F1 (real text)</td>
+<td align="left">0.886</td>
+</tr>
+<tr class="odd">
+<td align="left">Cost</td>
+<td align="left">per-token API charge</td>
+</tr>
+</tbody>
+</table>
+<p>Text leaves your machine and is sent to OpenAI’s servers. Requires an
+API key. Accuracy ties <code>e5-base</code> on most corpora but has
+ongoing cost and a network dependency.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">OPENAI_API_KEY =</span> <span class="st">&quot;sk-...&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">sentiment_score</span>(texts, <span class="at">model =</span> <span class="st">&quot;openai&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="sentiment-analysis-r" class="section level1 tabset tabset-fade tabset-pills">
+<h1 class="tabset tabset-fade tabset-pills">Sentiment analysis — R</h1>
+<div id="sentiment_score" class="section level2">
+<h2><code>sentiment_score()</code></h2>
+<p>One score per input in <code>[-1, 1]</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">sentiment_score</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; [1]  0.54 -0.66</span></span></code></pre></div>
+</div>
+<div id="sentiment" class="section level2">
+<h2><code>sentiment()</code></h2>
+<p>Tidy data frame with the full 3-class signal. Use when the neutral
+mass matters or to triage low-confidence rows.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">sentiment</span>(<span class="fu">c</span>(<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;it&#39;s fine&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>))</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt;               text sentiment prob_neg prob_neu prob_pos    class confidence</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; 2        it&#39;s fine      0.10     0.08     0.74     0.18  neutral       0.74</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co"># triage: trust high-confidence rows automatically</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>s    <span class="ot">&lt;-</span> <span class="fu">sentiment</span>(my_reviews)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>sure <span class="ot">&lt;-</span> s[s<span class="sc">$</span>confidence <span class="sc">&gt;=</span> <span class="fl">0.85</span>, ]   <span class="co"># auto-accept</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>flag <span class="ot">&lt;-</span> s[s<span class="sc">$</span>confidence <span class="sc">&lt;</span>  <span class="fl">0.85</span>, ]   <span class="co"># route to human</span></span></code></pre></div>
+</div>
+<div id="sentiment_match" class="section level2">
+<h2><code>sentiment_match()</code></h2>
+<p>Same calibrated score as <code>sentiment_score()</code>, plus a
+nearest-phrase explanation against <strong>tunable poles</strong>. The
+poles define what <em>positive</em> and <em>negative</em> mean for your
+domain.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">sentiment_match</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>),</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>                <span class="at">phrases =</span> <span class="fu">list</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>                  <span class="at">positive =</span> <span class="fu">c</span>(<span class="st">&quot;excited&quot;</span>, <span class="st">&quot;loving&quot;</span>, <span class="st">&quot;content&quot;</span>, <span class="st">&quot;happy&quot;</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>                  <span class="at">negative =</span> <span class="fu">c</span>(<span class="st">&quot;lame&quot;</span>,    <span class="st">&quot;lonely&quot;</span>, <span class="st">&quot;sad&quot;</span>,     <span class="st">&quot;angry&quot;</span>)))</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt;                                text sentiment phrase    class similarity</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; 1                Will you marry me?      0.54 loving positive       0.82</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; 2 Oh, you&#39;re breaking up with me...     -0.66    sad negative       0.79</span></span></code></pre></div>
+<p>Omit <code>phrases</code> to use the bundled balanced 40/40 default
+poles.</p>
+</div>
+<div id="sentiment_provenance" class="section level2">
+<h2><code>sentiment_provenance()</code></h2>
+<p>See exactly what produced a score.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">sentiment_provenance</span>(<span class="st">&quot;e5-small&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; sentiment.ai provenance</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;   model    : e5-small (st, dim 384)</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;   prefix   : &quot;query: &quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt;   revision : 614241f622f53c4eeff9890bdc4f31cfecc418b3</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt;   license  : MIT</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt;   source   : https://huggingface.co/intfloat/multilingual-e5-small</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt;   scoring  : mlp 1.0 (mlp, T=1.281)</span></span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="sentiment-analysis-python" class="section level1 tabset tabset-fade tabset-pills">
+<h1 class="tabset tabset-fade tabset-pills">Sentiment analysis —
+Python</h1>
+<div id="sentiment_score-1" class="section level2">
+<h2><code>sentiment_score()</code></h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="im">import</span> sentimentai <span class="im">as</span> sa</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>scores <span class="op">=</span> sa.sentiment_score([<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>])</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co"># [0.95, -0.93]</span></span></code></pre></div>
+</div>
+<div id="sentiment-1" class="section level2">
+<h2><code>sentiment()</code></h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>df <span class="op">=</span> sa.sentiment([<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;it&#39;s fine&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>])</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="bu">print</span>(df[[<span class="st">&quot;text&quot;</span>, <span class="st">&quot;sentiment&quot;</span>, <span class="st">&quot;class&quot;</span>, <span class="st">&quot;confidence&quot;</span>]])</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#               text  sentiment     class  confidence</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># 0     I love this!       0.95  positive        0.96</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co"># 1        it&#39;s fine       0.10   neutral        0.74</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co"># 2 this is terrible      -0.93  negative        0.95</span></span></code></pre></div>
+</div>
+<div id="sentiment_match-1" class="section level2">
+<h2><code>sentiment_match()</code></h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>poles <span class="op">=</span> {</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>    <span class="st">&quot;positive&quot;</span>: [<span class="st">&quot;excited&quot;</span>, <span class="st">&quot;loving&quot;</span>, <span class="st">&quot;content&quot;</span>, <span class="st">&quot;happy&quot;</span>],</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>    <span class="st">&quot;negative&quot;</span>: [<span class="st">&quot;lame&quot;</span>,    <span class="st">&quot;lonely&quot;</span>, <span class="st">&quot;sad&quot;</span>,     <span class="st">&quot;angry&quot;</span>]</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>}</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>df <span class="op">=</span> sa.sentiment_match([<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Breaking up with me...&quot;</span>],</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>                        phrases<span class="op">=</span>poles)</span></code></pre></div>
+</div>
+<div id="sentiment_provenance-1" class="section level2">
+<h2><code>sentiment_provenance()</code></h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>sa.sentiment_provenance(<span class="st">&quot;e5-small&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co"># sentiment.ai provenance</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#   model    : e5-small (st, dim 384)</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#   revision : 614241f622f53c4eeff9890bdc4f31cfecc418b3</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#   scoring  : mlp 1.0</span></span></code></pre></div>
+<hr />
+</div>
 </div>
 <div id="calibration-how-much-to-trust-a-score" class="section level1">
 <h1>Calibration — how much to trust a score</h1>
@@ -2111,12 +2302,11 @@ method and numbers in <code>planning/benchmark-v2.md</code>.)</p>
 probabilities are <strong>calibrated</strong>, so the
 <code>confidence</code> from <code>sentiment()</code> means what it
 says: among rows scored at 0.8 confidence, about 80% really are that
-class. Confidence becomes something you can act on — auto-accept the
-easy rows, route the unsure ones to a human.</p>
+class.</p>
 <p>On the held-out test set the <strong>expected calibration error (ECE)
 is about 0.015</strong> (<code>e5-small</code>) / <strong>0.017</strong>
 (<code>e5-base</code>) — well-calibrated (an uncalibrated model is
-typically 0.05–0.15) — and it holds on real, non-synthetic text:</p>
+typically 0.05–0.15):</p>
 <table>
 <thead>
 <tr class="header">
@@ -2147,167 +2337,445 @@ typically 0.05–0.15) — and it holds on real, non-synthetic text:</p>
 </tr>
 </tbody>
 </table>
-<p>So you can triage on it:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>s      <span class="ot">&lt;-</span> <span class="fu">sentiment</span>(reviews)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>sure   <span class="ot">&lt;-</span> s[s<span class="sc">$</span>confidence <span class="sc">&gt;=</span> <span class="fl">0.85</span>, ]   <span class="co"># trust these</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>review <span class="ot">&lt;-</span> s[s<span class="sc">$</span>confidence <span class="sc">&lt;</span>  <span class="fl">0.85</span>, ]   <span class="co"># route these to a human</span></span></code></pre></div>
-<p>Full method, per-class ECE, and Brier scores are in
-<code>planning/reliability-report.md</code>. Calibration is measured
-<strong>in-domain</strong> (reviews / short verbatims, single split), so
-treat very different text — legal, code, heavy sarcasm — with more
-caution.</p>
-<br>
-<hr>
-<p><br></p>
+<p>Calibration was measured in-domain (reviews / short verbatims, single
+split). Treat very different text — legal documents, code, heavy sarcasm
+— with more caution.</p>
+<hr />
 </div>
-<div id="installation-setup" class="section level1">
-<h1>Installation &amp; setup</h1>
-<p>After installing from CRAN, set up the Python backend once. The
-default install is <strong>TensorFlow-free</strong>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">install_sentiment.ai</span>()                 <span class="co"># sentence-transformers + e5, no TensorFlow</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># opt into the legacy Universal Sentence Encoder models (installs TensorFlow):</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># install_sentiment.ai(legacy = TRUE)</span></span></code></pre></div>
-<p>Useful arguments: <code>envname</code> (the Python environment name),
-<code>method</code>
-(<code>&quot;auto&quot;</code>/<code>&quot;virtualenv&quot;</code>/<code>&quot;conda&quot;</code>),
-and <code>legacy</code> (<code>TRUE</code> adds the TF-Hub stack). The
-default e5 backend uses PyTorch and selects its own device
-automatically.</p>
-<div id="initialize" class="section level2">
-<h2>Initialize</h2>
-<p><code>init_sentiment.ai()</code> loads the embedding model into
-memory so repeated scoring is fast. It’s optional —
-<code>sentiment_score()</code> will call it for you — but
-pre-initializing avoids re-loading the model on every call.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">init_sentiment.ai</span>()                    <span class="co"># default: e5-small</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">init_sentiment.ai</span>(<span class="at">model =</span> <span class="st">&quot;e5-base&quot;</span>)   <span class="co"># larger on-device model</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># init_sentiment.ai(model = &quot;en.large&quot;)  # legacy USE (needs legacy install)</span></span></code></pre></div>
-<p>To load the model <strong>eagerly when you attach the
-package</strong> (so the first score isn’t the slow one), set this once
-— e.g. in your <code>.Rprofile</code> — and it initialises on
-<code>library(sentiment.ai)</code> whenever the backend is already
-installed:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">sentiment.ai.autoinit =</span> <span class="cn">TRUE</span>)   <span class="co"># or Sys.setenv(SENTIMENTAI_AUTOINIT = &quot;true&quot;)</span></span></code></pre></div>
-<br>
-<hr>
-<p><br></p>
+<div id="diagnostics-when-not-to-trust-a-score" class="section level1">
+<h1>Diagnostics — when not to trust a score</h1>
+<p><code>sentiment_diagnostics()</code> augments every row with signals
+that say <em>when not to trust it</em>:</p>
+<table>
+<colgroup>
+<col width="47%" />
+<col width="52%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">column</th>
+<th align="left">meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>entropy</code></td>
+<td align="left">Shannon entropy of the 3-class probs (nats). High =
+head is uncertain.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>confidence_band</code></td>
+<td align="left">Ordered factor <code>&quot;low&quot;</code> /
+<code>&quot;moderate&quot;</code> / <code>&quot;high&quot;</code> calibrated from ECE
+data.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>mixed</code></td>
+<td align="left"><code>TRUE</code> when both <code>prob_pos</code> and
+<code>prob_neg</code> &gt; 0.25 — competing signals.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>ood_similarity</code></td>
+<td align="left">Cosine to training centroids. Low (~&lt; 0.20) = unlike
+training data.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>ood_flag</code></td>
+<td align="left"><code>TRUE</code> when
+<code>ood_similarity &lt; 0.20</code> — probably out-of-domain.</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">sentiment_diagnostics</span>(<span class="fu">c</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="st">&quot;I absolutely loved everything about this trip!&quot;</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="st">&quot;Ein sehr ungewoehnlicher Text auf Deutsch.&quot;</span>,      <span class="co"># German — in-domain (e5 is multilingual)</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="st">&quot;0x4A 0x6F 0x65&quot;</span>,                                 <span class="co"># hex bytes — out-of-domain</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="st">&quot;The food was great but the service was terrible.&quot;</span> <span class="co"># mixed signal</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>))</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>d[, <span class="fu">c</span>(<span class="st">&quot;text&quot;</span>, <span class="st">&quot;sentiment&quot;</span>, <span class="st">&quot;confidence_band&quot;</span>, <span class="st">&quot;mixed&quot;</span>, <span class="st">&quot;ood_flag&quot;</span>)]</span></code></pre></div>
+<p><strong>Auto-accept triage rule:</strong></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>auto_accept <span class="ot">&lt;-</span> d<span class="sc">$</span>confidence_band <span class="sc">&gt;=</span> <span class="st">&quot;moderate&quot;</span> <span class="sc">&amp;</span> <span class="sc">!</span>d<span class="sc">$</span>mixed <span class="sc">&amp;</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>               <span class="sc">!</span><span class="fu">is.na</span>(d<span class="sc">$</span>ood_flag) <span class="sc">&amp;</span> <span class="sc">!</span>d<span class="sc">$</span>ood_flag</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co"># TRUE rows: route to auto-pipeline</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co"># FALSE rows: send to human review</span></span></code></pre></div>
+<p><code>confidence_band</code> is an ordered factor
+(<code>low &lt; moderate &lt; high</code>), so <code>&gt;=</code>
+comparisons work naturally.</p>
+<hr />
+</div>
+<div id="validating-against-human-labels" class="section level1">
+<h1>Validating against human labels</h1>
+<p><code>sentiment_agreement()</code> compares model scores to
+human-provided labels and returns the statistics needed for a methods
+section.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">data</span>(airline_tweets)</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>scores <span class="ot">&lt;-</span> <span class="fu">sentiment_score</span>(airline_tweets<span class="sc">$</span>text)</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>ag     <span class="ot">&lt;-</span> <span class="fu">sentiment_agreement</span>(scores, airline_tweets<span class="sc">$</span>airline_sentiment)</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="fu">print</span>(ag)</span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="co">#&gt; sentiment.ai agreement statistics  (n = 14640)</span></span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; -----------------------------------------------</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="co">#&gt;   Spearman r (score vs label)  : 0.721</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt;   Percent agreement (3-class)  : 74.6%</span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="co">#&gt;   Weighted kappa (quad, 3-cls) : 0.682</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt;</span></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt; Human-human ceiling (indicative): weighted kappa ~0.50-0.65 on</span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; GoEmotions / SemEval-2017-4.</span></span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="co">#&gt;   Krippendorff alpha (ordinal) : 0.612</span></span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt;   ICC(2,1)                     : 0.718   95% CI [0.710, 0.726]</span></span></code></pre></div>
+<p>A <strong>weighted kappa of 0.68</strong> exceeds the typical
+human-human ceiling on 3-class sentiment (0.50–0.65) — this is the
+number to quote in a methods section.</p>
+<p>Adjust the neutral-zone boundaries to match your application:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>ag2 <span class="ot">&lt;-</span> <span class="fu">sentiment_agreement</span>(scores, labels,</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>                           <span class="at">positive_threshold =</span>  <span class="fl">0.2</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>                           <span class="at">negative_threshold =</span> <span class="sc">-</span><span class="fl">0.2</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="benchmarks" class="section level1 tabset tabset-fade tabset-pills">
+<h1 class="tabset tabset-fade tabset-pills">Benchmarks</h1>
+<p>All benchmarks run on <strong>1,000 airline tweets</strong> (random
+sample; macOS aarch64 M-series, 8 CPU cores). Accuracy = macro-F1 on
+3-class negative/neutral/positive against crowd-sourced labels. Speed =
+median of 3 timed runs.</p>
+<p><strong>Important caveat:</strong> the airline tweet corpus is a
+challenging domain (high proportion of negative tweets, short informal
+text). Macro-F1 figures here are lower than the out-of-sample figures in
+the full benchmark (which includes Amazon/IMDB/financial corpora). The
+relative ordering within each language is the reliable signal.</p>
+<div id="r-speed" class="section level2">
+<h2>R — speed</h2>
+<table>
+<colgroup>
+<col width="30%" />
+<col width="42%" />
+<col width="26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">texts/sec</th>
+<th align="left">notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">tidytext (bing)</td>
+<td align="right"><strong>32,258</strong></td>
+<td align="left">pure R, in-memory dictionary lookup</td>
+</tr>
+<tr class="even">
+<td align="left">syuzhet (AFINN)</td>
+<td align="right">3,311</td>
+<td align="left">pure R, word-score sum</td>
+</tr>
+<tr class="odd">
+<td align="left">sentimentr</td>
+<td align="right">564</td>
+<td align="left">R + C++, sentence-aware</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>sentiment.ai e5-small</strong></td>
+<td align="right"><strong>310</strong></td>
+<td align="left">Python backend, 8-core parallel embedding</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>sentiment.ai e5-base</strong></td>
+<td align="right"><strong>141</strong></td>
+<td align="left">Python backend, 768-d embeddings</td>
+</tr>
+</tbody>
+</table>
+<p>Lexicon methods are faster because they do dictionary lookups, not
+neural inference. The <code>sentiment.ai</code> speed on CPU is limited
+by the embedding step; a GPU or batch-optimised environment would give
+5–20× improvement on the same hardware.</p>
+</div>
+<div id="r-accuracy" class="section level2">
+<h2>R — accuracy</h2>
+<table>
+<colgroup>
+<col width="21%" />
+<col width="26%" />
+<col width="34%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="center">macro-F1</th>
+<th align="center">% agreement</th>
+<th align="left">notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>sentiment.ai e5-small</strong></td>
+<td align="center"><strong>0.613</strong></td>
+<td align="center"><strong>73.6%</strong></td>
+<td align="left">3-class, calibrated</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>sentiment.ai e5-base</strong></td>
+<td align="center"><strong>0.595</strong></td>
+<td align="center"><strong>73.7%</strong></td>
+<td align="left">3-class, calibrated</td>
+</tr>
+<tr class="odd">
+<td align="left">tidytext (bing)</td>
+<td align="center">0.511</td>
+<td align="center">51.7%</td>
+<td align="left">binary lexicon, mapped to 3-class</td>
+</tr>
+<tr class="even">
+<td align="left">syuzhet (AFINN)</td>
+<td align="center">0.301</td>
+<td align="center">28.3%</td>
+<td align="left">word-score sum, airline domain mismatch</td>
+</tr>
+<tr class="odd">
+<td align="left">sentimentr</td>
+<td align="center">0.293</td>
+<td align="center">28.4%</td>
+<td align="left">Jockers-Rinker lexicon, airline domain mismatch</td>
+</tr>
+</tbody>
+</table>
+<p><code>sentiment.ai</code> leads on accuracy despite the airline-tweet
+domain mismatch with its training data. Lexicon methods (AFINN,
+sentimentr) suffer because their word lists don’t cover airline-specific
+vocabulary and slang well.</p>
+<p>For <code>e5-base</code> scoring slightly lower than
+<code>e5-small</code> on this specific sample: this is within sampling
+variance (different 1000-row draw) — the full-corpus benchmark (n =
+1,247 real-only) shows e5-base at 0.899 vs e5-small at 0.854.</p>
+</div>
+<div id="python-speed" class="section level2">
+<h2>Python — speed</h2>
+<p>Measured on 1,000 airline tweets, macOS aarch64, CPU-only (median of
+3 runs):</p>
+<table>
+<colgroup>
+<col width="30%" />
+<col width="42%" />
+<col width="26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="right">texts/sec</th>
+<th align="left">notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">vaderSentiment</td>
+<td align="right"><strong>4,875</strong></td>
+<td align="left">pure Python, rule-based lexicon</td>
+</tr>
+<tr class="even">
+<td align="left">TextBlob</td>
+<td align="right">4,182</td>
+<td align="left">NaiveBayes + pattern rules</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>sentimentai-py (e5-small)</strong></td>
+<td align="right"><strong>485</strong></td>
+<td align="left">neural, sentence-transformers backend</td>
+</tr>
+<tr class="even">
+<td align="left">HF twitter-roberta (fine-tuned)</td>
+<td align="right">19</td>
+<td align="left">fine-tuned transformer, CPU bottleneck</td>
+</tr>
+</tbody>
+</table>
+<p><code>sentimentai-py</code> is faster than the equivalent R package
+call (~485 vs ~310 t/s) because it avoids the R-to-Python round-trip
+overhead. A GPU would give 10–50× for both the sentimentai and roberta
+paths.</p>
+</div>
+<div id="python-accuracy" class="section level2">
+<h2>Python — accuracy</h2>
+<p>Macro-F1 on the same 1,000 airline-tweet sample (3-class neg/neu/pos
+against crowd labels):</p>
+<table>
+<colgroup>
+<col width="21%" />
+<col width="26%" />
+<col width="34%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">method</th>
+<th align="center">macro-F1</th>
+<th align="center">% agreement</th>
+<th align="left">notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">HF twitter-roberta (fine-tuned)</td>
+<td align="center"><strong>0.777</strong></td>
+<td align="center"><strong>77.0%</strong></td>
+<td align="left">trained on this domain</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>sentimentai-py (e5-small)</strong></td>
+<td align="center"><strong>0.615</strong></td>
+<td align="center"><strong>71.4%</strong></td>
+<td align="left">multilingual, ~100 languages</td>
+</tr>
+<tr class="odd">
+<td align="left">vaderSentiment</td>
+<td align="center">0.473</td>
+<td align="center">55.9%</td>
+<td align="left">weak on neutral; airline vocab mismatch</td>
+</tr>
+<tr class="even">
+<td align="left">TextBlob</td>
+<td align="center">0.349</td>
+<td align="center">43.3%</td>
+<td align="left">general-purpose, not tuned</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When to use each:</strong></p>
+<ul>
+<li><strong>twitter-roberta</strong>: highest accuracy on English
+Twitter; 25× slower on CPU; no multilingual support; ~500 MB download;
+not tunable.</li>
+<li><strong>sentimentai-py</strong>: best accuracy across languages;
+tunable poles; calibrated confidence; auditable provenance; matches the
+R package bit-for-bit.</li>
+<li><strong>vaderSentiment / TextBlob</strong>: when you need
+sub-millisecond speed and accuracy is secondary.</li>
+</ul>
+<hr />
 </div>
 </div>
-<div id="sentiment-analysis" class="section level1">
-<h1>Sentiment analysis</h1>
-<div id="sentiment_score" class="section level2">
-<h2><code>sentiment_score()</code></h2>
-<p>The main function — one score per input, in <code>[-1, 1]</code>. The
-scoring head is <code>&quot;mlp&quot;</code> (default) or
-<code>&quot;logistic&quot;</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">sentiment_score</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>))</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;  0.54  -0.66</span></span></code></pre></div>
+<div id="installation-setup" class="section level1 tabset tabset-fade tabset-pills">
+<h1 class="tabset tabset-fade tabset-pills">Installation &amp;
+setup</h1>
+<div id="r" class="section level2">
+<h2>R</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;sentiment.ai&quot;</span>)   <span class="co"># from CRAN</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">library</span>(sentiment.ai)</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co"># one-time setup — the interactive wizard walks you through it,</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co"># including choosing e5-small vs e5-base as your default model</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="fu">install_sentiment.ai</span>()</span></code></pre></div>
+<p><strong>Key arguments:</strong></p>
+<table>
+<colgroup>
+<col width="37%" />
+<col width="33%" />
+<col width="29%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">argument</th>
+<th align="center">default</th>
+<th align="left">effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>method</code></td>
+<td align="center"><code>&quot;auto&quot;</code></td>
+<td align="left"><code>&quot;virtualenv&quot;</code> or <code>&quot;conda&quot;</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>gpu</code></td>
+<td align="center"><code>FALSE</code></td>
+<td align="left"><code>TRUE</code> = CUDA build (Linux/Windows with
+NVIDIA GPU)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>pin_versions</code></td>
+<td align="center"><code>NA</code></td>
+<td align="left"><code>NA</code> = try latest, auto-fallback to verified
+baseline on failure; <code>TRUE</code> = always use pinned;
+<code>FALSE</code> = skip check</td>
+</tr>
+<tr class="even">
+<td align="left"><code>legacy</code></td>
+<td align="center"><code>FALSE</code></td>
+<td align="left"><code>TRUE</code> = also install TensorFlow / USE
+legacy stack</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>fast</code></td>
+<td align="center"><code>NA</code></td>
+<td align="left">uses <code>uv</code> if on PATH for a much faster
+install</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Troubleshooting (most common fix):</strong></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># Check if RETICULATE_PYTHON is pointing at the wrong interpreter</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">Sys.getenv</span>(<span class="st">&quot;RETICULATE_PYTHON&quot;</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="co"># If set, clear it and restart R</span></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="fu">Sys.unsetenv</span>(<span class="st">&quot;RETICULATE_PYTHON&quot;</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="co"># then restart R and re-run install_sentiment.ai()</span></span></code></pre></div>
+<p>In RStudio: <em>Tools &gt; Global Options &gt; Python &gt;
+Select</em> — point it at the <code>r-sentiment-ai</code>
+virtualenv.</p>
 </div>
-<div id="sentiment" class="section level2">
-<h2><code>sentiment()</code></h2>
-<p>The whole picture rather than one number — per-class probabilities, a
-label, and a confidence — as a tidy data frame. Use it when the neutral
-mass matters or to triage low-confidence rows.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sentiment</span>(<span class="fu">c</span>(<span class="st">&quot;I love this!&quot;</span>, <span class="st">&quot;it&#39;s fine&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>))</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt;               text sentiment prob_neg prob_neu prob_pos    class confidence</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; 2        it&#39;s fine      0.10     0.08     0.74     0.18  neutral       0.74</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95</span></span></code></pre></div>
-</div>
-<div id="sentiment_match" class="section level2">
-<h2><code>sentiment_match()</code></h2>
-<p>The <strong>same <code>sentiment</code> score</strong> as
-<code>sentiment_score()</code>, plus a nearest-phrase explanation
-against <strong>tunable poles</strong> — you decide what the poles mean
-for your domain. The poles only shape the explanation
-(<code>phrase</code> / <code>class</code> / <code>similarity</code>),
-never the score:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>my_categories <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">positive =</span> <span class="fu">c</span>(<span class="st">&quot;excited&quot;</span>, <span class="st">&quot;loving&quot;</span>, <span class="st">&quot;content&quot;</span>, <span class="st">&quot;happy&quot;</span>),</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>                      <span class="at">negative =</span> <span class="fu">c</span>(<span class="st">&quot;lame&quot;</span>, <span class="st">&quot;lonely&quot;</span>, <span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>))</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">sentiment_match</span>(<span class="fu">c</span>(<span class="st">&quot;Will you marry me?&quot;</span>, <span class="st">&quot;Oh, you&#39;re breaking up with me...&quot;</span>),</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>                <span class="at">phrases =</span> my_categories)</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;                                text sentiment phrase    class similarity</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; 1                Will you marry me?      0.54 loving positive       0.82</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; 2 Oh, you&#39;re breaking up with me...     -0.66    sad negative       0.79</span></span></code></pre></div>
-<p>Pass any set of poles, not just positive/negative, for arbitrary
-category matching, or omit <code>phrases</code> to use the bundled
-balanced 40/40 default poles.</p>
-</div>
-<div id="sentiment_provenance" class="section level2">
-<h2><code>sentiment_provenance()</code></h2>
-<p>See exactly what produced a score — the encoder, its
-license/source/revision, the embedding prefix, and the scoring head:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">sentiment_provenance</span>(<span class="st">&quot;e5-small&quot;</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; sentiment.ai provenance</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt;   model    : e5-small (st, dim 384)</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;   prefix   : &quot;query: &quot;</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;   license  : MIT</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt;   source   : https://huggingface.co/intfloat/multilingual-e5-small</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;   scoring  : mlp 1.0 (mlp, T=...)</span></span></code></pre></div>
-<br>
-<hr>
-<p><br></p>
+<div id="python" class="section level2">
+<h2>Python</h2>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--pre</span> sentimentai-py</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="im">import</span> sentimentai <span class="im">as</span> sa</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="co"># first use triggers a ~120 MB model download (one-time)</span></span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>sa.sentiment_score([<span class="st">&quot;Hello world&quot;</span>])</span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="co"># to use the larger, more accurate model:</span></span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>sa.init(model<span class="op">=</span><span class="st">&quot;e5-base&quot;</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>sa.sentiment_score([<span class="st">&quot;Hello world&quot;</span>], model<span class="op">=</span><span class="st">&quot;e5-base&quot;</span>)</span></code></pre></div>
+<p>Requirements: Python 3.8+, PyTorch (CPU or CUDA).</p>
+<hr />
 </div>
 </div>
-<div id="matrix-analysis" class="section level1">
-<h1>Matrix analysis</h1>
-<p>After <code>init_sentiment.ai()</code> you can embed text yourself
-with <code>embed_text()</code> and compare embeddings with
-<code>cosine()</code> / <code>cosine_match()</code> (handy for
-clustering or nearest-neighbour matching):</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>target_mx <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;dogs&quot;</span>, <span class="st">&quot;cat&quot;</span>, <span class="st">&quot;IT&quot;</span>, <span class="st">&quot;computer&quot;</span>))</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>ref_mx    <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;animals&quot;</span>, <span class="st">&quot;technology&quot;</span>))</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">cosine_match</span>(target_mx, ref_mx)[rank <span class="sc">==</span> <span class="dv">1</span>]   <span class="co"># top match per row</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;      target  reference similarity rank</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 1:     dogs    animals       0.80    1</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; 2:      cat    animals       0.61    1</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; 3:       IT technology       0.44    1</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; 4: computer technology       0.67    1</span></span></code></pre></div>
-</div>
-<div id="python-sibling" class="section level1">
-<h1>Python sibling</h1>
-<p>The same engine is available in Python as <a href="https://pypi.org/project/sentimentai-py/"><code>sentimentai-py</code></a>
-— it ships the <strong>same</strong> scoring heads, and its forward pass
-is verified bit-for-bit against this package:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--pre</span> sentimentai-py</span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="im">import</span> sentimentai <span class="im">as</span> sa</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>sa.sentiment_score([<span class="st">&quot;I love this&quot;</span>, <span class="st">&quot;this is terrible&quot;</span>])</span></code></pre></div>
-<br>
-<hr>
-<p><br></p>
+<div id="embeddings-matrix-helpers" class="section level1">
+<h1>Embeddings &amp; matrix helpers</h1>
+<p>Embed text yourself with <code>embed_text()</code> and compare with
+<code>cosine()</code> / <code>cosine_match()</code>:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>target_mx <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;dogs&quot;</span>, <span class="st">&quot;cat&quot;</span>, <span class="st">&quot;keyboard&quot;</span>, <span class="st">&quot;mouse&quot;</span>))</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>ref_mx    <span class="ot">&lt;-</span> <span class="fu">embed_text</span>(<span class="fu">c</span>(<span class="st">&quot;animals&quot;</span>, <span class="st">&quot;technology&quot;</span>))</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="fu">cosine_match</span>(target_mx, ref_mx)[rank <span class="sc">==</span> <span class="dv">1</span>]</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="co">#&gt;     target  reference similarity rank</span></span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="co">#&gt; 1:    dogs    animals       0.72    1</span></span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a><span class="co">#&gt; 2:     cat    animals       0.68    1</span></span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a><span class="co">#&gt; 3: keyboard technology       0.65    1</span></span>
+<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a><span class="co">#&gt; 4:   mouse technology       0.57    1</span></span>
+<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a><span class="co"># approx=TRUE for large reference sets (requires RANN; much faster)</span></span>
+<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a><span class="fu">cosine_match</span>(target_mx, large_ref_mx, <span class="at">approx =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<hr />
 </div>
 <div id="contribute-a-scoring-head" class="section level1">
 <h1>Contribute a scoring head</h1>
-<p>Scoring heads turn an embedding into a sentiment score — you can
-train and contribute your own. Heads live under
-<code>scoring/&lt;type&gt;/&lt;version&gt;/&lt;model&gt;.json</code>;
-for example, <code>scoring/mlp/1.0/e5-small.json</code> is the default
-for <code>sentiment_score(model = &quot;e5-small&quot;)</code>. A head is a small
-JSON describing the forward pass
-(<code>{type, dim, T, layers | coef, classes}</code>), read by a pure-R
-scorer — no xgboost or TensorFlow at score time. Use a descriptive
-version (e.g. <code>mlp/jimbo_imdb1/e5-small.json</code>) for community
-heads, and open an issue/PR if your head is a general-purpose
-improvement on the defaults.</p>
-</div>
-<div id="troubleshooting" class="section level1">
-<h1>Troubleshooting</h1>
-<p>This bridges R and Python via <code>reticulate</code>, so environment
-activation is the usual snag. If reticulate won’t switch environments
-(common in RStudio, projects, or containers), it’s normally because
-<code>RETICULATE_PYTHON</code> is set — restart R, set the interpreter
-under <em>Tools &gt; Global Options &gt; Python</em>, or install into
-the base <code>r-reticulate</code> environment. The legacy TensorFlow
-models additionally need a working TensorFlow setup
-(<code>install_sentiment.ai(legacy = TRUE)</code>); the default e5 path
-avoids all of that.</p>
+<p>Heads live under
+<code>inst/scoring/&lt;type&gt;/&lt;version&gt;/&lt;model&gt;.json</code>.
+A head is a small JSON describing the forward pass
+(<code>{type, dim, T, layers | coef, classes}</code>), evaluated by a
+pure-R scorer — no xgboost or TensorFlow at score time.</p>
+<p>Use <code>head_path =</code> on <code>sentiment_score()</code> /
+<code>sentiment()</code> / <code>sentiment_diagnostics()</code> to load
+a custom or domain-retrained head without touching the installed
+package:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="co"># point directly at a custom JSON head</span></span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">sentiment_score</span>(texts, <span class="at">head_path =</span> <span class="st">&quot;~/my_domain_head.json&quot;</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="fu">sentiment_diagnostics</span>(texts, <span class="at">head_path =</span> <span class="st">&quot;~/my_domain_head.json&quot;</span>)</span></code></pre></div>
+<hr />
 <br>
 <hr>
 <p><br></p>
-<p>Originally created by the Korn Ferry Institute AITMI team.</p>
+<p>Originally created by the <a href="https://www.kornferry.com/institute">Korn Ferry Institute</a>
+AITMI team. MIT licensed.</p>
 </div>
 
 
