@@ -56,9 +56,15 @@ sentiment_diagnostics <- function(x               = NULL,
   scoring <- match.arg(scoring)
   if(is.null(x)) return(NULL)
 
+  # NA-safe embedding: substitute missing text (NA or "") with a placeholder before
+  # embedding (so we don't embed the literal "NA"), then blank those rows at the end.
+  na_index <- if(is.character(x)) which(is.na(x) | !nzchar(x)) else integer(0)
+  x_emb <- x
+  if(length(na_index)) x_emb[na_index] <- as.character(na_index)
+
   # embed once; pass the matrix to sentiment() so we don't embed twice
   check_sentiment.ai(model = model, ...)
-  embs <- embed_text(x, batch_size = batch_size, model = model)
+  embs <- embed_text(x_emb, batch_size = batch_size, model = model)
 
   out <- sentiment(x = embs, model = model, scoring = scoring,
                    scoring_version = scoring_version, batch_size = batch_size, ...)
@@ -72,27 +78,33 @@ sentiment_diagnostics <- function(x               = NULL,
   # entropy: H(p) in nats; safe_log(0) = 0 by convention
   ent <- -rowSums(p * ifelse(p > 0, log(p), 0))
 
-  # confidence band calibrated from the reliability report
+  # confidence band from the reliability report. Levels ordered low < moderate < high so
+  # that d[d$confidence_band >= "moderate", ] keeps moderate AND high rows (not the inverse).
   conf <- out$confidence
   band <- character(n)
   band[!is.na(conf) & conf >= 0.85] <- "high"
   band[!is.na(conf) & conf >= 0.65 & conf < 0.85] <- "moderate"
   band[!is.na(conf) & conf <  0.65] <- "low"
   band[is.na(conf)] <- NA_character_
-  band <- factor(band, levels = c("high", "moderate", "low"), ordered = TRUE)
+  band <- factor(band, levels = c("low", "moderate", "high"), ordered = TRUE)
 
-  # mixed: both positive and negative mass present (bivariate affect signal)
-  mixed <- !is.na(out$prob_pos) & out$prob_pos > 0.25 & out$prob_neg > 0.25
+  # mixed: both positive and negative mass present (bivariate affect). NA-propagating.
+  mixed <- ifelse(is.na(out$prob_pos), NA,
+                  out$prob_pos > 0.25 & out$prob_neg > 0.25)
 
-  # OOD: max cosine similarity to any of the three training class centroids
+  # OOD: the three training class centroids are nearly collinear (~10 deg apart on the
+  # unit sphere), so a max-over-centroids collapses to a projection onto the sentiment
+  # subspace mean. We use that grand-mean projection directly -- honest and faster.
+  # Low values => text unlike natural-language sentiment input (code, noise, numbers).
   cf <- system.file("centroids", paste0(model, ".json"), package = "sentiment.ai")
   if(nzchar(cf) && file.exists(cf)){
     cents    <- jsonlite::fromJSON(cf)
     cent_mat <- rbind(unlist(cents$negative),
                       unlist(cents$neutral),
-                      unlist(cents$positive))    # (3, dim)
-    # embs is (n, dim); embs %*% t(cent_mat) is (n, 3); L2-normalised so dot = cosine
-    ood_sims <- round(as.numeric(apply(embs %*% t(cent_mat), 1, max)), 3)
+                      unlist(cents$positive))      # (3, dim)
+    grand    <- colMeans(cent_mat)
+    grand    <- grand / sqrt(sum(grand^2))         # unit-normalise the subspace mean
+    ood_sims <- round(as.numeric(embs %*% grand), 3)  # embs is L2-normalised -> cosine
     ood_flag <- ood_sims < 0.20
   } else {
     ood_sims <- rep(NA_real_, n)
@@ -104,6 +116,12 @@ sentiment_diagnostics <- function(x               = NULL,
   out$mixed           <- mixed
   out$ood_similarity  <- ood_sims
   out$ood_flag        <- ood_flag
+
+  # blank every column for missing-input rows (mirrors sentiment()'s NA contract)
+  if(length(na_index)){
+    out$ood_similarity[na_index] <- NA_real_
+    out$ood_flag[na_index]       <- NA
+  }
 
   out
 }

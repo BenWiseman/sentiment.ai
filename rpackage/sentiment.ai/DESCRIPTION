@@ -64,6 +64,7 @@ Suggests:
     tensorflow (>= 2.2.0),
     testthat (>= 3.0.0),
     tfhub (>= 0.8.0),
+    irr,
     withr,
     xgboost
 Config/testthat/edition: 3
