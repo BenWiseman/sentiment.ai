@@ -117,10 +117,13 @@ sentiment_diagnostics <- function(x               = NULL,
   out$ood_similarity  <- ood_sims
   out$ood_flag        <- ood_flag
 
-  # blank every column for missing-input rows (mirrors sentiment()'s NA contract)
+  # blank diagnostic columns for missing-input rows (mirrors sentiment()'s NA contract)
   if(length(na_index)){
-    out$ood_similarity[na_index] <- NA_real_
-    out$ood_flag[na_index]       <- NA
+    out$entropy[na_index]          <- NA_real_
+    out$confidence_band[na_index]  <- NA
+    out$mixed[na_index]            <- NA
+    out$ood_similarity[na_index]   <- NA_real_
+    out$ood_flag[na_index]         <- NA
   }
 
   out

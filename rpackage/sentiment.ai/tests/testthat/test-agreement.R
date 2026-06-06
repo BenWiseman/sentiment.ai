@@ -68,5 +68,5 @@ test_that("print.sentiment_agreement runs without error", {
   scores <- c(0.9, -0.7, 0.1, 0.8, -0.9)
   labels <- c(  1,   -1,   0,   1,   -1)
   ag <- sentiment_agreement(scores, labels)
-  expect_invisible(capture.output(print(ag)))
+  expect_invisible(print(ag))
 })

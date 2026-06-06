@@ -35,7 +35,7 @@ test_that("entropy is in [0, log(3)] and confidence_band is an ordered factor", 
   d <- sentiment_diagnostics(c("great","fine","ok"), model = "e5-small")
   expect_true(all(d$entropy >= 0 & d$entropy <= log(3) + 1e-9))
   expect_true(is.ordered(d$confidence_band))
-  expect_true(all(levels(d$confidence_band) == c("high","moderate","low")))
+  expect_true(all(levels(d$confidence_band) == c("low","moderate","high")))
 })
 
 test_that("mixed flag fires when prob_pos and prob_neg are both above 0.25", {
