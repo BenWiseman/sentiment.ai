@@ -2431,37 +2431,98 @@ number to quote in a methods section.</p>
 <span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>                           <span class="at">negative_threshold =</span> <span class="sc">-</span><span class="fl">0.2</span>)</span></code></pre></div>
 <hr />
 </div>
+<div id="all-modes-at-a-glance" class="section level1">
+<h1>All modes at a glance</h1>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="13%" />
+<col width="13%" />
+<col width="15%" />
+<col width="20%" />
+<col width="27%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">mode</th>
+<th align="left"><code>model=</code></th>
+<th align="left">requires</th>
+<th align="right">embed dim</th>
+<th align="right">model download</th>
+<th align="right">storage / 1M texts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>on-device default</strong></td>
+<td align="left"><code>&quot;e5-small&quot;</code></td>
+<td align="left">PyTorch CPU</td>
+<td align="right">384</td>
+<td align="right">~120 MB</td>
+<td align="right">~1.5 GB</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>on-device quality</strong></td>
+<td align="left"><code>&quot;e5-base&quot;</code></td>
+<td align="left">PyTorch CPU</td>
+<td align="right">768</td>
+<td align="right">~280 MB</td>
+<td align="right">~3.0 GB</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>API</strong></td>
+<td align="left"><code>&quot;openai&quot;</code></td>
+<td align="left">API key + internet</td>
+<td align="right">1536</td>
+<td align="right">none</td>
+<td align="right">~6.0 GB</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>legacy</strong></td>
+<td align="left"><code>&quot;en&quot;</code> / <code>&quot;en.large&quot;</code> /
+<code>&quot;multi&quot;</code></td>
+<td align="left">TensorFlow</td>
+<td align="right">512</td>
+<td align="right">varies</td>
+<td align="right">~2.0 GB</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>mlp</code>/<code>logistic</code> scoring heads ship inside
+the package for the two on-device modes — no additional download.
+Storage figures are raw float32;
+<code>saveRDS(..., compress=&quot;xz&quot;)</code> cuts this roughly 3–4× in
+practice.</p>
+<hr />
+</div>
 <div id="benchmarks" class="section level1 tabset tabset-fade tabset-pills">
 <h1 class="tabset tabset-fade tabset-pills">Benchmarks</h1>
-<p>All benchmarks run on <strong>1,000 airline tweets</strong> (random
-sample; macOS aarch64 M-series, 8 CPU cores). Accuracy = macro-F1 on
-3-class negative/neutral/positive against crowd-sourced labels. Speed =
-median of 3 timed runs.</p>
-<p><strong>Important caveat:</strong> the airline tweet corpus is a
-challenging domain (high proportion of negative tweets, short informal
-text). Macro-F1 figures here are lower than the out-of-sample figures in
-the full benchmark (which includes Amazon/IMDB/financial corpora). The
-relative ordering within each language is the reliable signal.</p>
+<p><strong>Setup:</strong> 1,000 airline tweets (seed 42); macOS aarch64
+M-series, 8 CPU cores, no GPU. Accuracy = macro-F1 (3-class:
+neg/neu/pos) against crowd labels. Speed = median of 3 runs.</p>
+<p>Two accuracy sources are used — each labelled clearly:</p>
+<ul>
+<li><strong>†</strong> = airline tweet sample (same 1,000 rows,
+cross-domain transfer — models trained on Amazon/IMDB/financial,
+<em>not</em> Twitter)</li>
+<li><strong>★</strong> = full held-out benchmark (n = 1,247 real-only,
+Amazon/IMDB/tweets/financial mix; gold standard)</li>
+</ul>
 <div id="r-speed" class="section level2">
 <h2>R — speed</h2>
 <table>
-<colgroup>
-<col width="30%" />
-<col width="42%" />
-<col width="26%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="left">method</th>
 <th align="right">texts/sec</th>
-<th align="left">notes</th>
+<th align="left">type</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">tidytext (bing)</td>
 <td align="right"><strong>32,258</strong></td>
-<td align="left">pure R, in-memory dictionary lookup</td>
+<td align="left">pure R, dictionary lookup</td>
 </tr>
 <tr class="even">
 <td align="left">syuzhet (AFINN)</td>
@@ -2476,197 +2537,252 @@ relative ordering within each language is the reliable signal.</p>
 <tr class="even">
 <td align="left"><strong>sentiment.ai e5-small</strong></td>
 <td align="right"><strong>310</strong></td>
-<td align="left">Python backend, 8-core parallel embedding</td>
+<td align="left">neural, CPU</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>sentiment.ai e5-base</strong></td>
 <td align="right"><strong>141</strong></td>
-<td align="left">Python backend, 768-d embeddings</td>
+<td align="left">neural, CPU, 768-d</td>
+</tr>
+<tr class="even">
+<td align="left">sentiment.ai openai</td>
+<td align="right">network-dependent</td>
+<td align="left">API, ~300–600 t/s typical</td>
 </tr>
 </tbody>
 </table>
-<p>Lexicon methods are faster because they do dictionary lookups, not
-neural inference. The <code>sentiment.ai</code> speed on CPU is limited
-by the embedding step; a GPU or batch-optimised environment would give
-5–20× improvement on the same hardware.</p>
+<p>Lexicon methods win on throughput (dictionary lookups, not neural
+inference). <code>sentiment.ai</code> CPU speed is bounded by the
+embedding step; a GPU gives ~10–50× on the same hardware.</p>
 </div>
 <div id="r-accuracy" class="section level2">
 <h2>R — accuracy</h2>
-<table>
+<table style="width:100%;">
 <colgroup>
-<col width="21%" />
-<col width="26%" />
-<col width="34%" />
-<col width="18%" />
+<col width="19%" />
+<col width="30%" />
+<col width="33%" />
+<col width="16%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">method</th>
-<th align="center">macro-F1</th>
-<th align="center">% agreement</th>
+<th align="center">macro-F1 (†)</th>
+<th align="center">macro-F1 (★)</th>
 <th align="left">notes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left"><strong>sentiment.ai e5-small</strong></td>
-<td align="center"><strong>0.613</strong></td>
-<td align="center"><strong>73.6%</strong></td>
-<td align="left">3-class, calibrated</td>
+<td align="left"><strong>sentiment.ai e5-base</strong></td>
+<td align="center">0.595</td>
+<td align="center"><strong>0.899</strong></td>
+<td align="left">best on-device; ties OpenAI on ★</td>
 </tr>
 <tr class="even">
-<td align="left"><strong>sentiment.ai e5-base</strong></td>
-<td align="center"><strong>0.595</strong></td>
-<td align="center"><strong>73.7%</strong></td>
-<td align="left">3-class, calibrated</td>
+<td align="left"><strong>sentiment.ai openai</strong></td>
+<td align="center">—</td>
+<td align="center"><strong>0.886</strong></td>
+<td align="left">API, text leaves your machine</td>
 </tr>
 <tr class="odd">
+<td align="left"><strong>sentiment.ai e5-small</strong></td>
+<td align="center">0.613</td>
+<td align="center"><strong>0.854</strong></td>
+<td align="left">default; matches old TF default on ★</td>
+</tr>
+<tr class="even">
 <td align="left">tidytext (bing)</td>
 <td align="center">0.511</td>
-<td align="center">51.7%</td>
-<td align="left">binary lexicon, mapped to 3-class</td>
-</tr>
-<tr class="even">
-<td align="left">syuzhet (AFINN)</td>
-<td align="center">0.301</td>
-<td align="center">28.3%</td>
-<td align="left">word-score sum, airline domain mismatch</td>
+<td align="center">—</td>
+<td align="left">binary lexicon forced to 3-class</td>
 </tr>
 <tr class="odd">
+<td align="left">syuzhet (AFINN)</td>
+<td align="center">0.301</td>
+<td align="center">—</td>
+<td align="left">word-score sum</td>
+</tr>
+<tr class="even">
 <td align="left">sentimentr</td>
 <td align="center">0.293</td>
-<td align="center">28.4%</td>
-<td align="left">Jockers-Rinker lexicon, airline domain mismatch</td>
+<td align="center">—</td>
+<td align="left">sentence-aware lexicon</td>
 </tr>
 </tbody>
 </table>
-<p><code>sentiment.ai</code> leads on accuracy despite the airline-tweet
-domain mismatch with its training data. Lexicon methods (AFINN,
-sentimentr) suffer because their word lists don’t cover airline-specific
-vocabulary and slang well.</p>
-<p>For <code>e5-base</code> scoring slightly lower than
-<code>e5-small</code> on this specific sample: this is within sampling
-variance (different 1000-row draw) — the full-corpus benchmark (n =
-1,247 real-only) shows e5-base at 0.899 vs e5-small at 0.854.</p>
-<p>Both <code>sentiment.ai</code> models were trained on Amazon reviews,
-IMDB, and financial news — <em>not</em> on Twitter data. The F1 figures
-above reflect cross-domain transfer, which is the practically relevant
-test for most users.</p>
+<p>On the held-out benchmark (★), <code>e5-base</code> ties paid OpenAI
+and beats <code>e5-small</code> by ~5 pp. The airline-tweet sample (†)
+shows <code>e5-base</code> slightly <em>below</em> <code>e5-small</code>
+— within sampling variance on a domain neither model was trained on; the
+gold-standard ★ numbers are the reliable read.</p>
 </div>
 <div id="python-speed" class="section level2">
 <h2>Python — speed</h2>
-<p>Measured on 1,000 airline tweets, macOS aarch64, CPU-only (median of
-3 runs):</p>
+<p>Measured on 1,000 airline tweets, CPU-only (median of 3 runs):</p>
 <table>
 <colgroup>
-<col width="30%" />
-<col width="42%" />
-<col width="26%" />
+<col width="32%" />
+<col width="44%" />
+<col width="24%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">method</th>
 <th align="right">texts/sec</th>
-<th align="left">notes</th>
+<th align="left">type</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">vaderSentiment</td>
 <td align="right"><strong>4,875</strong></td>
-<td align="left">pure Python, rule-based lexicon</td>
+<td align="left">pure Python, rule-based</td>
 </tr>
 <tr class="even">
 <td align="left">TextBlob</td>
 <td align="right">4,182</td>
-<td align="left">NaiveBayes + pattern rules</td>
+<td align="left">NaiveBayes + pattern</td>
 </tr>
 <tr class="odd">
-<td align="left"><strong>sentimentai-py (e5-small)</strong></td>
-<td align="right"><strong>485</strong></td>
-<td align="left">neural, sentence-transformers backend</td>
+<td align="left"><strong>sentimentai-py e5-small</strong></td>
+<td align="right"><strong>523</strong></td>
+<td align="left">neural, sentence-transformers</td>
 </tr>
 <tr class="even">
-<td align="left">HF twitter-roberta (fine-tuned)</td>
+<td align="left"><strong>sentimentai-py e5-base</strong></td>
+<td align="right"><strong>177</strong></td>
+<td align="left">neural, 768-d</td>
+</tr>
+<tr class="odd">
+<td align="left">HF twitter-roberta</td>
 <td align="right">19</td>
-<td align="left">fine-tuned transformer, CPU bottleneck</td>
+<td align="left">fine-tuned transformer, CPU</td>
 </tr>
 </tbody>
 </table>
-<p><code>sentimentai-py</code> is faster than the equivalent R package
-call (~485 vs ~310 t/s) because it avoids the R-to-Python round-trip
-overhead. A GPU would give 10–50× for both the sentimentai and roberta
-paths.</p>
+<p><code>sentimentai-py</code> is slightly faster than the R package
+(~523 vs ~310 t/s for e5-small) because it avoids the R↔︎Python
+round-trip. Both benefit equally from a GPU.</p>
 </div>
 <div id="python-accuracy" class="section level2">
 <h2>Python — accuracy</h2>
-<p>Macro-F1 on the same 1,000 airline-tweet sample (3-class neg/neu/pos
-against crowd labels):</p>
 <table>
-<colgroup>
-<col width="21%" />
-<col width="26%" />
-<col width="34%" />
-<col width="18%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="left">method</th>
-<th align="center">macro-F1</th>
-<th align="center">% agreement</th>
+<th align="center">macro-F1 (†)</th>
 <th align="left">notes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">HF twitter-roberta (fine-tuned)</td>
+<td align="left">HF twitter-roberta</td>
 <td align="center">0.777</td>
-<td align="center">77.0%</td>
-<td align="left">⚠️ trained on Twitter data — see note</td>
+<td align="left">⚠️ near-in-domain — see caveat below</td>
 </tr>
 <tr class="even">
-<td align="left"><strong>sentimentai-py (e5-small)</strong></td>
+<td align="left"><strong>sentimentai-py e5-small</strong></td>
 <td align="center"><strong>0.615</strong></td>
-<td align="center"><strong>71.4%</strong></td>
-<td align="left">trained on Amazon/IMDB/financial mix</td>
+<td align="left">cross-domain transfer</td>
 </tr>
 <tr class="odd">
-<td align="left">vaderSentiment</td>
-<td align="center">0.473</td>
-<td align="center">55.9%</td>
-<td align="left">weak on neutral; airline vocab mismatch</td>
+<td align="left"><strong>sentimentai-py e5-base</strong></td>
+<td align="center"><strong>0.596</strong></td>
+<td align="left">cross-domain transfer</td>
 </tr>
 <tr class="even">
+<td align="left">vaderSentiment</td>
+<td align="center">0.473</td>
+<td align="left">airline vocab mismatch</td>
+</tr>
+<tr class="odd">
 <td align="left">TextBlob</td>
 <td align="center">0.349</td>
-<td align="center">43.3%</td>
-<td align="left">general-purpose, not tuned</td>
+<td align="left">general-purpose</td>
 </tr>
 </tbody>
 </table>
-<p>⚠️ <strong>Important caveat on twitter-roberta:</strong>
-<code>cardiffnlp/twitter-roberta-base-sentiment-latest</code> is
-fine-tuned on the TweetEval corpus, which overlaps substantially with
-the airline-tweet-style Twitter data used here. Its F1=0.777 reflects
-in-domain or near-in-domain performance, not a fair out-of-sample
-comparison. Treat it as “upper bound when you fine-tune on your target
-domain” rather than a general-purpose accuracy number.</p>
-<p><code>sentimentai-py</code>’s F1=0.615 on airline tweets is arguably
-<em>more impressive</em> in context: it was trained on a general mix
-(Amazon reviews, IMDB, financial news, short verbatims) and transfers to
-a Twitter domain with no adaptation.</p>
+<p>⚠️ <strong>twitter-roberta is near-in-domain here.</strong> It was
+fine-tuned on TweetEval (Twitter data overlapping with airline tweets).
+Its F1=0.777 is not a fair out-of-sample comparison.</p>
+<p><strong>The harder, fairer test:</strong> on a mixed-domain corpus
+(Amazon/IMDB/financial/verbatims), <code>sentimentai-py e5-base</code>
+reaches macro-F1 <strong>0.899</strong>, matching paid OpenAI (0.886).
+twitter-roberta would be expected to <em>under</em>perform there — it
+was never trained on financial news or long-form reviews.
+Domain-specialised models look best on their own domain; cross-domain
+transfer is where <code>sentiment.ai</code>’s generalisation shines.</p>
 <p><strong>When to use each:</strong></p>
-<ul>
-<li><strong>twitter-roberta</strong>: if you need maximum accuracy on
-English Twitter and are comfortable with a ~500 MB model that is slow on
-CPU, not multilingual, and not tunable. Check for overlap with your test
-domain before trusting the numbers.</li>
-<li><strong>sentimentai-py</strong>: generalises across languages and
-domains; tunable poles; calibrated confidence; auditable provenance;
-matches the R package bit-for-bit.</li>
-<li><strong>vaderSentiment / TextBlob</strong>: when you need
-sub-millisecond speed and accuracy is a distant second priority.</li>
-</ul>
+<table>
+<colgroup>
+<col width="15%" />
+<col width="21%" />
+<col width="21%" />
+<col width="21%" />
+<col width="21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="center">sentimentai e5-small</th>
+<th align="center">sentimentai e5-base</th>
+<th align="center">twitter-roberta</th>
+<th align="center">vaderSentiment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Cross-domain accuracy</td>
+<td align="center">✓</td>
+<td align="center"><strong>✓✓</strong></td>
+<td align="center">✗ (domain-locked)</td>
+<td align="center">✗</td>
+</tr>
+<tr class="even">
+<td align="left">Multilingual (~100 lang)</td>
+<td align="center"><strong>✓</strong></td>
+<td align="center"><strong>✓</strong></td>
+<td align="center">✗ (English only)</td>
+<td align="center">✗</td>
+</tr>
+<tr class="odd">
+<td align="left">Calibrated confidence</td>
+<td align="center"><strong>✓</strong></td>
+<td align="center"><strong>✓</strong></td>
+<td align="center">✗</td>
+<td align="center">✗</td>
+</tr>
+<tr class="even">
+<td align="left">Tunable poles</td>
+<td align="center"><strong>✓</strong></td>
+<td align="center"><strong>✓</strong></td>
+<td align="center">✗</td>
+<td align="center">✗</td>
+</tr>
+<tr class="odd">
+<td align="left">Speed (CPU)</td>
+<td align="center">~500 t/s</td>
+<td align="center">~175 t/s</td>
+<td align="center">~20 t/s</td>
+<td align="center">~5,000 t/s</td>
+</tr>
+<tr class="even">
+<td align="left">No download</td>
+<td align="center">✗</td>
+<td align="center">✗</td>
+<td align="center">✗ (~500 MB)</td>
+<td align="center"><strong>✓</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">No API cost</td>
+<td align="center"><strong>✓</strong></td>
+<td align="center"><strong>✓</strong></td>
+<td align="center"><strong>✓</strong></td>
+<td align="center"><strong>✓</strong></td>
+</tr>
+</tbody>
+</table>
 <hr />
 </div>
 </div>

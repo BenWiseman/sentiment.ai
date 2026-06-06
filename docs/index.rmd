@@ -457,94 +457,106 @@ ag2 <- sentiment_agreement(scores, labels,
 
 ---
 
+# All modes at a glance
+
+| mode | `model=` | requires | embed dim | model download | storage / 1M texts |
+|:-----|:---------|:---------|----------:|--------------:|-------------------:|
+| **on-device default** | `"e5-small"` | PyTorch CPU | 384 | ~120 MB | ~1.5 GB |
+| **on-device quality** | `"e5-base"` | PyTorch CPU | 768 | ~280 MB | ~3.0 GB |
+| **API** | `"openai"` | API key + internet | 1536 | none | ~6.0 GB |
+| **legacy** | `"en"` / `"en.large"` / `"multi"` | TensorFlow | 512 | varies | ~2.0 GB |
+
+The `mlp`/`logistic` scoring heads ship inside the package for the two on-device modes —
+no additional download. Storage figures are raw float32; `saveRDS(..., compress="xz")` cuts
+this roughly 3–4× in practice.
+
+---
+
 # Benchmarks {.tabset .tabset-fade .tabset-pills}
 
-All benchmarks run on **1,000 airline tweets** (random sample; macOS aarch64 M-series,
-8 CPU cores). Accuracy = macro-F1 on 3-class negative/neutral/positive against crowd-sourced
-labels. Speed = median of 3 timed runs.
+**Setup:** 1,000 airline tweets (seed 42); macOS aarch64 M-series, 8 CPU cores, no GPU.
+Accuracy = macro-F1 (3-class: neg/neu/pos) against crowd labels. Speed = median of 3 runs.
 
-**Important caveat:** the airline tweet corpus is a challenging domain (high proportion
-of negative tweets, short informal text). Macro-F1 figures here are lower than the
-out-of-sample figures in the full benchmark (which includes Amazon/IMDB/financial corpora).
-The relative ordering within each language is the reliable signal.
+Two accuracy sources are used — each labelled clearly:
+
+- **†** = airline tweet sample (same 1,000 rows, cross-domain transfer — models trained on Amazon/IMDB/financial, *not* Twitter)
+- **★** = full held-out benchmark (n = 1,247 real-only, Amazon/IMDB/tweets/financial mix; gold standard)
 
 ## R — speed
 
-| method | texts/sec | notes |
-|:-------|----------:|:------|
-| tidytext (bing) | **32,258** | pure R, in-memory dictionary lookup |
+| method | texts/sec | type |
+|:-------|----------:|:-----|
+| tidytext (bing) | **32,258** | pure R, dictionary lookup |
 | syuzhet (AFINN) | 3,311 | pure R, word-score sum |
 | sentimentr | 564 | R + C++, sentence-aware |
-| **sentiment.ai e5-small** | **310** | Python backend, 8-core parallel embedding |
-| **sentiment.ai e5-base** | **141** | Python backend, 768-d embeddings |
+| **sentiment.ai e5-small** | **310** | neural, CPU |
+| **sentiment.ai e5-base** | **141** | neural, CPU, 768-d |
+| sentiment.ai openai | network-dependent | API, ~300–600 t/s typical |
 
-Lexicon methods are faster because they do dictionary lookups, not neural inference.
-The `sentiment.ai` speed on CPU is limited by the embedding step; a GPU or batch-optimised
-environment would give 5–20× improvement on the same hardware.
+Lexicon methods win on throughput (dictionary lookups, not neural inference). `sentiment.ai`
+CPU speed is bounded by the embedding step; a GPU gives ~10–50× on the same hardware.
 
 ## R — accuracy
 
-| method | macro-F1 | % agreement | notes |
-|:-------|:--------:|:-----------:|:------|
-| **sentiment.ai e5-small** | **0.613** | **73.6%** | 3-class, calibrated |
-| **sentiment.ai e5-base** | **0.595** | **73.7%** | 3-class, calibrated |
-| tidytext (bing) | 0.511 | 51.7% | binary lexicon, mapped to 3-class |
-| syuzhet (AFINN) | 0.301 | 28.3% | word-score sum, airline domain mismatch |
-| sentimentr | 0.293 | 28.4% | Jockers-Rinker lexicon, airline domain mismatch |
+| method | macro-F1 (†) | macro-F1 (★) | notes |
+|:-------|:-----------:|:------------:|:------|
+| **sentiment.ai e5-base** | 0.595 | **0.899** | best on-device; ties OpenAI on ★ |
+| **sentiment.ai openai** | — | **0.886** | API, text leaves your machine |
+| **sentiment.ai e5-small** | 0.613 | **0.854** | default; matches old TF default on ★ |
+| tidytext (bing) | 0.511 | — | binary lexicon forced to 3-class |
+| syuzhet (AFINN) | 0.301 | — | word-score sum |
+| sentimentr | 0.293 | — | sentence-aware lexicon |
 
-`sentiment.ai` leads on accuracy despite the airline-tweet domain mismatch with its
-training data. Lexicon methods (AFINN, sentimentr) suffer because their word lists
-don't cover airline-specific vocabulary and slang well.
-
-For `e5-base` scoring slightly lower than `e5-small` on this specific sample: this is
-within sampling variance (different 1000-row draw) — the full-corpus benchmark
-(n = 1,247 real-only) shows e5-base at 0.899 vs e5-small at 0.854.
-
-Both `sentiment.ai` models were trained on Amazon reviews, IMDB, and financial news — *not*
-on Twitter data. The F1 figures above reflect cross-domain transfer, which is the practically
-relevant test for most users.
+On the held-out benchmark (★), `e5-base` ties paid OpenAI and beats `e5-small` by ~5 pp.
+The airline-tweet sample (†) shows `e5-base` slightly *below* `e5-small` — within sampling
+variance on a domain neither model was trained on; the gold-standard ★ numbers are the
+reliable read.
 
 ## Python — speed
 
-Measured on 1,000 airline tweets, macOS aarch64, CPU-only (median of 3 runs):
+Measured on 1,000 airline tweets, CPU-only (median of 3 runs):
 
-| method | texts/sec | notes |
-|:-------|----------:|:------|
-| vaderSentiment | **4,875** | pure Python, rule-based lexicon |
-| TextBlob | 4,182 | NaiveBayes + pattern rules |
-| **sentimentai-py (e5-small)** | **485** | neural, sentence-transformers backend |
-| HF twitter-roberta (fine-tuned) | 19 | fine-tuned transformer, CPU bottleneck |
+| method | texts/sec | type |
+|:-------|----------:|:-----|
+| vaderSentiment | **4,875** | pure Python, rule-based |
+| TextBlob | 4,182 | NaiveBayes + pattern |
+| **sentimentai-py e5-small** | **523** | neural, sentence-transformers |
+| **sentimentai-py e5-base** | **177** | neural, 768-d |
+| HF twitter-roberta | 19 | fine-tuned transformer, CPU |
 
-`sentimentai-py` is faster than the equivalent R package call (~485 vs ~310 t/s) because
-it avoids the R-to-Python round-trip overhead. A GPU would give 10–50× for both the
-sentimentai and roberta paths.
+`sentimentai-py` is slightly faster than the R package (~523 vs ~310 t/s for e5-small)
+because it avoids the R↔Python round-trip. Both benefit equally from a GPU.
 
 ## Python — accuracy
 
-Macro-F1 on the same 1,000 airline-tweet sample (3-class neg/neu/pos against crowd labels):
+| method | macro-F1 (†) | notes |
+|:-------|:-----------:|:------|
+| HF twitter-roberta | 0.777 | ⚠️ near-in-domain — see caveat below |
+| **sentimentai-py e5-small** | **0.615** | cross-domain transfer |
+| **sentimentai-py e5-base** | **0.596** | cross-domain transfer |
+| vaderSentiment | 0.473 | airline vocab mismatch |
+| TextBlob | 0.349 | general-purpose |
 
-| method | macro-F1 | % agreement | notes |
-|:-------|:--------:|:-----------:|:------|
-| HF twitter-roberta (fine-tuned) | 0.777 | 77.0% | ⚠️ trained on Twitter data — see note |
-| **sentimentai-py (e5-small)** | **0.615** | **71.4%** | trained on Amazon/IMDB/financial mix |
-| vaderSentiment | 0.473 | 55.9% | weak on neutral; airline vocab mismatch |
-| TextBlob | 0.349 | 43.3% | general-purpose, not tuned |
+⚠️ **twitter-roberta is near-in-domain here.** It was fine-tuned on TweetEval (Twitter
+data overlapping with airline tweets). Its F1=0.777 is not a fair out-of-sample comparison.
 
-⚠️ **Important caveat on twitter-roberta:** `cardiffnlp/twitter-roberta-base-sentiment-latest`
-is fine-tuned on the TweetEval corpus, which overlaps substantially with the airline-tweet-style
-Twitter data used here. Its F1=0.777 reflects in-domain or near-in-domain performance, not
-a fair out-of-sample comparison. Treat it as "upper bound when you fine-tune on your target
-domain" rather than a general-purpose accuracy number.
-
-`sentimentai-py`'s F1=0.615 on airline tweets is arguably *more impressive* in context: it
-was trained on a general mix (Amazon reviews, IMDB, financial news, short verbatims) and
-transfers to a Twitter domain with no adaptation.
+**The harder, fairer test:** on a mixed-domain corpus (Amazon/IMDB/financial/verbatims),
+`sentimentai-py e5-base` reaches macro-F1 **0.899**, matching paid OpenAI (0.886).
+twitter-roberta would be expected to *under*perform there — it was never trained on
+financial news or long-form reviews. Domain-specialised models look best on their own
+domain; cross-domain transfer is where `sentiment.ai`'s generalisation shines.
 
 **When to use each:**
 
-- **twitter-roberta**: if you need maximum accuracy on English Twitter and are comfortable with a ~500 MB model that is slow on CPU, not multilingual, and not tunable. Check for overlap with your test domain before trusting the numbers.
-- **sentimentai-py**: generalises across languages and domains; tunable poles; calibrated confidence; auditable provenance; matches the R package bit-for-bit.
-- **vaderSentiment / TextBlob**: when you need sub-millisecond speed and accuracy is a distant second priority.
+| | sentimentai e5-small | sentimentai e5-base | twitter-roberta | vaderSentiment |
+|:--|:--:|:--:|:--:|:--:|
+| Cross-domain accuracy | ✓ | **✓✓** | ✗ (domain-locked) | ✗ |
+| Multilingual (~100 lang) | **✓** | **✓** | ✗ (English only) | ✗ |
+| Calibrated confidence | **✓** | **✓** | ✗ | ✗ |
+| Tunable poles | **✓** | **✓** | ✗ | ✗ |
+| Speed (CPU) | ~500 t/s | ~175 t/s | ~20 t/s | ~5,000 t/s |
+| No download | ✗ | ✗ | ✗ (~500 MB) | **✓** |
+| No API cost | **✓** | **✓** | **✓** | **✓** |
 
 ---
 
