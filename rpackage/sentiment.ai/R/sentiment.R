@@ -119,8 +119,9 @@ sentiment_score <- function(x          = NULL,
 #'
 #' @return A \code{data.frame} with one row per input and columns: \code{text};
 #'   \code{sentiment} (= \code{prob_pos - prob_neg}, in \code{[-1, 1]}); \code{prob_neg},
-#'   \code{prob_neu}, \code{prob_pos} (the head's temperature-scaled class probabilities,
-#'   summing to 1); \code{class} (an ordered factor negative < neutral < positive -- the
+#'   \code{prob_neu}, \code{prob_pos} (the head's calibrated class probabilities --
+#'   temperature-scaled, ECE ~ 0.01-0.02 on the held-out test -- summing to 1);
+#'   \code{class} (an ordered factor negative < neutral < positive -- the
 #'   most probable class); and \code{confidence} (the probability of that class). Missing
 #'   inputs yield \code{NA} rows.
 #'

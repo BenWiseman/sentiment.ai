@@ -32,7 +32,7 @@ sa.sentiment_score(["I love this", "this is terrible"])
 # matters or to triage low-confidence rows.
 sa.sentiment(["I love this", "it's fine", "this is terrible"])
 
-# same head score, plus a nearest-phrase explanation (text/sentiment/phrase/
+# same calibrated score, plus a nearest-phrase explanation (text/sentiment/phrase/
 # class/similarity). Pass tunable poles to define what they mean for your domain,
 # or omit `phrases` for the bundled balanced 40/40 defaults — the score is identical
 # to sentiment_score() either way; poles only shape the explanation.

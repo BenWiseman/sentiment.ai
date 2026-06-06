@@ -131,8 +131,10 @@ sentiment(c("I love this!", "it's fine", "this is terrible"))
 ```
 
 `sentiment` is `prob_pos - prob_neg`; `class` is the most probable of negative / neutral /
-positive; `confidence` is that class's probability. (The probabilities are the head's
-temperature-scaled outputs — a calibration report is on the roadmap, not yet shipped.)
+positive; `confidence` is that class's probability. The probabilities are **calibrated**
+(temperature-scaled): on the held-out test set the expected calibration error is ≈ 0.015,
+so a stated confidence means roughly what it says — see
+[`planning/reliability-report.md`](planning/reliability-report.md).
 
 ## `sentiment_match()`
 

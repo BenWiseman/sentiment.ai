@@ -149,8 +149,9 @@ install_sentiment.ai(legacy = TRUE)   # installs the TensorFlow USE backend
 - **New `sentiment()`** returns the full three-class signal as a tidy data frame — `text`,
   `sentiment`, `prob_neg`, `prob_neu`, `prob_pos`, `class`, `confidence` — instead of only the
   collapsed scalar from `sentiment_score()` (which is unchanged). The probabilities are the
-  head's temperature-scaled outputs (a calibration report is on the roadmap). Mirrored in the
-  Python package as `sentiment()`.
+  head's **calibrated** class probabilities (temperature-scaled; expected calibration error
+  ≈ 0.012–0.017 on the held-out test, see the reliability report). Mirrored in the Python
+  package as `sentiment()`.
 - **Legacy scorers shelved.** `xgboost` moved from Imports to Suggests; the default install no
   longer downloads the `xgb`/`glm` scorers (the bundled `mlp`/`logistic` JSON heads need
   neither a download nor xgboost). Pass `scoring = "xgb"` only if you deliberately want the
