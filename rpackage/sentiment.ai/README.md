@@ -118,7 +118,7 @@ Key arguments: `x` (text or a pre-computed embedding matrix), `model` (default
 
 ## `sentiment_match()`
 
-The **same calibrated `sentiment`** as `sentiment_score()`, plus a nearest-phrase
+The **same `sentiment` score** as `sentiment_score()`, plus a nearest-phrase
 explanation against **tunable poles** — you define what the poles mean for your domain.
 The poles only shape the explanation (`phrase` / `class` / `similarity`), never the score:
 

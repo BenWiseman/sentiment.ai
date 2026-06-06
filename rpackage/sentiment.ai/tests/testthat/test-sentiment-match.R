@@ -107,3 +107,22 @@ test_that("the bundled default poles are the balanced 40/40 shared set", {
     unname(tools::md5sum(system.file("default_poles.json", package = "sentiment.ai"))),
     "8c26694cccf2adcf32c1c9602c33af52")
 })
+
+test_that("a real input equal to a missing-row placeholder is not blanked (regression)", {
+  local_st_fake()
+  testthat::local_mocked_bindings(
+    check_sentiment.ai    = function(...) invisible(NULL),
+    install_scoring_model = function(...) invisible(0),
+    find_sentiment_score  = function(embeddings, ...) tanh(rowMeans(embeddings)),
+    .package = "sentiment.ai"
+  )
+  # row 2 is NA, so its placeholder token is the string "2" -- which equals the genuine
+  # row-1 input. The old text-keyed NA restore blanked BOTH; positional restore must not.
+  res <- sentiment_match(c("2", NA, "ok"),
+                         phrases = list(positive = "great", negative = "terrible"),
+                         model = "e5-small")
+  expect_identical(res$text, c("2", NA, "ok"))
+  expect_true(is.finite(res$sentiment[1]))   # the real "2" row is scored, not blanked
+  expect_true(is.na(res$sentiment[2]))       # the NA row is blanked
+  expect_true(is.finite(res$sentiment[3]))
+})

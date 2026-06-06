@@ -13,3 +13,6 @@ save_default_data.R
 ^bakeoff$
 ^planning$
 ^pubs$
+# dev-only environment/scratch files kept in the repo but not shipped in the tarball
+^get_embedder_v2\.py$
+^m[0-9]+_mbp_requirements\.txt$

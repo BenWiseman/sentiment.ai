@@ -218,22 +218,22 @@ sentiment_match <- function(x        = NULL,
   setkeyv(match_table, c("temp_id"))
 
   # filter to top match, join to sentiment table (and add word:sentiment).
-  # the sentiment column IS the calibrated head score -- pass model/scoring/version
-  # through so the head matches the embedding space (a non-default model embeds at a
-  # different width than the default head would expect).
+  # the sentiment column IS the head score -- pass model/scoring/version through so the
+  # head matches the embedding space (a non-default model embeds at a different width
+  # than the default head would expect).
   sentiments <- sentiment_score(text_embed, model = model,
                                 scoring = scoring, scoring_version = scoring_version)
   match_table[, sentiment := sentiments]
 
-  # add back nas
-  setkeyv(match_table, c("text"))
-  match_table[bad_index, "sentiment"]  <- NA
-  match_table[bad_index, "similarity"] <- NA
-  match_table[bad_index, "phrase"]     <- NA
-  match_table[bad_index, "class"]      <- NA
-  match_table[bad_index, "text"]       <- x_orig
-
+  # add back NA/blank rows BY POSITION (temp_id), never by a text key: the placeholder
+  # token for a missing row is its row index as a string (e.g. "2"), which would
+  # otherwise collide with a genuine input of the same value and blank the wrong row.
   setorderv(match_table, "temp_id")
+  bad_pos <- as.integer(bad_index)
+  if(length(bad_pos)){
+    match_table[bad_pos, c("sentiment", "similarity", "phrase", "class") := NA]
+    match_table[bad_pos, text := x_orig]
+  }
 
   return(match_table[, .(text, sentiment, phrase, class, similarity)])
 }

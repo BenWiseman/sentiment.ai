@@ -102,7 +102,7 @@ def sentiment_match(
     R equivalent: ``sentiment_match(x, phrases, model, scoring, scoring_version, ...)``;
     the returned rows carry the same columns — ``text, sentiment, phrase, class, similarity``.
 
-    The ``sentiment`` value is the **calibrated head score** — identical to
+    The ``sentiment`` value is the **temperature-scaled head score** — identical to
     :func:`sentiment_score` and independent of the poles. The poles only supply the
     *explanation*: each input is matched to its single nearest example phrase, and
     ``class`` (the pole that phrase belongs to) plus ``similarity`` (cosine to it) describe
@@ -130,6 +130,7 @@ def sentiment_match(
     p_emb = embed_text([p for _, p in flat_phrases], model=model,
                        batch_size=batch_size, **kwargs)
     sims = x_emb @ p_emb.T                                                          # (n, n_phrases) cosine
+    np.clip(sims, -1.0, 1.0, out=sims)                                              # guard float overshoot past +-1
 
     out: list[dict] = []
     for r, text in enumerate(texts):

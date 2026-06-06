@@ -122,8 +122,9 @@ install_sentiment.ai(legacy = TRUE)   # installs the TensorFlow USE backend
   continue to resolve to the legacy backend, so **your numbers don't silently change** if you
   pin to those models.
 - **Each legacy USE model has a no-TensorFlow replacement at or above the old USE default's
-  accuracy.** On the legacy model we benchmarked (USE-large, 0.832), every shipped no-TF option
-  meets or beats it, so for new work there is a TF-free option that does not cost you accuracy:
+  accuracy.** On the legacy model we benchmarked (USE-large, 0.832 macro-F1), every shipped
+  no-TF option matches or exceeds it on that test split, so for new work there is a TF-free
+  option that does not cost you accuracy:
 
   | Legacy USE model | TF-free replacement | Macro-F1 |
   |------------------|---------------------|----------|
@@ -145,7 +146,7 @@ install_sentiment.ai(legacy = TRUE)   # installs the TensorFlow USE backend
   install the legacy backend (`install_sentiment.ai(legacy = TRUE)`) and name a USE model
   explicitly (e.g. `model = "en.large"`).
 - The default install no longer pulls in TensorFlow, `tensorflow-text`, or the old version pins.
-- `sentiment_match()` is now first-class: its `sentiment` column is the same calibrated score
+- `sentiment_match()` is now first-class: its `sentiment` column is the same score
   as `sentiment_score()`, and the context-tunable poles only drive the nearest-phrase
   explanation. The output columns are `text`, `sentiment`, `phrase`, `class`, `similarity`
   (the old `pole` column is now `class`, and `similarity` is new). It ships a curated, balanced

@@ -201,7 +201,7 @@ sentiment_score(c("Will you marry me?", "Oh, you're breaking up with me..."))
 
 ## `sentiment_match()`
 
-The **same calibrated `sentiment`** as `sentiment_score()`, plus a nearest-phrase
+The **same `sentiment` score** as `sentiment_score()`, plus a nearest-phrase
 explanation against **tunable poles** — you decide what the poles mean for your domain.
 The poles only shape the explanation (`phrase` / `class` / `similarity`), never the score:
 

@@ -72,7 +72,8 @@ embed_topics <- function(phrases = NULL,
   return(list(embeddings = mx_embed, lookup = lookup))
 }
 
-#' internal function to handle tfhub embeddings
+#' Internal: handle tfhub (legacy USE) embeddings.
+#' @noRd
 hub_embed <- function(text, batch_size = NULL) {
 
   if(is.null(batch_size)){
