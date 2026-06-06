@@ -15,6 +15,7 @@ install_sentiment.ai(
   modules = NULL,
   fresh_install = TRUE,
   restart_session = TRUE,
+  fast = NA,
   ...
 )
 
@@ -65,6 +66,12 @@ the environment first.}
 
 \item{restart_session}{Whether to restart the R session after finishing
 installation. Only works on Rstudio.}
+
+\item{fast}{Use \code{uv} (if installed) to create the virtualenv and install the
+dependencies in one fast step, instead of pip. \code{NA} (default) uses \code{uv}
+automatically when it is on the \code{PATH}; \code{TRUE} forces it; \code{FALSE}
+always uses the standard pip installer. If the fast path does not complete it
+falls back to the standard installer, so it is always safe to leave on.}
 
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda_install]{conda_install()}}
 or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}

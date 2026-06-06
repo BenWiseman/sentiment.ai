@@ -18,6 +18,11 @@
 #'        the environment first.
 #' @param restart_session Whether to restart the R session after finishing
 #'        installation. Only works on Rstudio.
+#' @param fast Use \code{uv} (if installed) to create the virtualenv and install the
+#'        dependencies in one fast step, instead of pip. \code{NA} (default) uses \code{uv}
+#'        automatically when it is on the \code{PATH}; \code{TRUE} forces it; \code{FALSE}
+#'        always uses the standard pip installer. If the fast path does not complete it
+#'        falls back to the standard installer, so it is always safe to leave on.
 #' @param model character; embedding model handle for \code{init_sentiment.ai}:
 #'        \code{"e5-small"} (default, 384-d, multilingual, on-device, no TensorFlow),
 #'        \code{"e5-base"} (768-d), \code{"openai"} (text-embedding-3-small, paid API),
@@ -108,6 +113,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                                  modules = NULL,
                                  fresh_install   = TRUE,
                                  restart_session = TRUE,
+                                 fast    = NA,
                                  ...){
 
   method <- match.arg(method)
@@ -172,35 +178,59 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
 
   # 3. install everything ------------------------------------------------------
 
-
-
-  # if fresh install, create environment first
-  if(fresh_install){
-    switch(
-      EXPR       = method,
-      virtualenv = {
-        check_virtualenv_py(envname = envname, version = python_version, ...)
-        if(envname %ni% as.character(reticulate::virtualenv_list()) ){
-          # if had to install py first
-          reticulate::virtualenv_create(envname = envname, version = python_version, ...)
-        }
-        },
-      conda      = reticulate::conda_create(envname = envname,python_version = python_version,...)
-    )
-  } else{
-    message("Because 'fresh_install = FALSE', not creating environment before installing.\n",
-            "Only do this if you know what you are doing, as you might have conflicting\n",
-            "installations and/or reticulate might not be able to find the correct environment.")
+  # FAST PATH (auto when uv is on the PATH; force with fast = TRUE, skip with fast = FALSE):
+  # let uv create the named virtualenv AND install the (torch-sized) stack in one shot --
+  # far quicker than pip. It is a normal named virtualenv, activated the usual way (NOT a
+  # reticulate ephemeral env). We then VERIFY the key package landed; any failure (or a
+  # missing package) falls straight through to the standard installer below, so the fast
+  # path can never leave you worse off than the proven one.
+  installed_via_uv <- FALSE
+  use_uv <- fresh_install && method == "virtualenv" &&
+            (isTRUE(fast) || (is.na(fast) && .uv_available()))
+  if(use_uv){
+    installed_via_uv <- tryCatch({
+      message("Setting up the '", envname, "' backend with uv (fast)...")
+      reticulate::virtualenv_create(envname = envname, version = python_version,
+                                    packages = modules_vers, module = "uv")
+      pkgs <- tryCatch(tolower(reticulate::py_list_packages(envname)$package),
+                       error = function(e) character(0))
+      if(!"sentence-transformers" %in% pkgs)
+        stop("uv created the environment but the expected packages are missing")
+      TRUE
+    }, error = function(e){
+      message("Fast (uv) setup did not complete (", conditionMessage(e),
+              ") -- falling back to the standard installer."); FALSE })
   }
 
-  reticulate::py_install(
-    packages       = modules_vers,
-    envname        = envname,
-    method         = method,
-    python_version = python_version,
-    pip            = TRUE,
-    ...
-  )
+  if(!installed_via_uv){
+    # if fresh install, create environment first
+    if(fresh_install){
+      switch(
+        EXPR       = method,
+        virtualenv = {
+          check_virtualenv_py(envname = envname, version = python_version, ...)
+          if(envname %ni% as.character(reticulate::virtualenv_list()) ){
+            # if had to install py first
+            reticulate::virtualenv_create(envname = envname, version = python_version, ...)
+          }
+          },
+        conda      = reticulate::conda_create(envname = envname,python_version = python_version,...)
+      )
+    } else{
+      message("Because 'fresh_install = FALSE', not creating environment before installing.\n",
+              "Only do this if you know what you are doing, as you might have conflicting\n",
+              "installations and/or reticulate might not be able to find the correct environment.")
+    }
+
+    reticulate::py_install(
+      packages       = modules_vers,
+      envname        = envname,
+      method         = method,
+      python_version = python_version,
+      pip            = TRUE,
+      ...
+    )
+  }
 
   message("Successfully created ", method, " environment: ", envname)
 
@@ -488,16 +518,80 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
 check_sentiment.ai <- function(...){
 
   if(is.null(sentiment.ai::sentiment.env$embed)){
+
+    # First use this session. If the backend isn't set up yet, walk an INTERACTIVE user
+    # through the one-time setup; in a non-interactive session (scripts, R CMD check, CI)
+    # never auto-install -- just give the clear instruction.
+    dots    <- list(...)
+    envname <- if(!is.null(dots$envname)) dots$envname else "r-sentiment-ai"
+    if(!.backend_ready(envname)){
+      did_setup <- if(interactive()) setup_sentiment.ai() else FALSE
+      if(!isTRUE(did_setup)){
+        stop("the sentiment.ai Python backend is not set up. Run install_sentiment.ai() ",
+             "once (TensorFlow-free) to set it up, then try again.", call. = FALSE)
+      }
+    }
+
     message("sentiment.ai: loading the model on first use (a few seconds)...")
     init_sentiment.ai(...)
-  } else{
-    # commented out for now - this may get annoying for users to see every time
-    # ...especially if they *apply instead of passing in a vector for some reason!
-    # message("sentiment.env$embed found in environment.\n",
-    #         "To change model, call init_sentiment.ai().")
   }
 
-  return(NULL)
+  return(invisible(NULL))
+}
+
+# Is the named Python backend already set up (a virtualenv or conda env of that name)?
+.backend_ready <- function(envname = "r-sentiment-ai"){
+  tryCatch(
+    envname %in% as.character(reticulate::virtualenv_list()) ||
+      envname %in% tryCatch(as.character(reticulate::conda_list()$name),
+                            error = function(e) character(0)),
+    error = function(e) FALSE)
+}
+
+# Is uv (the fast Python installer) on the PATH?
+.uv_available <- function() nzchar(Sys.which("uv"))
+
+#' Interactive first-run setup for the Python backend
+#'
+#' @description A friendly walkthrough for the one-time, TensorFlow-free Python setup. It
+#' runs automatically the first time you score text in an \emph{interactive} session if the
+#' backend is not ready, and you can also call it yourself. In a non-interactive session it
+#' does nothing (call \code{\link{install_sentiment.ai}} directly in scripts). When
+#' \code{uv} is available it is used for a much faster install.
+#'
+#' @return Invisibly \code{TRUE} if the backend was set up, otherwise \code{FALSE}.
+#' @examples
+#' \dontrun{
+#'   setup_sentiment.ai()
+#' }
+#' @export
+setup_sentiment.ai <- function(){
+  if(!interactive()){
+    message("sentiment.ai: run install_sentiment.ai() once to set up the backend ",
+            "(non-interactive session -- not auto-installing).")
+    return(invisible(FALSE))
+  }
+
+  fast <- .uv_available()
+  choice <- utils::menu(
+    choices = c(
+      paste0("Quick setup  (recommended", if(fast) " -- fast, via uv" else "", ")"),
+      "Use conda instead of a virtualenv",
+      "Also include the legacy TensorFlow USE models",
+      "Just show me the command to run myself",
+      "Not now"),
+    title = paste0("sentiment.ai needs a one-time Python setup (TensorFlow-free; ",
+                   "downloads a few hundred MB).\nHow would you like to proceed?"))
+
+  done <- switch(as.character(choice),
+    "1" = { install_sentiment.ai(restart_session = FALSE); TRUE },
+    "2" = { install_sentiment.ai(method = "conda", restart_session = FALSE); TRUE },
+    "3" = { install_sentiment.ai(legacy = TRUE, restart_session = FALSE); TRUE },
+    "4" = { message("Run this once (TensorFlow-free):\n  install_sentiment.ai()\n",
+                    "  # add method = \"conda\" or legacy = TRUE if you want those"); FALSE },
+    FALSE)
+
+  invisible(isTRUE(done))
 }
 
 # 3. HELPER FUNCTIONS ==========================================================

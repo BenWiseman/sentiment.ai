@@ -22,6 +22,42 @@ test_that(".activate_env passes envname and has no invalid assign(pos = -2) fail
                label = "assign(pos = -2) must not reappear in .activate_env")
 })
 
+test_that(".backend_ready reflects whether the named env exists", {
+  testthat::local_mocked_bindings(
+    .package = "reticulate",
+    virtualenv_list = function(...) c("r-sentiment-ai", "other"),
+    conda_list      = function(...) data.frame(name = "base", stringsAsFactors = FALSE))
+  expect_true(sentiment.ai:::.backend_ready("r-sentiment-ai"))  # virtualenv
+  expect_true(sentiment.ai:::.backend_ready("base"))            # conda
+  expect_false(sentiment.ai:::.backend_ready("nope"))
+})
+
+test_that("setup_sentiment.ai is a script-safe no-op (FALSE) when non-interactive", {
+  # tests run non-interactively -> the walkthrough must not prompt or install
+  expect_false(suppressMessages(setup_sentiment.ai()))
+})
+
+test_that("check_sentiment.ai errors (never auto-installs) when backend missing + non-interactive", {
+  senv <- get("sentiment.env", envir = asNamespace("sentiment.ai"))
+  old <- senv$embed; senv$embed <- NULL; withr::defer(senv$embed <- old)
+  testthat::local_mocked_bindings(.backend_ready = function(...) FALSE,
+                                  .package = "sentiment.ai")
+  expect_error(suppressMessages(sentiment.ai:::check_sentiment.ai()),
+               "install_sentiment.ai")
+})
+
+test_that("check_sentiment.ai inits (no setup prompt) when the backend is ready", {
+  senv <- get("sentiment.env", envir = asNamespace("sentiment.ai"))
+  old <- senv$embed; senv$embed <- NULL; withr::defer(senv$embed <- old)
+  flag <- new.env(); flag$init <- FALSE
+  testthat::local_mocked_bindings(
+    .backend_ready    = function(...) TRUE,
+    init_sentiment.ai = function(...) { flag$init <- TRUE; invisible(NULL) },
+    .package = "sentiment.ai")
+  suppressMessages(sentiment.ai:::check_sentiment.ai())
+  expect_true(flag$init)
+})
+
 test_that(".autoinit_envname parses the sentiment.ai.autoinit opt-in", {
   # off -> NULL (no eager init on attach)
   expect_null(sentiment.ai:::.autoinit_envname(""))
