@@ -11,14 +11,20 @@
 }
 
 .onLoad <- function(libname, pkgname){
-  # If the user has options(sentiment.ai.model = "e5-base") in their .Rprofile,
-  # honour it by updating DEFAULT_MODEL before any function default is evaluated.
-  user_model <- getOption("sentiment.ai.model", NULL)
-  if(!is.null(user_model) && nzchar(user_model)){
-    ns <- asNamespace(pkgname)
-    unlockBinding("DEFAULT_MODEL", ns)
-    assign("DEFAULT_MODEL", as.character(user_model), envir = ns)
-    lockBinding("DEFAULT_MODEL", ns)
+  ns <- asNamespace(pkgname)
+  # Honour options(sentiment.ai.model) and options(sentiment.ai.scoring)
+  # set in .Rprofile — update the package constants before any function
+  # default is evaluated.
+  for(pair in list(
+    list(opt = "sentiment.ai.model",   const = "DEFAULT_MODEL"),
+    list(opt = "sentiment.ai.scoring", const = "DEFAULT_SCORING")
+  )){
+    val <- getOption(pair$opt, NULL)
+    if(!is.null(val) && nzchar(val)){
+      unlockBinding(pair$const, ns)
+      assign(pair$const, as.character(val), envir = ns)
+      lockBinding(pair$const, ns)
+    }
   }
 }
 

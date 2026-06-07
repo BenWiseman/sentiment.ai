@@ -627,6 +627,112 @@ check_sentiment.ai <- function(...){
     error = function(e) FALSE)
 }
 
+#' Change sentiment.ai defaults after the initial setup
+#'
+#' @description A post-install configuration wizard that lets you change the
+#' default embedding model, scoring head, and performance tier at any time —
+#' equivalent to running `setup_sentiment.ai()` again but without reinstalling
+#' the Python backend. Use this whenever you want to switch to a faster,
+#' heavier, or more accurate configuration.
+#'
+#' @details
+#' Three preset tiers are offered:
+#' \describe{
+#'   \item{Lightweight}{Logistic JSON head — smallest, fastest scoring; best
+#'     when you need to score millions of texts and memory is tight.}
+#'   \item{Balanced (default)}{MLP JSON head — the shipped default. Good accuracy
+#'     with no extra download.}
+#'   \item{Maximum accuracy}{XGBoost head — best accuracy; requires
+#'     \code{xgboost} package and downloads the model file on first use.}
+#' }
+#' You can also configure the embedding model (\code{e5-small} vs \code{e5-base})
+#' independently of the scoring tier.
+#'
+#' Settings are written to \code{options()} for the session. Add the suggested
+#' \code{options()} lines to your \code{.Rprofile} to make them permanent.
+#'
+#' @return Invisibly \code{TRUE} if any setting was changed, otherwise
+#'   \code{FALSE}.
+#' @examples
+#' \dontrun{
+#'   configure_sentiment.ai()
+#' }
+#' @export
+configure_sentiment.ai <- function(){
+  if(!interactive()){
+    message("configure_sentiment.ai() is interactive — ",
+            "set options() directly in non-interactive sessions:\n",
+            "  options(sentiment.ai.model   = 'e5-base')\n",
+            "  options(sentiment.ai.scoring = 'xgb')    # requires xgboost pkg")
+    return(invisible(FALSE))
+  }
+
+  changed <- FALSE
+
+  # ---- Model choice ---------------------------------------------------------
+  current_model   <- getOption("sentiment.ai.model",   DEFAULT_MODEL)
+  current_scoring <- getOption("sentiment.ai.scoring", "mlp")
+
+  model_choice <- utils::menu(
+    choices = c(
+      paste0("e5-small  (default, fast ~310 t/s CPU; current: ",
+             if(current_model=="e5-small") "ACTIVE" else "inactive", ")"),
+      paste0("e5-base   (best accuracy ~141 t/s CPU; current: ",
+             if(current_model=="e5-base")  "ACTIVE" else "inactive", ")")),
+    title   = "Which embedding model would you like to use by default?")
+
+  chosen_model <- switch(as.character(model_choice),
+    "1" = "e5-small", "2" = "e5-base", NULL)
+  if(!is.null(chosen_model) && chosen_model != current_model){
+    .set_default_model(chosen_model)
+    changed <- TRUE
+    message("  Model set to '", chosen_model, "'.")
+  }
+
+  # ---- Scoring tier ---------------------------------------------------------
+  scoring_choice <- utils::menu(
+    choices = c(
+      paste0("Balanced — MLP JSON head  (default, shipped in package; current: ",
+             if(current_scoring=="mlp")      "ACTIVE" else "inactive", ")"),
+      paste0("Lightweight — Logistic JSON head  (fastest; current: ",
+             if(current_scoring=="logistic") "ACTIVE" else "inactive", ")"),
+      paste0("Maximum accuracy — XGBoost  (best F1; downloads on first use; current: ",
+             if(current_scoring=="xgb")      "ACTIVE" else "inactive", ")")),
+    title = paste0(
+      "Which scoring tier would you like?\n",
+      "  MLP: ships in the package, no download.  XGBoost: stronger, ~1MB download per model."))
+
+  chosen_scoring <- switch(as.character(scoring_choice),
+    "1" = "mlp", "2" = "logistic", "3" = "xgb", NULL)
+
+  if(!is.null(chosen_scoring)){
+    if(chosen_scoring == "xgb" && !requireNamespace("xgboost", quietly = TRUE)){
+      message("  The xgboost package is required for the XGBoost tier.\n",
+              "  Install it with: install.packages('xgboost')")
+      chosen_scoring <- NULL
+    }
+  }
+
+  if(!is.null(chosen_scoring) && chosen_scoring != current_scoring){
+    .set_default_scoring(chosen_scoring)
+    changed <- TRUE
+    message("  Scoring set to '", chosen_scoring, "'.")
+  }
+
+  # ---- Persist hint ---------------------------------------------------------
+  if(changed){
+    final_model   <- getOption("sentiment.ai.model",   DEFAULT_MODEL)
+    final_scoring <- getOption("sentiment.ai.scoring", "mlp")
+    message("\nTo make these permanent, add to your .Rprofile:\n",
+            "  options(sentiment.ai.model   = \"", final_model,   "\")\n",
+            "  options(sentiment.ai.scoring = \"", final_scoring, "\")")
+  } else {
+    message("No changes made.")
+  }
+
+  invisible(changed)
+}
+
 # Is uv (the fast Python installer) on the PATH?
 .uv_available <- function() nzchar(Sys.which("uv"))
 
@@ -729,6 +835,16 @@ setup_sentiment.ai <- function(){
   lockBinding("DEFAULT_MODEL", ns)
   options(sentiment.ai.model = model)
   invisible(model)
+}
+
+.set_default_scoring <- function(scoring){
+  scoring <- match.arg(scoring[1], choices = c("mlp","logistic","xgb","glm"))
+  ns <- asNamespace("sentiment.ai")
+  unlockBinding("DEFAULT_SCORING", ns)
+  assign("DEFAULT_SCORING", scoring, envir = ns)
+  lockBinding("DEFAULT_SCORING", ns)
+  options(sentiment.ai.scoring = scoring)
+  invisible(scoring)
 }
 
 # 3. HELPER FUNCTIONS ==========================================================

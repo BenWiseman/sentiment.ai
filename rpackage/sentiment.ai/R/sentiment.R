@@ -49,7 +49,7 @@
 #' @export
 sentiment_score <- function(x          = NULL,
                             model      = DEFAULT_MODEL,
-                            scoring    = c("mlp", "logistic", "xgb", "glm"),
+                            scoring    = DEFAULT_SCORING,
                             scoring_version = "1.0",
                             batch_size = 100,
                             head_path  = NULL,
@@ -141,7 +141,7 @@ sentiment_score <- function(x          = NULL,
 #' @export
 sentiment <- function(x               = NULL,
                       model           = DEFAULT_MODEL,
-                      scoring         = c("mlp", "logistic"),
+                      scoring         = DEFAULT_SCORING,
                       scoring_version = "1.0",
                       batch_size      = 100,
                       head_path       = NULL,
@@ -247,9 +247,9 @@ sentiment <- function(x               = NULL,
 sentiment_match <- function(x        = NULL,
                             phrases  = NULL,
                             model    = names(default_models),
-                            scoring    = c("mlp", "logistic", "xgb", "glm"),
+                            scoring         = DEFAULT_SCORING,
                             scoring_version = "1.0",
-                            batch_size = 100,
+                            batch_size      = 100,
                             ...){
 
   # fix global variable declaration for using data.table (to pass CRAN checks)

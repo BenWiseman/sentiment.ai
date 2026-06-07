@@ -7,7 +7,7 @@
 sentiment(
   x = NULL,
   model = DEFAULT_MODEL,
-  scoring = c("mlp", "logistic"),
+  scoring = DEFAULT_SCORING,
   scoring_version = "1.0",
   batch_size = 100,
   head_path = NULL,

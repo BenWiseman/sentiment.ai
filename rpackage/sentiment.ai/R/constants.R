@@ -36,6 +36,10 @@ model_prefix <- c(`e5-small` = "query: ", `e5-base` = "query: ")
 # Default model when none is supplied.
 DEFAULT_MODEL <- "e5-small"
 
+# Default scoring head when none is supplied.
+# Overridable via options(sentiment.ai.scoring = "xgb") — picked up in .onLoad.
+DEFAULT_SCORING <- "mlp"
+
 # Helper: which backend class does a (user-facing) model name belong to?
 model_class <- function(model) {
   model <- model[1]

@@ -8,7 +8,7 @@ sentiment_match(
   x = NULL,
   phrases = NULL,
   model = names(default_models),
-  scoring = c("mlp", "logistic", "xgb", "glm"),
+  scoring = DEFAULT_SCORING,
   scoring_version = "1.0",
   batch_size = 100,
   ...

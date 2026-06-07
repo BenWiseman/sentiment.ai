@@ -16,6 +16,7 @@ install_sentiment.ai(
   fresh_install = TRUE,
   restart_session = TRUE,
   fast = NA,
+  pin_versions = NA,
   ...
 )
 
