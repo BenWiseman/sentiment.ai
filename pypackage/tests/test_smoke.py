@@ -5,11 +5,11 @@ import sentimentai
 
 
 def test_imports_and_registry():
-    assert sentimentai.DEFAULT_MODEL == "e5-small"
-    assert "e5-base" in sentimentai.BACKENDS
+    assert sentimentai.DEFAULT_MODEL == "e5-base"
+    assert "e5-small" in sentimentai.BACKENDS
     assert "openai" in sentimentai.BACKENDS
     # default is on-device, multilingual, and TF-free
-    assert sentimentai.BACKENDS["e5-small"].needs_tf is False
+    assert sentimentai.BACKENDS["e5-base"].needs_tf is False
     # legacy USE variants are opt-in (require TF)
     assert sentimentai.BACKENDS["multi.large"].needs_tf is True
 

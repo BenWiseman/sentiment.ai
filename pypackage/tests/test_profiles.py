@@ -30,7 +30,7 @@ def isolated_config(tmp_path, monkeypatch):
 
 
 def test_use_profile_persists_default(isolated_config):
-    assert P.get_default_model() == "e5-small"          # lightest fallback
+    assert P.get_default_model() == "e5-base"           # multilingual (default) fallback
     assert P.use_profile("multilingual") == "e5-base"
     assert P.get_default_model() == "e5-base"            # persisted + read back
     P.use_profile("max-english")

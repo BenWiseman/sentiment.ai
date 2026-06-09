@@ -31,12 +31,12 @@ BACKENDS: dict[str, Backend] = {
         "e5-small", "intfloat/multilingual-e5-small", 384,
         "sentence-transformers", False, "",
         "614241f622f53c4eeff9890bdc4f31cfecc418b3",
-        "DEFAULT — tiny, fast, ~100 languages, no TensorFlow"),
+        "tiny, fast, ~100 languages, no TensorFlow (the lighter option)"),
     "e5-base": Backend(
         "e5-base", "intfloat/multilingual-e5-base", 768,
         "sentence-transformers", False, "",
         "d128750597153bb5987e10b1c3493a34e5a4502a",
-        "best on-device — ties OpenAI, ~100 languages, no TensorFlow"),
+        "DEFAULT: best on-device, ties OpenAI, ~100 languages, no TensorFlow"),
     "openai": Backend(
         "openai", None, 1536,
         "openai", False, "", None,
@@ -67,7 +67,7 @@ BACKENDS: dict[str, Backend] = {
         "tfhub-legacy", True, "", None, "legacy USE-multi (TF) -> migrate to e5-small"),
 }
 
-DEFAULT_MODEL = "e5-small"
+DEFAULT_MODEL = "e5-base"
 
 # accept the raw OpenAI id as well as the "openai" shorthand, so the same handle
 # works in both the R and Python packages. The OpenAI backend here is

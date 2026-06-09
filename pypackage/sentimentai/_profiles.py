@@ -38,7 +38,7 @@ PROFILES: dict[str, dict] = {
         "desc": "Highest multilingual accuracy (XLM-R). Sentiment only — no flags. ~1GB download.",
     },
 }
-DEFAULT_PROFILE = "lightest"
+DEFAULT_PROFILE = "multilingual"
 
 
 def _config_path() -> Path:
