@@ -1,4 +1,4 @@
-# sentiment.ai 1.1.0
+# sentiment.ai 2.0.0
 
 Turns the v2 scorer into a full toolkit: safety/style flags, intent-based profiles,
 opt-in transformer backends, and an interactive sentiment map. All mirrored in the Python

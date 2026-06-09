@@ -60,8 +60,9 @@ sentiment_profiles <- function(){
 #' [sentiment()] and [sentiment_match()]. Profiles:
 #' \describe{
 #'   \item{\code{"lightest"}}{e5-small -- tiny, on-device, multilingual, with the
-#'     hate/mixed/style flags. The package default.}
-#'   \item{\code{"multilingual"}}{e5-base -- stronger on-device multilingual, with flags.}
+#'     hate/mixed/style flags. Lighter and faster than the default.}
+#'   \item{\code{"multilingual"}}{e5-base -- best on-device quality, ~100 languages, with
+#'     flags. The package default.}
 #'   \item{\code{"max-english"}}{twitter-roberta -- best English accuracy, sentiment only
 #'     (opt-in ~500MB transformer, no flags).}
 #'   \item{\code{"max-multilingual"}}{xlm-roberta -- best multilingual accuracy, sentiment

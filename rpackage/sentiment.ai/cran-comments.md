@@ -1,4 +1,4 @@
-## Submission — sentiment.ai 1.1.0
+## Submission — sentiment.ai 2.0.0
 
 This is a feature release on top of the TensorFlow-free v2 backend. It adds:
 

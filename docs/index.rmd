@@ -190,7 +190,7 @@ Some real scores from the default model. It reads context, not just keywords:
 | my absolute favorite until they gave me food poisoning | **−0.96** |
 | What a great car. It stopped working after a week. | **−0.52** |
 
-(Default `e5-small`. Note "**a blast** on my trip" vs "**The blast** in Nagasaki".
+(Default `e5-base`. Note "**a blast** on my trip" vs "**The blast** in Nagasaki".
 Scoring is deterministic; `sentiment_provenance()` logs exactly what produced each score.)
 
 ---
