@@ -13,10 +13,12 @@
 #'        -- small pure-R JSON heads bundled in the package (no xgboost, no
 #'        TensorFlow at score time). \code{"xgb"}/\code{"glm"} are still accepted for
 #'        legacy heads but are not the default.
-#' @param scoring_version The scoring version to use, currently only 1.0, but
-#'        other versions might be supported in the future.
+#' @param scoring_version Scoring head version: \code{"2.0"} (default, improved
+#'        calibration) or \code{"1.0"} (legacy). Both ship inside the package.
 #' @param batch_size Size of batches to use. Larger numbers will be faster than
 #'        smaller numbers, but do not exhaust your system memory!
+#' @param head_path optional path to a custom JSON scoring head, bypassing the bundled
+#'        heads. For advanced use (e.g. scoring with a head you trained yourself).
 #'
 #' @return numeric vector, one score per element of \code{x}, rescaled to
 #'         \code{[-1, 1]} (about 1 = positive, about -1 = negative).
@@ -50,14 +52,14 @@
 sentiment_score <- function(x          = NULL,
                             model      = DEFAULT_MODEL,
                             scoring    = DEFAULT_SCORING,
-                            scoring_version = "1.0",
+                            scoring_version = c("2.0", "1.0"),
                             batch_size = 100,
                             head_path  = NULL,
                             ...){
 
   # setup everything (don't use arg.match for model ...)
   model           <- model[1]
-  scoring         <- match.arg(scoring)
+  scoring         <- match.arg(scoring, c("mlp", "logistic", "xgb", "glm"))
   scoring_version <- match.arg(scoring_version)
 
   # if x is missing, return NOTHING
@@ -67,6 +69,20 @@ sentiment_score <- function(x          = NULL,
 
   # replace missing values with index numbers (can't handle missing)
   na_index    <- which(is.na(x))
+
+  # opt-in end-to-end transformer classifier (RoBERTa / XLM-R): no embedding and no
+  # JSON head -- the transformer returns neg/neu/pos directly, collapsed here to the
+  # same [-1, 1] score. A precomputed embedding matrix is meaningless for this backend.
+  if(model_class(model) == "classifier"){
+    if(!is.character(x))
+      stop("model '", model, "' is an end-to-end classifier; pass text, not a ",
+           "precomputed embedding matrix.", call. = FALSE)
+    x[na_index] <- as.character(na_index)
+    p      <- classifier_probs(x, model, ...)
+    scores <- unname(p[, "prob_pos"] - p[, "prob_neg"])
+    scores[na_index] <- NA
+    return(scores)
+  }
 
   # calculate text embeddings if x is text
   # else if x looks like numeric embedding matrix, pass it through as-is
@@ -142,7 +158,7 @@ sentiment_score <- function(x          = NULL,
 sentiment <- function(x               = NULL,
                       model           = DEFAULT_MODEL,
                       scoring         = DEFAULT_SCORING,
-                      scoring_version = "1.0",
+                      scoring_version = c("2.0", "1.0"),
                       batch_size      = 100,
                       head_path       = NULL,
                       ...){
@@ -151,12 +167,43 @@ sentiment <- function(x               = NULL,
     stop("scoring = '", scoring[1], "' is a legacy scalar head that lacks the 3-class ",
          "probability mass required by sentiment(). Use scoring = 'mlp' (default) or ",
          "'logistic' instead.", call. = FALSE)
-  scoring <- match.arg(scoring)
+  scoring <- match.arg(scoring, c("mlp", "logistic", "xgb", "glm"))
   scoring_version <- match.arg(scoring_version)
 
   if(is.null(x)) return(NULL)
 
   na_index <- which(is.na(x))
+
+  # opt-in end-to-end transformer classifier: the 3-class probabilities come straight
+  # from the transformer (no embedding, no JSON head, and no e5 hate/mixed/style flags,
+  # which need the embedding space).
+  if(model_class(model) == "classifier"){
+    if(!is.character(x))
+      stop("model '", model, "' is an end-to-end classifier; pass text, not a ",
+           "precomputed embedding matrix.", call. = FALSE)
+    text_col    <- x
+    x[na_index] <- as.character(na_index)
+    p    <- classifier_probs(x, model, ...)
+    lvls <- c("negative", "neutral", "positive")
+    cls  <- factor(lvls[max.col(p, ties.method = "first")], levels = lvls,
+                   ordered = TRUE)
+    out  <- data.frame(
+      text       = text_col,
+      sentiment  = unname(p[, "prob_pos"] - p[, "prob_neg"]),
+      prob_neg   = unname(p[, "prob_neg"]),
+      prob_neu   = unname(p[, "prob_neu"]),
+      prob_pos   = unname(p[, "prob_pos"]),
+      class      = cls,
+      confidence = unname(apply(p, 1, max)),
+      stringsAsFactors = FALSE
+    )
+    if(length(na_index)){
+      out[na_index,
+          c("sentiment", "prob_neg", "prob_neu", "prob_pos", "confidence")] <- NA
+      out$class[na_index] <- NA
+    }
+    return(out)
+  }
 
   if(is.character(x)){
     text_col    <- x                              # keeps original NAs (copy-on-modify)
@@ -194,10 +241,36 @@ sentiment <- function(x               = NULL,
     stringsAsFactors = FALSE
   )
 
+  # Post-processing flags from the SAME embedding -- only when aux heads ship for this
+  # model (e5/openai do; legacy USE does not, so the flags are silently omitted). Mirrors
+  # the Python package: hate_speech = P(hate) >= recall-0.90 threshold; mixed = neutral yet
+  # matching the mixed-vs-neutral classifier; style = top writing style. Embedding-only:
+  # an opt-in end-to-end transformer (no embedding) would skip this block.
+  hate_h  <- load_aux_head("hate",  model)
+  mixed_h <- load_aux_head("mixed", model)
+  style_h <- load_aux_head("style", model)
+  if(!is.null(hate_h)){
+    p_hate            <- logistic_binary_prob(embeddings, hate_h)
+    out$hate_speech   <- p_hate >= hate_h$recommended_threshold
+    out$p_hate        <- unname(p_hate)
+  }
+  if(!is.null(mixed_h)){
+    p_mixed           <- logistic_binary_prob(embeddings, mixed_h)
+    out$mixed         <- as.character(cls) == "neutral" &
+                         p_mixed >= mixed_h$recommended_threshold
+  }
+  if(!is.null(style_h)){
+    style_p           <- multilabel_probs(embeddings, style_h)
+    out$style         <- style_h$classes[max.col(style_p, ties.method = "first")]
+  }
+
   # blank out missing rows (text already carries the original NA)
   if(length(na_index)){
     out[na_index, c("sentiment", "prob_neg", "prob_neu", "prob_pos", "confidence")] <- NA
     out$class[na_index] <- NA
+    if(!is.null(hate_h)){ out$hate_speech[na_index] <- NA; out$p_hate[na_index] <- NA }
+    if(!is.null(mixed_h)) out$mixed[na_index] <- NA
+    if(!is.null(style_h)) out$style[na_index] <- NA
   }
 
   out
@@ -248,7 +321,7 @@ sentiment_match <- function(x        = NULL,
                             phrases  = NULL,
                             model    = names(default_models),
                             scoring         = DEFAULT_SCORING,
-                            scoring_version = "1.0",
+                            scoring_version = c("2.0", "1.0"),
                             batch_size      = 100,
                             ...){
 
@@ -261,11 +334,20 @@ sentiment_match <- function(x        = NULL,
 
   # setup everything (don't use arg.match for model ...)
   model           <- model[1]
-  scoring         <- match.arg(scoring)
+  scoring         <- match.arg(scoring, c("mlp", "logistic", "xgb", "glm"))
+  scoring_version <- match.arg(scoring_version)
 
   # if x is missing, return NOTHING
   if(is.null(x)){
     return(NULL)
+  }
+
+  # the nearest-phrase explanation needs an embedding space, so the opt-in end-to-end
+  # classifiers (which never embed) are unsupported here -- use an e5/openai model.
+  if(model_class(model) == "classifier"){
+    stop("sentiment_match() needs an embedding model for the pole comparison; '", model,
+         "' is an end-to-end classifier. Use an e5/openai model (e.g. model = 'e5-base').",
+         call. = FALSE)
   }
 
   # need at least two poles to have an axis (matches the Python package's contract)
@@ -342,6 +424,30 @@ sentiment_match <- function(x        = NULL,
 
 # Y. HELPER FUNCTIONS ==========================================================
 
+# (internal) End-to-end transformer-classifier probabilities: an (n, 3) matrix with
+# columns [prob_neg, prob_neu, prob_pos]. Ensures the requested classifier is the active
+# backend (lazy first-use setup via check_sentiment.ai, plus an explicit re-init when
+# switching models mid-session), then calls the reticulate pipeline sourced from
+# inst/get_embedder.py (load_hf_classifier).
+classifier_probs <- function(text, model, ...){
+  if(model_class(model) != "classifier")
+    stop("classifier_probs() called for non-classifier model '", model, "'.",
+         call. = FALSE)
+
+  check_sentiment.ai(model = model, ...)          # first-use wizard / lazy init
+
+  env <- sentiment.ai::sentiment.env
+  if(is.null(env$classify) || !identical(env$classifier_model, model)){
+    init_sentiment.ai(model = model, ...)          # load / switch the classifier
+    env <- sentiment.ai::sentiment.env
+  }
+
+  p <- as.matrix(env$classify(as_py_list(text)))
+  colnames(p) <- c("prob_neg", "prob_neu", "prob_pos")
+  rownames(p) <- text
+  p
+}
+
 # Apply Model for Sentiment Score
 #' @importFrom stats
 #'             predict
@@ -411,6 +517,14 @@ find_sentiment_score <- function(embeddings,
 # [neg, neutral, pos]; weight matrices follow the torch convention [out, in].
 #' @importFrom jsonlite fromJSON
 score_json_probs <- function(embeddings, path){
+  # clear error when a (model, scoring, version) combination ships no head -- e.g.
+  # scoring = "logistic" for openai: only "mlp" ships for openai; "logistic" ships for
+  # e5-small / e5-base. Without this the failure is a cryptic jsonlite read error.
+  if(!file.exists(path)){
+    stop("no scoring head bundled at '", basename(path), "'. The 'logistic' head ships ",
+         "for e5-small / e5-base only; use scoring = 'mlp' (the default), which ships ",
+         "for all e5 and openai models.", call. = FALSE)
+  }
   h <- jsonlite::fromJSON(path, simplifyVector = TRUE,
                           simplifyDataFrame = FALSE, simplifyMatrix = TRUE)
 
@@ -465,5 +579,58 @@ find_sentiment_probs <- function(embeddings, scoring, scoring_version, model,
   score_dir <- file.path(system.file("scoring", package = utils::packageName()),
                          scoring, scoring_version)
   score_json_probs(embeddings, paste0(file.path(score_dir, model[1]), ".json"))
+}
+
+
+# AUX HEADS (hate / mixed / style post-processing flags) =======================
+# Small per-encoder flag heads applied to the SAME embedding the mainline head
+# scored, mirroring the Python package (sentimentai/_scoring.py). They ship in
+# inst/scoring/auxiliary/<kind>_<model>.json and are the basis for the flag columns in
+# sentiment(). logistic_binary -> P(positive_class); mlp_multilabel -> per-style
+# sigmoids. Missing for a model (e.g. legacy USE) => the flag is silently omitted.
+
+# Locate an aux head; returns "" (system.file's not-found sentinel) if absent.
+resolve_aux_head <- function(kind, model){
+  system.file("scoring", "auxiliary", paste0(kind, "_", model[1], ".json"),
+              package = utils::packageName())
+}
+
+# Read an aux head if it ships for this model, else NULL.
+#' @importFrom jsonlite fromJSON
+load_aux_head <- function(kind, model){
+  path <- resolve_aux_head(kind, model)
+  if(!nzchar(path) || !file.exists(path)) return(NULL)
+  jsonlite::fromJSON(path, simplifyVector = TRUE,
+                     simplifyDataFrame = FALSE, simplifyMatrix = TRUE)
+}
+
+aux_sigmoid <- function(z) 1 / (1 + exp(-z))
+
+# P(positive_class) for a logistic_binary aux head: sigmoid(X %*% coef + intercept).
+# Returns a length-nrow(embeddings) numeric vector. coef is a flat dim-vector, matching
+# the Python head (X @ coef + b), so a head/embedding-width mismatch fails loudly here.
+logistic_binary_prob <- function(embeddings, head){
+  coef <- as.numeric(head$coef)
+  if(ncol(embeddings) != length(coef)){
+    stop(sprintf(paste0("aux head expects %d-dim embeddings but got %d -- the head and ",
+                        "the embedding model do not match."),
+                 length(coef), ncol(embeddings)), call. = FALSE)
+  }
+  as.numeric(aux_sigmoid(as.numeric(embeddings %*% coef) + head$intercept))
+}
+
+# Per-class sigmoid probabilities for an mlp_multilabel aux head (style). Same forward
+# pass as the mlp mainline (z = z %*% t(W) + b, ReLU on hidden layers) but a SIGMOID
+# (not softmax) output, so each class is independent. Returns an (n, n_classes) matrix.
+multilabel_probs <- function(embeddings, head){
+  z  <- embeddings
+  nL <- length(head$layers)
+  for(i in seq_len(nL)){
+    z <- sweep(z %*% t(head$layers[[i]]$W), 2, head$layers[[i]]$b, `+`)
+    if(i < nL) z[z < 0] <- 0            # ReLU on hidden layers only
+  }
+  p <- aux_sigmoid(z)
+  if(!is.null(head$classes)) colnames(p) <- head$classes
+  p
 }
 

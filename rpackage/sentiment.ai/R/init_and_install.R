@@ -25,6 +25,10 @@
 #'        automatically when it is on the \code{PATH}; \code{TRUE} forces it; \code{FALSE}
 #'        always uses the standard pip installer. If the fast path does not complete it
 #'        falls back to the standard installer, so it is always safe to leave on.
+#' @param pin_versions logical or NA; \code{NA} (default) installs the latest packages,
+#'        then automatically retries with the verified pinned baseline if a key package
+#'        fails to land; \code{TRUE} always uses the pinned baseline; \code{FALSE} skips
+#'        the post-install version check entirely.
 #' @param model character; embedding model handle for \code{init_sentiment.ai}:
 #'        \code{"e5-small"} (default, 384-d, multilingual, on-device, no TensorFlow),
 #'        \code{"e5-base"} (768-d), \code{"openai"} (text-embedding-3-small, paid API),
@@ -274,7 +278,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
   # --- post-install verification and auto-fallback ----------------------------
   # pin_versions = NA (default): verify key packages landed; if not, retry with
   # the bundled pinned baseline so the user doesn't land in dependency hell.
-  # pin_versions = TRUE:  already installed from pinned — just verify.
+  # pin_versions = TRUE:  already installed from pinned -- just verify.
   # pin_versions = FALSE: skip check entirely (escape hatch for power users).
   if(!isFALSE(pin_versions)){
     st_ok <- tryCatch({
@@ -303,7 +307,7 @@ install_sentiment.ai <- function(envname = "r-sentiment-ai",
                   call. = FALSE)
         }
       } else {
-        # pin_versions = TRUE but still failed — unusual; warn loudly
+        # pin_versions = TRUE but still failed -- unusual; warn loudly
         warning("Pinned baseline install did not verify. Check your environment: ",
                 envname, call. = FALSE)
       }
@@ -376,11 +380,16 @@ install_scoring_model <- function(model   =  DEFAULT_MODEL,
   scoring <- scoring[1]
   scoring_version <- scoring_version[1]
 
-  # legacy scorers are opt-in and no longer fetched by default
+  # xgb/glm are only valid for legacy TF-USE models (en, en.large, multi, multi.large)
+  legacy_models <- c("en", "en.large", "multi", "multi.large")
+  if(scoring %in% c("xgb", "glm") && !(model %in% legacy_models)){
+    stop("scoring = '", scoring, "' is only supported for legacy TF-USE models ",
+         "(en, en.large, multi, multi.large). ",
+         "Use scoring = 'mlp' (default) or 'logistic' for e5-small, e5-base, and openai.")
+  }
   if(scoring %in% c("xgb", "glm")){
-    message("Note: scoring = '", scoring, "' is a legacy scorer, kept for backward ",
-            "compatibility and not installed by default. The v2 default (mlp) ships ",
-            "in the package -- no download, and no xgboost, required.")
+    message("Note: scoring = '", scoring, "' is a legacy scorer for TF-USE models. ",
+            "The mlp head ships in the package -- no download, and no xgboost, required.")
   }
 
   # file extension per scoring type: glm=csv, mlp/logistic=json (ship in package), else <scoring>
@@ -495,10 +504,12 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
   model_id   <- choose_model(model_name)
 
   env <- sentiment.ai::sentiment.env
-  env$openai  <- FALSE
-  env$st      <- FALSE
-  env$prefix  <- ""
-  env$backend <- cls   # "st" | "openai" | "legacy" -- which backend was selected
+  env$openai     <- FALSE
+  env$st         <- FALSE
+  env$classifier <- FALSE
+  env$classifier_model <- NULL
+  env$prefix     <- ""
+  env$backend    <- cls   # "st"|"openai"|"classifier"|"legacy" -- selected backend
 
   # USE is end-of-life: Google retired it and TF Hub is winding down. Warn once for ANY
   # legacy request, before the gate/load below, so the notice always precedes the
@@ -524,6 +535,23 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
     env$embed    <- load_openai_embedding(model_id, api_key, api_base, api_version, api_type, api_engine)
     env$openai   <- TRUE
     env$parallel <- test_parallel_support()
+    return(invisible(NULL))
+  }
+
+  # ---- opt-in end-to-end transformer classifier (RoBERTa / XLM-R) ------------
+  # Bypasses the embed -> JSON-head pipeline: the transformer outputs neg/neu/pos
+  # directly. transformers + torch ship with sentence-transformers, so this needs
+  # the same r-sentiment-ai env -- just a model download on first use. No e5
+  # hate/mixed/style flags on this path (they need the embedding space).
+  if(cls == "classifier"){
+    .activate_env(envname, silent = silent, r_envir = -2, method = method)
+    reticulate::source_python(system.file("get_embedder.py", package = pkg_name))
+    if(!silent) message("Loading transformer sentiment classifier: ", model_id,
+                        " (downloads on first use, ~500MB-1GB)")
+    env$classify         <- load_hf_classifier(model_id)
+    env$classifier       <- TRUE
+    env$classifier_model <- model_name
+    env$parallel         <- test_parallel_support()
     return(invisible(NULL))
   }
 
@@ -596,7 +624,11 @@ init_sentiment.ai <- function(model       = DEFAULT_MODEL,
 #' @export
 check_sentiment.ai <- function(...){
 
-  if(is.null(sentiment.ai::sentiment.env$embed)){
+  # "initialised" = an embedder (e5/openai/legacy) OR an end-to-end classifier is
+  # loaded. Keying on both stops the classifier backend reloading on every call
+  # (its path sets env$classify, never env$embed).
+  if(is.null(sentiment.ai::sentiment.env$embed) &&
+     is.null(sentiment.ai::sentiment.env$classify)){
 
     # First use this session. If the backend isn't set up yet, walk an INTERACTIVE user
     # through the one-time setup; in a non-interactive session (scripts, R CMD check, CI)
@@ -630,7 +662,7 @@ check_sentiment.ai <- function(...){
 #' Change sentiment.ai defaults after the initial setup
 #'
 #' @description A post-install configuration wizard that lets you change the
-#' default embedding model, scoring head, and performance tier at any time —
+#' default embedding model, scoring head, and performance tier at any time --
 #' equivalent to running `setup_sentiment.ai()` again but without reinstalling
 #' the Python backend. Use this whenever you want to switch to a faster,
 #' heavier, or more accurate configuration.
@@ -638,11 +670,11 @@ check_sentiment.ai <- function(...){
 #' @details
 #' Three preset tiers are offered:
 #' \describe{
-#'   \item{Lightweight}{Logistic JSON head — smallest, fastest scoring; best
+#'   \item{Lightweight}{Logistic JSON head -- smallest, fastest scoring; best
 #'     when you need to score millions of texts and memory is tight.}
-#'   \item{Balanced (default)}{MLP JSON head — the shipped default. Good accuracy
+#'   \item{Balanced (default)}{MLP JSON head -- the shipped default. Good accuracy
 #'     with no extra download.}
-#'   \item{Maximum accuracy}{XGBoost head — best accuracy; requires
+#'   \item{Maximum accuracy}{XGBoost head -- best accuracy; requires
 #'     \code{xgboost} package and downloads the model file on first use.}
 #' }
 #' You can also configure the embedding model (\code{e5-small} vs \code{e5-base})
@@ -660,7 +692,7 @@ check_sentiment.ai <- function(...){
 #' @export
 configure_sentiment.ai <- function(){
   if(!interactive()){
-    message("configure_sentiment.ai() is interactive — ",
+    message("configure_sentiment.ai() is interactive -- ",
             "set options() directly in non-interactive sessions:\n",
             "  options(sentiment.ai.model   = 'e5-base')\n",
             "  options(sentiment.ai.scoring = 'xgb')    # requires xgboost pkg")
@@ -692,26 +724,14 @@ configure_sentiment.ai <- function(){
   # ---- Scoring tier ---------------------------------------------------------
   scoring_choice <- utils::menu(
     choices = c(
-      paste0("Balanced — MLP JSON head  (default, shipped in package; current: ",
+      paste0("Balanced -- MLP JSON head  (default, ships in package; current: ",
              if(current_scoring=="mlp")      "ACTIVE" else "inactive", ")"),
-      paste0("Lightweight — Logistic JSON head  (fastest; current: ",
-             if(current_scoring=="logistic") "ACTIVE" else "inactive", ")"),
-      paste0("Maximum accuracy — XGBoost  (best F1; downloads on first use; current: ",
-             if(current_scoring=="xgb")      "ACTIVE" else "inactive", ")")),
-    title = paste0(
-      "Which scoring tier would you like?\n",
-      "  MLP: ships in the package, no download.  XGBoost: stronger, ~1MB download per model."))
+      paste0("Lightweight -- Logistic JSON head  (fastest; current: ",
+             if(current_scoring=="logistic") "ACTIVE" else "inactive", ")")),
+    title = "Which scoring tier would you like?\n  Both ship inside the package -- no download required.")
 
   chosen_scoring <- switch(as.character(scoring_choice),
-    "1" = "mlp", "2" = "logistic", "3" = "xgb", NULL)
-
-  if(!is.null(chosen_scoring)){
-    if(chosen_scoring == "xgb" && !requireNamespace("xgboost", quietly = TRUE)){
-      message("  The xgboost package is required for the XGBoost tier.\n",
-              "  Install it with: install.packages('xgboost')")
-      chosen_scoring <- NULL
-    }
-  }
+    "1" = "mlp", "2" = "logistic", NULL)
 
   if(!is.null(chosen_scoring) && chosen_scoring != current_scoring){
     .set_default_scoring(chosen_scoring)
@@ -800,8 +820,8 @@ setup_sentiment.ai <- function(){
   if(isTRUE(done)){
     model_choice <- utils::menu(
       choices = c(
-        "e5-small  (default — fast, ~384-d, ~100 languages; good for most tasks)",
-        "e5-base   (best on-device quality — 768-d, ~2x slower, ~4x more RAM)"),
+        "e5-small  (default -- fast, ~384-d, ~100 languages; good for most tasks)",
+        "e5-base   (best on-device quality -- 768-d, ~2x slower, ~4x more RAM)"),
       title = paste0(
         "Which embedding model would you like to use by default?\n",
         "  Both are multilingual and run on-device with no TensorFlow or API key.\n",
@@ -828,6 +848,7 @@ setup_sentiment.ai <- function(){
   model <- match.arg(model[1],
                      choices = c(names(default_models),
                                  names(openai_models),
+                                 names(classifier_models),
                                  names(legacy_models)))
   ns <- asNamespace("sentiment.ai")
   unlockBinding("DEFAULT_MODEL", ns)

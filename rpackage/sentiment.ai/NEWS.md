@@ -1,3 +1,51 @@
+# sentiment.ai 1.1.0
+
+Turns the v2 scorer into a full toolkit: safety/style flags, intent-based profiles,
+opt-in transformer backends, and an interactive sentiment map. All mirrored in the Python
+sibling (`sentimentai`), with the flag forward passes verified bit-for-bit against it.
+
+## New functions
+
+- **`plot_sentiment()`** — an interactive sentiment map: every text embedded, projected
+  to 2-D (UMAP via *uwot* if installed, else t-SNE via *Rtsne*, else PCA), drawn as a
+  point coloured by sentiment, with the full text on hover and **human-readable cluster
+  labels**. Labels are deterministic c-TF-IDF by default; `labels = "openai"` spends a
+  fraction of a cent on gpt-4o-mini for tidier topics (and silently falls back). Needs the
+  suggested `plotly`.
+
+- **`use_profile()`** / **`sentiment_profiles()`** — pick a backend by plain intent
+  (`"lightest"`, `"multilingual"`, `"max-english"`, `"max-multilingual"`) instead of
+  memorising model handles. The choice persists across sessions (a small JSON under
+  `tools::R_user_dir()`); `SENTIMENTAI_MODEL` or `options(sentiment.ai.model=)` override it.
+
+## New features
+
+- **Post-processing flags in `sentiment()`** — for models with bundled aux heads
+  (`e5-small` / `e5-base` / `openai`), the tidy output now also carries `hate_speech` +
+  `p_hate` (hate detector, AUROC ≈ 0.95–0.97, tuned to ~0.90 recall with a very low
+  false-positive rate on normal text), `mixed` (a neutral row that carries competing
+  positive *and* negative signal), and `style` (top of five writing styles). All computed
+  from the **same embedding** — no second model, no extra download. `sentiment_diagnostics()`
+  keeps its own focused signal set and is unchanged.
+
+- **Opt-in transformer backends** (*if you can't beat 'em, join 'em*) — `model =
+  "twitter-roberta"` (English) and `model = "xlm-roberta"` (multilingual) run a fine-tuned
+  transformer end-to-end via the existing reticulate bridge (no new dependency class;
+  `transformers`/`torch` already ship with sentence-transformers). They lead **in-domain**
+  accuracy; the default stays tiny, on-device, multilingual, TF-free, and carries the flags.
+
+- **v2.0 scoring heads** are now the default (`scoring_version = "2.0"`); the `"1.0"` heads
+  remain available. The bundled heads match the Python package byte-for-byte.
+
+## Honest benchmarks
+
+Fine-tuned transformers lead accuracy everywhere (RoBERTa 0.72/0.76 SemEval/airline vs
+`e5-base` 0.67/0.65; XLM-R 0.70 multilingual vs 0.57), so we ship them rather than claim to
+beat them. The genuine wins: on-device `e5-base` **matches the paid OpenAI embedding**, beats
+distilBERT on reviews, crushes the lexicon methods, and wins on footprint, speed, privacy,
+and the flags. Full table on the project page.
+
+
 # sentiment.ai 1.0.1
 
 This release adds the diagnostic, validation, and reliability features that make v2
@@ -69,7 +117,7 @@ production-ready — plus a set of polish fixes found by multi-perspective code 
   CRAN-rendered HTML).
 
 - `sentiment_provenance()` example in the vignette replaced with real output (revision SHA,
-  actual temperature `T=1.281`).
+  actual temperature `T=1`).
 
 ---
 
@@ -162,7 +210,7 @@ Read-out (honest):
   fraction of the size** — the TensorFlow tax bought no accuracy. (On the synthetic-inclusive
   test e5-small edges USE-large 0.842 → 0.832, but on real text they are level.)
 - **The bundled scoring heads are full-data.** The small `mlp` heads we ship get **90.1% /
-  93.8%** real pos/neg accuracy (macro-F1 **0.860 / 0.919**) for e5-small / e5-base — at the
+  93.8%** real pos/neg accuracy (macro-F1 **0.860 / 0.899**) for e5-small / e5-base — at the
   full-data XGBoost ceiling above, and they need neither xgboost nor TensorFlow to run.
 - **Caveat:** real *neutral* examples are scarce (n = 60 in the test set), so the 3-class
   macro-F1 leans on synthetic neutral; the directional accuracy on 1,187 real positive/negative

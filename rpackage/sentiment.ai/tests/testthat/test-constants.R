@@ -37,14 +37,16 @@ test_that("model_dims match the published model cards", {
   for (m in names(sentiment.ai:::legacy_models)) expect_equal(d[[m]], 512L)
 })
 
-test_that("e5 family carries the 'query: ' prefix; nothing else does", {
-  # The asymmetric query:/passage: prefix is part of e5's training recipe
-  # (Wang et al. 2024, "Multilingual E5 Text Embeddings", arXiv:2402.05672),
-  # NOT a packaging choice. Do not "clean up" this prefix.
+test_that("v2 e5 heads are served prefix-free (trained without 'query: ')", {
+  # The shipped v2/v3 scoring heads were trained on UN-prefixed e5 embeddings
+  # (bakeoff/expand_real_sources.py encodes the raw text), so serving must also be
+  # prefix-free: e5's asymmetric "query: "/"passage: " prefix is a *retrieval* recipe
+  # (Wang et al. 2024, arXiv:2402.05672), and adding it at serve time here would be a
+  # train/serve mismatch that hurts accuracy. Hence model_prefix is empty for e5.
   p <- sentiment.ai:::model_prefix
-  expect_identical(p[["e5-small"]], "query: ")
-  expect_identical(p[["e5-base"]],  "query: ")
-  # any other model name resolves to "" (or absent) -- no accidental prefix
+  expect_identical(unname(p[["e5-small"]]), "")
+  expect_identical(unname(p[["e5-base"]]),  "")
+  # no other model carries a prefix either
   expect_true(is.na(p["text-embedding-3-small"]) ||
                 identical(unname(p["text-embedding-3-small"]), ""))
   expect_true(is.na(p["en.large"]) ||

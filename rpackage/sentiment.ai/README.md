@@ -24,10 +24,42 @@ install_sentiment.ai()
 # load the default model (multilingual e5-small), then score some text
 init_sentiment.ai(model = "e5-small")
 sentiment_score(c("I love this!", "this is terrible"))
-#> [1]  0.9  -0.9   (about 1 = positive, about -1 = negative)
+#> [1]  1.00 -0.99   (about 1 = positive, about -1 = negative)
 ```
 
 That's it — no TensorFlow, no API key, and the model runs on your machine.
+
+# New in v2
+
+![A sentiment map: every comment embedded, projected to 2-D, coloured by sentiment, with auto-labelled clusters.](man/figures/sentiment-map.png)
+
+**Map a whole corpus** with `plot_sentiment()` — every comment embedded, projected to
+2-D, coloured by sentiment, full text on hover, and **human-readable cluster labels**
+(deterministic c-TF-IDF, or `labels = "openai"` for tidier topics at ~a cent):
+
+```r
+p <- plot_sentiment(airline_tweets$text)     # interactive plotly widget
+htmlwidgets::saveWidget(p, "map.html")
+```
+
+**Safety & style flags.** For the on-device e5 models, `sentiment()` adds
+`hate_speech` / `p_hate` (hate detector, AUROC ≈ 0.95–0.97), `mixed` (competing
+pos/neg signal), and `style` (analytical / descriptive / formal / informal / inquisitive)
+— all from the same embedding, no extra download.
+
+**Profiles** — pick a backend by intent instead of memorising model names; the choice
+persists across sessions:
+
+```r
+sentiment_profiles()           # lightest / multilingual / max-english / max-multilingual
+use_profile("multilingual")    # e5-base, with flags
+use_profile("max-english")     # opt-in RoBERTa (sentiment only)
+```
+
+**If you can't beat 'em, join 'em.** Fine-tuned transformers lead *in-domain* accuracy,
+so they ship as opt-in end-to-end backends behind the same API — `model = "twitter-roberta"`
+(English) and `model = "xlm-roberta"` (multilingual). The default stays tiny, on-device,
+and TF-free.
 
 # Overview
 
@@ -57,6 +89,8 @@ Pick a model with `init_sentiment.ai(model = ...)` (and `sentiment_score(model =
 | `e5-small`     | 384  | **default** — tiny, fast, ~100 languages, on-device, no TensorFlow |
 | `e5-base`      | 768  | best on-device quality, ~100 languages, no TensorFlow            |
 | `openai`       | 1536 | `text-embedding-3-small` — paid API, text leaves your machine    |
+| `twitter-roberta` | — | opt-in end-to-end English RoBERTa — max in-domain accuracy (~500 MB) |
+| `xlm-roberta`  |  —   | opt-in end-to-end multilingual XLM-R — max accuracy (~1 GB)       |
 | `en` / `en.large` / `multi` / `multi.large` | 512 | legacy Universal Sentence Encoder — **opt-in, requires TensorFlow** (`install_sentiment.ai(legacy = TRUE)`) |
 
 The scoring head is chosen with `scoring`: `"mlp"` (default) or `"logistic"`. Both are
@@ -109,8 +143,10 @@ The main function. Returns one score per input, rescaled to `[-1, 1]` (about `1`
 positive, about `-1` = negative).
 
 ```r
-my_comments <- c("Will you marry me?", "Oh, you're breaking up with me...")
-sentiment_score(my_comments)            # default: e5-small + mlp head
+reviews <- c("The cabin crew were friendly and helpful",
+             "My bag was lost and nobody helped")
+sentiment_score(reviews)                # default: e5-small + mlp head
+#> [1]  0.36 -0.96
 ```
 
 Key arguments: `x` (text or a pre-computed embedding matrix), `model` (default
@@ -123,12 +159,15 @@ the per-class probabilities, a label, and a confidence. Reach for it when the ne
 matters, or to triage rows for review.
 
 ```r
-sentiment(c("I love this!", "it's fine", "this is terrible"))
-#>               text sentiment prob_neg prob_neu prob_pos    class confidence
-#> 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96
-#> 2        it's fine      0.10     0.08     0.74     0.18  neutral       0.74
-#> 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95
+sentiment(c("I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"))
+#>                                        text sentiment prob_neg prob_neu prob_pos    class confidence
+#> 1                              I love this!      1.00     0.00     0.00     1.00 positive       1.00
+#> 2 The package arrived on Tuesday afternoon.      0.13     0.00     0.86     0.13  neutral       0.86
+#> 3                          this is terrible     -0.99     0.99     0.01     0.00 negative       0.99
 ```
+
+For the e5 models, `sentiment()` also appends the post-processing flag columns
+`hate_speech` / `p_hate` / `mixed` / `style` (omitted above for width).
 
 `sentiment` is `prob_pos - prob_neg`; `class` is the most probable of negative / neutral /
 positive; `confidence` is that class's probability. The probabilities are **calibrated**
@@ -143,14 +182,14 @@ explanation against **tunable poles** — you define what the poles mean for you
 The poles only shape the explanation (`phrase` / `class` / `similarity`), never the score:
 
 ```r
-my_categories <- list(positive = c("excited", "loving", "content", "happy"),
-                      negative = c("lame", "lonely", "sad", "angry"))
+poles <- list(positive = c("friendly", "on time", "helpful"),
+              negative = c("rude", "delayed", "lost luggage"))
 
-result <- sentiment_match(my_comments, phrases = my_categories)
+result <- sentiment_match(reviews, phrases = poles)
 print(result)
-#>                                text sentiment phrase    class similarity
-#> 1                Will you marry me?      0.54 loving positive       0.82
-#> 2 Oh, you're breaking up with me...     -0.66    sad negative       0.79
+#>                                       text sentiment       phrase    class similarity
+#> 1 The cabin crew were friendly and helpful      0.36     friendly positive       0.88
+#> 2        My bag was lost and nobody helped     -0.96 lost luggage negative       0.88
 ```
 
 Pass any set of poles (not just positive/negative) for arbitrary category matching, or
@@ -166,10 +205,10 @@ embedding prefix, and the scoring head — plus a train/serve prefix-skew check:
 sentiment_provenance("e5-small")
 #> sentiment.ai provenance
 #>   model    : e5-small (st, dim 384)
-#>   prefix   : "query: "
+#>   prefix   : ""
 #>   license  : MIT
 #>   source   : https://huggingface.co/intfloat/multilingual-e5-small
-#>   scoring  : mlp 1.0 (mlp, T=...)
+#>   scoring  : mlp 2.0 (mlp, T=1)
 ```
 
 # Embeddings & matrix helpers
@@ -184,10 +223,10 @@ ref_mx    <- embed_text(c("animals", "technology"))
 
 cosine_match(target_mx, ref_mx)[rank == 1]   # top match per row
 #>      target  reference similarity rank
-#> 1:     dogs    animals       0.80    1
-#> 2:      cat    animals       0.61    1
-#> 3:       IT technology       0.44    1
-#> 4: computer technology       0.67    1
+#> 1:     dogs    animals       0.93    1
+#> 2:      cat    animals       0.90    1
+#> 3:       IT technology       0.89    1
+#> 4: computer technology       0.92    1
 ```
 
 # Python sibling
@@ -228,7 +267,7 @@ sentiment_score(text)
 > with paid OpenAI (0.886 / 94%); the default `e5-small` is **0.854 / 89%**, level with
 > the old TensorFlow USE default it replaces. So the TensorFlow-free default *matches*
 > the old one on accuracy while dropping all of TensorFlow. The bundled `mlp` heads **are**
-> those full-data heads — e5-small **0.860 / 90%**, e5-base **0.919 / 94%** on the real-only
+> those full-data heads — e5-small **0.860 / 90%**, e5-base **0.899 / 94%** on the real-only
 > slice, at the embedder ceiling. Real *neutral* text is scarce in the benchmark, so pos/neg
 > accuracy is the most reliable read; see `NEWS.md` for the full table.
 

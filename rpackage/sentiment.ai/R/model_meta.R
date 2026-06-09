@@ -78,7 +78,7 @@ model_revision <- c(
 # Verified license/source data is parked here so a bakeoff winner can be promoted
 # into the registry without a fresh legal pass -- add its row above, plus to
 # default_models / model_dims / model_prefix in constants.R, and pin its SHA.
-# See planning/licenses-and-notice.md §1-§3 for the evidence.
+# See planning/licenses-and-notice.md section 1-section 3 for the evidence.
 #
 # bge-base          MIT          https://huggingface.co/BAAI/bge-base-en-v1.5
 # bge-small         MIT          https://huggingface.co/BAAI/bge-small-en-v1.5

@@ -7,7 +7,7 @@
 # Reaching into it with `:::` is a hard CRAN rejection
 # ("Unexported objects imported by ':::' calls"), so the minimal subset of that
 # heuristic is reproduced here. Everything that reticulate *does* export is called
-# via the public `reticulate::` API instead of being copied (see below) — only the
+# via the public `reticulate::` API instead of being copied (see below) -- only the
 # genuinely-unexported logic is vendored.
 #
 # Public reticulate API used in place of former vendored copies:

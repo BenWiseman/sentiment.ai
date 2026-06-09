@@ -1,7 +1,7 @@
 Package: sentiment.ai
 Type: Package
 Title: Simple Sentiment Analysis Using Deep Learning
-Version: 1.0.0
+Version: 1.1.0
 Authors@R:
   c(person('Ben', 'Wiseman',
            role    = c('cre', 'aut', 'ccp'),
@@ -67,7 +67,11 @@ Suggests:
     irr,
     RANN,
     withr,
-    xgboost
+    xgboost,
+    plotly,
+    htmlwidgets,
+    uwot,
+    Rtsne
 Config/testthat/edition: 3
 Collate:
     'package-sentiment_ai.R'
@@ -89,3 +93,5 @@ Collate:
     'onload.R'
     'diagnostics.R'
     'agreement.R'
+    'profiles.R'
+    'plot.R'

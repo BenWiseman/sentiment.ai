@@ -1,43 +1,44 @@
 # tests/testthat/test-e5-prefix.R
-# CI GATE 2 -- the e5 "query: " prefix is applied.
-# e5 is trained with asymmetric prefixes and DROPS measurable accuracy if you skip
-# them (Wang et al. 2024, "Multilingual E5 Text Embeddings", arXiv:2402.05672).
-# The package must inject model_prefix[[model]] INTERNALLY, exactly once, so users
-# never type "query: " themselves.
-# RED now: no prefix injection exists anywhere in embed_text/init/get_embedder.py.
+# CI GATE 2 -- v2 e5 scoring is served PREFIX-FREE.
+# e5's asymmetric "query: "/"passage: " prefix is a *retrieval* recipe (Wang et al. 2024,
+# arXiv:2402.05672). The shipped v2/v3 heads were trained on UN-prefixed e5 embeddings
+# (bakeoff/expand_real_sources.py encodes raw text), so embed_text() must pass the raw
+# string straight through -- adding "query: " at serve time would be a train/serve
+# mismatch that hurts accuracy. These tests pin that the embedder sees the raw text.
 
-test_that("e5 embed receives the 'query: '-prefixed string (single input)", {
+test_that("e5 embed receives the RAW string (v2 heads are prefix-free)", {
   rec <- local_fake_embedder(dim = sentiment.ai:::model_dims[["e5-small"]])
   testthat::local_mocked_bindings(
     check_sentiment.ai = function(...) invisible(NULL),
     .package = "sentiment.ai"
   )
   embed_text("good service", model = "e5-small")
-  expect_true("query: good service" %in% rec$seen,
-              info = "the embedder must see the prefixed string for e5 models")
-  expect_false("good service" %in% rec$seen,
-               info = "the embedder must NOT see the raw (un-prefixed) string")
+  expect_true("good service" %in% rec$seen,
+              info = "the embedder must see the raw string (v2 heads trained prefix-free)")
+  expect_false("query: good service" %in% rec$seen,
+               info = "no 'query: ' retrieval prefix is injected for the v2 heads")
 })
 
-test_that("every element of a BATCH is prefixed (not just the first)", {
+test_that("every element of a batch is passed raw (no prefix added)", {
   rec <- local_fake_embedder(dim = sentiment.ai:::model_dims[["e5-small"]])
   testthat::local_mocked_bindings(
     check_sentiment.ai = function(...) invisible(NULL),
     .package = "sentiment.ai"
   )
   embed_text(c("great", "awful", "fine"), model = "e5-small")
-  expect_setequal(rec$seen, c("query: great", "query: awful", "query: fine"))
+  expect_setequal(rec$seen, c("great", "awful", "fine"))
 })
 
-test_that("no double-prefix when input already starts with 'query: '", {
+test_that("input is never mangled with a 'query: ' prefix", {
   rec <- local_fake_embedder(dim = sentiment.ai:::model_dims[["e5-small"]])
   testthat::local_mocked_bindings(
     check_sentiment.ai = function(...) invisible(NULL),
     .package = "sentiment.ai"
   )
   embed_text("query: already prefixed", model = "e5-small")
-  expect_false(any(grepl("query: query:", rec$seen, fixed = TRUE)),
-               info = "prefix injection must be idempotent (skip-if-present or strip-then-add)")
+  # the literal text the user passed is embedded verbatim, and no prefix is bolted on
+  expect_true("query: already prefixed" %in% rec$seen)
+  expect_false(any(grepl("query: query:", rec$seen, fixed = TRUE)))
 })
 
 test_that("non-e5 models get NO prefix", {

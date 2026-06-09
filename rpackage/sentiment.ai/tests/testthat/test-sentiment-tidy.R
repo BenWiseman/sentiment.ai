@@ -19,9 +19,12 @@ test_that("sentiment() returns the tidy 3-class frame with consistent columns", 
   )
   res <- sentiment(c("great", "fine", "awful"), model = "e5-small")
   expect_s3_class(res, "data.frame")
+  # core 3-class columns + the v2 post-processing flags (e5-small ships aux heads).
+  # Mirrors the Python package's tidy output (_COLS_CORE | _COLS_AUX).
   expect_identical(
     names(res),
-    c("text", "sentiment", "prob_neg", "prob_neu", "prob_pos", "class", "confidence"))
+    c("text", "sentiment", "prob_neg", "prob_neu", "prob_pos", "class", "confidence",
+      "hate_speech", "p_hate", "mixed", "style"))
   expect_identical(nrow(res), 3L)
 
   # the three probabilities form a distribution
@@ -34,6 +37,13 @@ test_that("sentiment() returns the tidy 3-class frame with consistent columns", 
   expect_equal(res$confidence, apply(probs, 1, max))
   expect_true(is.ordered(res$class))
   expect_true(all(as.character(res$class) %in% c("negative", "neutral", "positive")))
+
+  # v2 flag invariants (same contract as the Python package)
+  expect_true(is.logical(res$hate_speech))
+  expect_true(all(res$p_hate >= 0 & res$p_hate <= 1))
+  expect_true(is.logical(res$mixed))
+  expect_true(all(res$style %in%
+                  c("analytical", "descriptive", "formal", "informal", "inquisitive")))
 })
 
 test_that("sentiment() scalar matches sentiment_score(), and NA rows are blanked", {

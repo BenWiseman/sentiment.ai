@@ -9,13 +9,13 @@
 #'
 #' @return A \code{data.frame} with all columns from \code{\link{sentiment}} plus:
 #'   \describe{
-#'     \item{entropy}{Shannon entropy of the 3-class probability vector (nats, 0–1.099).
+#'     \item{entropy}{Shannon entropy of the 3-class probability vector (nats, 0-1.099).
 #'       High values mean the head is spread across classes.}
 #'     \item{confidence_band}{Ordered factor \code{"high"} / \code{"moderate"} / \code{"low"},
-#'       calibrated from the reliability report: \eqn{\geq 0.85} = high, 0.65–0.85 = moderate,
+#'       calibrated from the reliability report: \eqn{\geq 0.85} = high, 0.65-0.85 = moderate,
 #'       \eqn{< 0.65} = low.}
 #'     \item{mixed}{Logical; \code{TRUE} when both \code{prob_pos} and \code{prob_neg}
-#'       exceed 0.25 — the head sees simultaneous positive and negative mass (e.g.
+#'       exceed 0.25 -- the head sees simultaneous positive and negative mass (e.g.
 #'       "loved the food, hated the service"). Usually needs human review.}
 #'     \item{ood_similarity}{Maximum cosine similarity to any training class centroid.
 #'       Below ~0.20 the text is unlike the training distribution. \code{NA} when no
@@ -50,7 +50,7 @@
 sentiment_diagnostics <- function(x               = NULL,
                                   model           = DEFAULT_MODEL,
                                   scoring         = DEFAULT_SCORING,
-                                  scoring_version = "1.0",
+                                  scoring_version = c("2.0", "1.0"),
                                   batch_size      = 100,
                                   head_path       = NULL,
                                   ...){
@@ -58,22 +58,36 @@ sentiment_diagnostics <- function(x               = NULL,
     stop("scoring = '", scoring[1], "' is a legacy scalar head that lacks the 3-class ",
          "probability mass required by sentiment_diagnostics(). Use scoring = 'mlp' ",
          "(default) or 'logistic' instead.", call. = FALSE)
-  scoring <- match.arg(scoring)
+  scoring         <- match.arg(scoring, c("mlp", "logistic", "xgb", "glm"))
+  scoring_version <- match.arg(scoring_version)
   if(is.null(x)) return(NULL)
 
   # NA-safe embedding: substitute missing text (NA or "") with a placeholder before
   # embedding (so we don't embed the literal "NA"), then blank those rows at the end.
   na_index <- if(is.character(x)) which(is.na(x) | !nzchar(x)) else integer(0)
-  x_emb <- x
-  if(length(na_index)) x_emb[na_index] <- as.character(na_index)
 
-  # embed once; pass the matrix to sentiment() so we don't embed twice
-  check_sentiment.ai(model = model, ...)
-  embs <- embed_text(x_emb, batch_size = batch_size, model = model)
+  if(is.matrix(x)){
+    # precomputed embedding matrix passthrough -- parity with sentiment() /
+    # sentiment_score(), which both accept a numeric embedding matrix directly.
+    embs <- x
+  } else {
+    x_emb <- x
+    if(length(na_index)) x_emb[na_index] <- as.character(na_index)
+    # embed once; pass the matrix to sentiment() so we don't embed twice
+    check_sentiment.ai(model = model, ...)
+    embs <- embed_text(x_emb, batch_size = batch_size, model = model)
+  }
 
   out <- sentiment(x = embs, model = model, scoring = scoring,
                    scoring_version = scoring_version, batch_size = batch_size,
                    head_path = head_path, ...)
+
+  # sentiment() also appends post-processing flags (hate/mixed/style) for models that ship
+  # aux heads; sentiment_diagnostics keeps its own focused "when not to trust" signal set
+  # (including its own bivariate-affect 'mixed' below), so drop those flag columns here to
+  # preserve a stable contract. Reach for sentiment() directly if you want the flags.
+  out <- out[, c("text", "sentiment", "prob_neg", "prob_neu", "prob_pos",
+                 "class", "confidence"), drop = FALSE]
 
   # restore original text (sentiment() on a matrix uses rownames)
   if(is.character(x)) out$text <- x else out$text <- rownames(embs)

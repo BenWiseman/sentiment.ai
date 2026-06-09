@@ -2,14 +2,14 @@
 #'
 #' Reports exactly what produced (or would produce) a score: the encoder and its
 #' license, source URL, pinned revision, and embedding prefix, plus the scoring head
-#' (type and temperature). It also guards against train/serve prefix skew -- the e5
-#' models are trained with a \code{"query: "} prefix and silently lose accuracy if it
-#' is dropped (Wang et al. 2024), so \code{prefix_ok} flags any mismatch between the
-#' prefix applied at serve time and the model's registered prefix.
+#' (type and temperature). It also guards against train/serve prefix skew: the v2 e5
+#' heads are trained and served prefix-free (registered prefix \code{""}), so
+#' \code{prefix_ok} flags any mismatch between the prefix applied at serve time and the
+#' model's registered prefix (e.g. if a \code{"query: "} retrieval prefix were wrongly added).
 #'
 #' @param model character; a model handle (default \code{DEFAULT_MODEL}).
 #' @param scoring character; scoring-head type ("mlp", "logistic", ...). Default "mlp".
-#' @param scoring_version character; head version. Default "1.0".
+#' @param scoring_version character; head version: \code{"2.0"} (default) or \code{"1.0"}.
 #' @return A list of class \code{"sentiment_provenance"}: model, backend, dim, prefix,
 #'   revision, license, source, scoring, scoring_version, head_type, temperature,
 #'   serve_prefix, prefix_ok.
@@ -20,8 +20,9 @@
 #' @export
 sentiment_provenance <- function(model           = DEFAULT_MODEL,
                                  scoring         = "mlp",
-                                 scoring_version = "1.0"){
-  model  <- model[1]
+                                 scoring_version = c("2.0", "1.0")){
+  model           <- model[1]
+  scoring_version <- match.arg(scoring_version)
   cls    <- model_class(model)
   prefix <- { p <- model_prefix[model]; if(is.na(p)) "" else unname(p) }
 

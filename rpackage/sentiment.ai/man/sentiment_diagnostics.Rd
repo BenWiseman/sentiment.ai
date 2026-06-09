@@ -8,7 +8,7 @@ sentiment_diagnostics(
   x = NULL,
   model = DEFAULT_MODEL,
   scoring = DEFAULT_SCORING,
-  scoring_version = "1.0",
+  scoring_version = c("2.0", "1.0"),
   batch_size = 100,
   head_path = NULL,
   ...
@@ -28,11 +28,14 @@ tensorflow-hub name.}
 TensorFlow at score time). \code{"xgb"}/\code{"glm"} are still accepted for
 legacy heads but are not the default.}
 
-\item{scoring_version}{The scoring version to use, currently only 1.0, but
-other versions might be supported in the future.}
+\item{scoring_version}{Scoring head version: \code{"2.0"} (default, improved
+calibration) or \code{"1.0"} (legacy). Both ship inside the package.}
 
 \item{batch_size}{Size of batches to use. Larger numbers will be faster than
 smaller numbers, but do not exhaust your system memory!}
+
+\item{head_path}{optional path to a custom JSON scoring head, bypassing the bundled
+heads. For advanced use (e.g. scoring with a head you trained yourself).}
 
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda_install]{conda_install()}}
 or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
@@ -40,13 +43,13 @@ or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
 \value{
 A \code{data.frame} with all columns from \code{\link{sentiment}} plus:
 \describe{
-\item{entropy}{Shannon entropy of the 3-class probability vector (nats, 0–1.099).
+\item{entropy}{Shannon entropy of the 3-class probability vector (nats, 0-1.099).
 High values mean the head is spread across classes.}
 \item{confidence_band}{Ordered factor \code{"high"} / \code{"moderate"} / \code{"low"},
-calibrated from the reliability report: \eqn{\geq 0.85} = high, 0.65–0.85 = moderate,
+calibrated from the reliability report: \eqn{\geq 0.85} = high, 0.65-0.85 = moderate,
 \eqn{< 0.65} = low.}
 \item{mixed}{Logical; \code{TRUE} when both \code{prob_pos} and \code{prob_neg}
-exceed 0.25 — the head sees simultaneous positive and negative mass (e.g.
+exceed 0.25 -- the head sees simultaneous positive and negative mass (e.g.
 "loved the food, hated the service"). Usually needs human review.}
 \item{ood_similarity}{Maximum cosine similarity to any training class centroid.
 Below ~0.20 the text is unlike the training distribution. \code{NA} when no

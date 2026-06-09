@@ -83,6 +83,67 @@ def load_st_embedder(hf_id, prefix="", revision=None):
 
 
 # ---------------------------------------------------------------------------
+# Opt-in: end-to-end transformer sentiment classifier (RoBERTa / XLM-R)
+# ---------------------------------------------------------------------------
+def load_hf_classifier(model_id, batch_size=64):
+    """
+    Build an end-to-end HuggingFace sequence-classifier callable ("if you can't
+    beat 'em, join 'em"). It BYPASSES the embed->JSON-head pipeline: the
+    transformer outputs neg/neu/pos probabilities directly. transformers + torch
+    ship with sentence-transformers, so this adds no new dependency -- only a
+    model download (~500MB-1GB) on first use. Mirrors the Python package's
+    sentimentai/_hf_classifier.py exactly (same softmax + id2label->column map).
+
+    Parameters
+    ----------
+    model_id : str
+        HuggingFace id, e.g. "cardiffnlp/twitter-roberta-base-sentiment-latest".
+    batch_size : int
+        Texts per forward pass.
+
+    Returns
+    -------
+    callable
+        f(text) -> numpy.ndarray of shape (n_rows, 3), columns ordered
+        [neg, neu, pos] (mapped from the model's own id2label), each row
+        summing to 1. Accepts a single string or a list/iterable of strings.
+    """
+    import numpy as np
+    import torch
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+    tok = AutoTokenizer.from_pretrained(model_id)
+    mdl = AutoModelForSequenceClassification.from_pretrained(model_id).eval()
+    dev = "mps" if torch.backends.mps.is_available() else (
+        "cuda" if torch.cuda.is_available() else "cpu")
+    mdl = mdl.to(dev)
+
+    # map each output index to a fixed [neg, neu, pos] column via id2label
+    col = {}
+    for idx, lab in mdl.config.id2label.items():
+        lab = str(lab).lower()
+        col[int(idx)] = 0 if "neg" in lab else (2 if "pos" in lab else 1)
+
+    def classify(text):
+        texts = [text] if isinstance(text, str) else list(text)
+        out = np.zeros((len(texts), 3), dtype="float64")
+        for i in range(0, len(texts), batch_size):
+            chunk = [str(t)[:1000] for t in texts[i:i + batch_size]]
+            enc = tok(chunk, return_tensors="pt", padding=True,
+                      truncation=True, max_length=128).to(dev)
+            with torch.no_grad():
+                probs = torch.softmax(mdl(**enc).logits, dim=-1).cpu().numpy()
+            for j in range(probs.shape[0]):
+                for k in range(probs.shape[1]):
+                    out[i + j, col[k]] += probs[j, k]
+        return out
+
+    return classify
+
+
+# ---------------------------------------------------------------------------
 # LEGACY: TensorFlow Hub (Universal Sentence Encoder)
 # ---------------------------------------------------------------------------
 def load_hub_embedder(

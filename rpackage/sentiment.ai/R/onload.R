@@ -12,20 +12,28 @@
 
 .onLoad <- function(libname, pkgname){
   ns <- asNamespace(pkgname)
-  # Honour options(sentiment.ai.model) and options(sentiment.ai.scoring)
-  # set in .Rprofile — update the package constants before any function
-  # default is evaluated.
-  for(pair in list(
-    list(opt = "sentiment.ai.model",   const = "DEFAULT_MODEL"),
-    list(opt = "sentiment.ai.scoring", const = "DEFAULT_SCORING")
-  )){
-    val <- getOption(pair$opt, NULL)
-    if(!is.null(val) && nzchar(val)){
-      unlockBinding(pair$const, ns)
-      assign(pair$const, as.character(val), envir = ns)
-      lockBinding(pair$const, ns)
-    }
+
+  set_const <- function(const, val){
+    if(is.null(val) || !nzchar(val)) return(invisible())
+    unlockBinding(const, ns)
+    assign(const, as.character(val), envir = ns)
+    lockBinding(const, ns)
   }
+
+  # Scoring head default: options(sentiment.ai.scoring=) (e.g. in .Rprofile).
+  set_const("DEFAULT_SCORING", getOption("sentiment.ai.scoring", NULL))
+
+  # Default model precedence (mirrors the Python package): the SENTIMENTAI_MODEL
+  # environment variable (one-off override) > options(sentiment.ai.model=) (.Rprofile)
+  # > the profile persisted by use_profile() under tools::R_user_dir(). Falls back to
+  # the package default (e5-small). Resolved before any function default is evaluated.
+  m <- Sys.getenv("SENTIMENTAI_MODEL")
+  if(!nzchar(m)) m <- as.character(getOption("sentiment.ai.model", ""))
+  if(!nzchar(m)){
+    cfg <- tryCatch(.read_user_config(), error = function(e) list())
+    if(!is.null(cfg$default_model) && nzchar(cfg$default_model)) m <- cfg$default_model
+  }
+  set_const("DEFAULT_MODEL", m)
 }
 
 .onAttach <- function(libname, pkgname) {

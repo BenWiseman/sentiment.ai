@@ -76,6 +76,11 @@ automatically when it is on the \code{PATH}; \code{TRUE} forces it; \code{FALSE}
 always uses the standard pip installer. If the fast path does not complete it
 falls back to the standard installer, so it is always safe to leave on.}
 
+\item{pin_versions}{logical or NA; \code{NA} (default) installs the latest packages,
+then automatically retries with the verified pinned baseline if a key package
+fails to land; \code{TRUE} always uses the pinned baseline; \code{FALSE} skips
+the post-install version check entirely.}
+
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda_install]{conda_install()}}
 or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
 

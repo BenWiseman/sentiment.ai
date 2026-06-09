@@ -49,6 +49,6 @@ For power users. Requires \code{init_sentiment.ai()} to have been called or mode
 \dontrun{
 init_sentiment.ai(model = "e5-small")
 emb <- embed_text(c("I love this", "this is terrible"))
-dim(emb)   # 2 x 384 for e5-small; the "query: " prefix is added internally
+dim(emb)   # 2 x 384 for e5-small
 }
 }

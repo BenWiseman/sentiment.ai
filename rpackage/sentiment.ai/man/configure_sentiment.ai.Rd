@@ -12,7 +12,7 @@ Invisibly \code{TRUE} if any setting was changed, otherwise
 }
 \description{
 A post-install configuration wizard that lets you change the
-default embedding model, scoring head, and performance tier at any time —
+default embedding model, scoring head, and performance tier at any time --
 equivalent to running \code{setup_sentiment.ai()} again but without reinstalling
 the Python backend. Use this whenever you want to switch to a faster,
 heavier, or more accurate configuration.
@@ -20,11 +20,11 @@ heavier, or more accurate configuration.
 \details{
 Three preset tiers are offered:
 \describe{
-\item{Lightweight}{Logistic JSON head — smallest, fastest scoring; best
+\item{Lightweight}{Logistic JSON head -- smallest, fastest scoring; best
 when you need to score millions of texts and memory is tight.}
-\item{Balanced (default)}{MLP JSON head — the shipped default. Good accuracy
+\item{Balanced (default)}{MLP JSON head -- the shipped default. Good accuracy
 with no extra download.}
-\item{Maximum accuracy}{XGBoost head — best accuracy; requires
+\item{Maximum accuracy}{XGBoost head -- best accuracy; requires
 \code{xgboost} package and downloads the model file on first use.}
 }
 You can also configure the embedding model (\code{e5-small} vs \code{e5-base})

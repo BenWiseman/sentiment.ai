@@ -7,7 +7,7 @@
 sentiment_provenance(
   model = DEFAULT_MODEL,
   scoring = "mlp",
-  scoring_version = "1.0"
+  scoring_version = c("2.0", "1.0")
 )
 }
 \arguments{
@@ -15,7 +15,7 @@ sentiment_provenance(
 
 \item{scoring}{character; scoring-head type ("mlp", "logistic", ...). Default "mlp".}
 
-\item{scoring_version}{character; head version. Default "1.0".}
+\item{scoring_version}{character; head version: \code{"2.0"} (default) or \code{"1.0"}.}
 }
 \value{
 A list of class \code{"sentiment_provenance"}: model, backend, dim, prefix,
@@ -25,10 +25,10 @@ serve_prefix, prefix_ok.
 \description{
 Reports exactly what produced (or would produce) a score: the encoder and its
 license, source URL, pinned revision, and embedding prefix, plus the scoring head
-(type and temperature). It also guards against train/serve prefix skew -- the e5
-models are trained with a \code{"query: "} prefix and silently lose accuracy if it
-is dropped (Wang et al. 2024), so \code{prefix_ok} flags any mismatch between the
-prefix applied at serve time and the model's registered prefix.
+(type and temperature). It also guards against train/serve prefix skew: the v2 e5
+heads are trained and served prefix-free (registered prefix \code{""}), so
+\code{prefix_ok} flags any mismatch between the prefix applied at serve time and the
+model's registered prefix (e.g. if a \code{"query: "} retrieval prefix were wrongly added).
 }
 \examples{
 \dontrun{

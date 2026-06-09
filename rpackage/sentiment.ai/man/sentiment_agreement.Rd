@@ -36,14 +36,14 @@ A named list of class \code{"sentiment_agreement"}:
 \item{n}{Number of non-NA pairs used.}
 \item{spearman_r}{Spearman rank correlation between model score and numeric label.}
 \item{percent_agreement}{Proportion of rows where predicted class equals the reference
-label (0–1).}
+label (0-1).}
 \item{weighted_kappa}{Quadratic-weighted Cohen's \eqn{\kappa} on the ordinal
 3-class labels (Suggests \code{irr}).}
 \item{krippendorff_alpha}{Krippendorff's \eqn{\alpha} (ordinal), treating the
 reference and the model as two independent raters (Suggests \code{irr}).}
 \item{icc}{Two-way mixed ICC(2,1) with 95\\% CI for the numeric scores vs labels
 (Suggests \code{irr}).}
-\item{confusion_matrix}{3×3 table (true vs predicted, rows = true, cols = predicted).}
+\item{confusion_matrix}{3x3 table (true vs predicted, rows = true, cols = predicted).}
 \item{thresholds}{The positive/negative thresholds used for class assignment.}
 }
 Print the return value for a formatted summary.
@@ -52,8 +52,8 @@ Print the return value for a formatted summary.
 Use this to audit whether the model's scores match human annotations well enough
 for your use case, and to quote a defensible number in a methods section.  For context,
 on multi-annotator corpora like GoEmotions and SemEval-2017-4, \emph{human-human}
-weighted-\eqn{\kappa} on 3-class sentiment typically falls in the range 0.50–0.65.
-A value of 0.70+ is strong; 0.40–0.70 is moderate; below 0.40 warrants caution.
+weighted-\eqn{\kappa} on 3-class sentiment typically falls in the range 0.50-0.65.
+A value of 0.70+ is strong; 0.40-0.70 is moderate; below 0.40 warrants caution.
 }
 \details{
 Compares the model's continuous scores (or predicted class labels) against a set

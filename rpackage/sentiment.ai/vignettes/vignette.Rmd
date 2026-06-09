@@ -18,10 +18,13 @@ knitr::opts_chunk$set(
 suppressPackageStartupMessages(library(sentiment.ai))
 ```
 
-**Quite possibly the best on-device sentiment scoring in the R/Python ecosystem.**
-On a real mixed-domain held-out benchmark, `e5-base` beats a fine-tuned Twitter
-transformer by **F1 +0.167** (95% CI [+0.134, +0.199]) and scores across **~100
-languages** where that model can't run at all. Free, on-device, no API key.
+**The most complete on-device sentiment toolkit in the R/Python ecosystem** — tiny by
+default, with hate / mixed / style flags, intent-based profiles, an interactive map, and
+opt-in transformer backends for maximum accuracy. On-device `e5-base` **matches the paid
+OpenAI embedding** and scores across **~100 languages**, free and on-device. When you need
+the last few points of *in-domain* accuracy, opt into the bundled fine-tuned transformers
+(`max-english` / `max-multilingual`). Honest benchmarks — including where the big
+transformers win — are on the project page.
 
 `sentiment.ai` maps text to a sentiment score by embedding it with a multilingual
 sentence-transformer and running a small bundled scoring head. The default backend
@@ -39,7 +42,7 @@ install_sentiment.ai()
 
 # the model loads automatically on first use — no explicit init needed
 sentiment_score(c("I love this!", "this is terrible"))
-#> [1]  0.9  -0.9
+#> [1]  1.00 -0.99
 ```
 
 Scores are rescaled to `[-1, 1]` — about `1` is positive, about `-1` is negative.
@@ -100,8 +103,16 @@ your `.Rprofile`), set `options(sentiment.ai.autoinit = TRUE)`.
 * `"e5-small"` — default, 384-d, multilingual, on-device, no TensorFlow.
 * `"e5-base"` — 768-d, best on-device quality.
 * `"openai"` — `text-embedding-3-small` (paid API; text leaves your machine).
+* `"twitter-roberta"` / `"xlm-roberta"` — opt-in **end-to-end transformer** classifiers
+  (English / multilingual) for maximum *in-domain* accuracy; sentiment only, no flags, and
+  a ~500 MB–1 GB download on first use. The easy way in is a profile:
+  `use_profile("max-english")` or `use_profile("max-multilingual")`.
 * `"en"` / `"en.large"` / `"multi"` / `"multi.large"` — legacy USE models, require
   `install_sentiment.ai(legacy = TRUE)`.
+
+Rather than memorise handles, pick a backend by intent with `use_profile()` — see
+`sentiment_profiles()` for the options (`lightest`, `multilingual`, `max-english`,
+`max-multilingual`); the choice persists across sessions.
 
 ```r
 init_sentiment.ai()                    # e5-small
@@ -126,12 +137,16 @@ When you need the whole picture rather than one number — the per-class probabi
 label, and a confidence — use `sentiment()`. It returns a tidy data frame.
 
 ```r
-sentiment(c("I love this!", "it's fine", "this is terrible"))
-#>               text sentiment prob_neg prob_neu prob_pos    class confidence
-#> 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96
-#> 2        it's fine      0.10     0.08     0.74     0.18  neutral       0.74
-#> 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95
+sentiment(c("I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"))
+#>                                        text sentiment prob_neg prob_neu prob_pos    class confidence
+#> 1                              I love this!      1.00     0.00     0.00     1.00 positive       1.00
+#> 2 The package arrived on Tuesday afternoon.      0.13     0.00     0.86     0.13  neutral       0.86
+#> 3                          this is terrible     -0.99     0.99     0.01     0.00 negative       0.99
 ```
+
+For the e5 models, `sentiment()` also appends the post-processing flag columns
+`hate_speech` / `p_hate` / `mixed` / `style` (omitted above for width) — see the flags
+section below.
 
 `sentiment` is `prob_pos - prob_neg`; `class` is the most probable class; `confidence` is
 its probability. The probabilities are **calibrated** (temperature-scaled; expected
@@ -144,14 +159,15 @@ explanation against **tunable poles**. The poles only shape the explanation
 (`phrase` / `class` / `similarity`), never the score:
 
 ```r
-my_categories <- list(positive = c("excited", "loving", "content", "happy"),
-                      negative = c("lame", "lonely", "sad", "angry"))
+poles <- list(positive = c("friendly", "on time", "helpful"),
+              negative = c("rude", "delayed", "lost luggage"))
 
-sentiment_match(c("Will you marry me?", "Oh, you're breaking up with me..."),
-                phrases = my_categories)
-#>                                text sentiment phrase    class similarity
-#> 1                Will you marry me?      0.54 loving positive       0.82
-#> 2 Oh, you're breaking up with me...     -0.66    sad negative       0.79
+sentiment_match(c("The cabin crew were friendly and helpful",
+                  "My bag was lost and nobody helped"),
+                phrases = poles)
+#>                                       text sentiment       phrase    class similarity
+#> 1 The cabin crew were friendly and helpful      0.36     friendly positive       0.88
+#> 2        My bag was lost and nobody helped     -0.96 lost luggage negative       0.88
 ```
 
 Pass any set of poles, not just positive/negative, for arbitrary category matching, or
@@ -166,11 +182,11 @@ See exactly what produced a score:
 sentiment_provenance("e5-small")
 #> sentiment.ai provenance
 #>   model    : e5-small (st, dim 384)
-#>   prefix   : "query: "
+#>   prefix   : ""
 #>   revision : 614241f622f53c4eeff9890bdc4f31cfecc418b3
 #>   license  : MIT
 #>   source   : https://huggingface.co/intfloat/multilingual-e5-small
-#>   scoring  : mlp 1.0 (mlp, T=1.281)
+#>   scoring  : mlp 2.0 (mlp, T=1)
 ```
 
 # Calibration — how much to trust a score
@@ -262,18 +278,18 @@ data(airline_tweets)
 scores <- sentiment(airline_tweets$text)
 head(scores[, c("text", "sentiment", "class", "confidence")], 3)
 #>                                                  text sentiment    class confidence
-#> 1                @VirginAmerica What @dhepburn said.      0.07  neutral       0.71
-#> 2 @VirginAmerica plus you've added commercials ...     -0.61 negative       0.83
-#> 3   @VirginAmerica I didn't today... Must mean I ...    0.44 positive       0.72
+#> 1                @VirginAmerica What @dhepburn said.      0.75 positive       0.78
+#> 2 @VirginAmerica plus you've added commercials ...     -0.60 negative       0.64
+#> 3   @VirginAmerica I didn't today... Must mean I ...   -0.47 negative       0.59
 
 # compare predicted class to the human label
 scores$true_label <- airline_tweets$airline_sentiment
 table(predicted = scores$class, true = scores$true_label)
 #>           true
 #> predicted  negative neutral positive
-#>   negative     7673     322      260
-#>   neutral       386     873      198
-#>   positive      321     248     2359
+#>   negative     4530     416      134
+#>   neutral      3885    2131      619
+#>   positive      763     552     1610
 
 # triage: auto-accept high-confidence rows, queue the rest for review
 auto   <- scores[scores$confidence >= 0.85, ]
@@ -281,11 +297,39 @@ review <- scores[scores$confidence <  0.85, ]
 cat(sprintf("%.0f%% auto-accepted, %.0f%% queued for review\n",
             100 * nrow(auto) / nrow(scores),
             100 * nrow(review) / nrow(scores)))
-#> 71% auto-accepted, 29% queued for review
+#> 53% auto-accepted, 47% queued for review
 ```
 
 The `sentiment` column runs from −1 (negative) to +1 (positive); `confidence` is the
 probability of the predicted class. Both are calibrated — see the Calibration section.
+
+# Mapping a corpus — `plot_sentiment()`
+
+To *see* a whole corpus at once, `plot_sentiment()` embeds every comment, projects it to
+2-D, and draws each as a point coloured by its sentiment — with the full text on hover and
+**human-readable cluster labels**. It is the fastest way to spot what your data is about
+and where the sentiment sits.
+
+```r
+# `reviews` is any character vector of comments
+p <- plot_sentiment(reviews)                 # interactive plotly widget
+htmlwidgets::saveWidget(p, "map.html")       # or just print `p` in the viewer / a notebook
+
+# e.g. map the bundled airline tweets:
+# plot_sentiment(airline_tweets$text)
+```
+
+![A sentiment map of a mixed set of product and service reviews: each point is one comment, positioned by a 2-D projection of its embedding, coloured from red (negative) to green (positive), with full text on hover and auto-labelled clusters.](sentiment-map.png)
+
+Cluster labels are **deterministic** by default (class-based TF-IDF — computed, not
+generated, so they are reproducible and auditable). Pass `labels = "openai"` to spend a
+fraction of a cent on `gpt-4o-mini` for tidier 2–4 word topics (it silently falls back to
+TF-IDF if no key is set). Recolour with `color_by = "class"` / `"style"` / `"hate"`, fix the
+cluster count with `n_clusters =`, or get the underlying data frame with `return_data = TRUE`.
+
+The geometry is a *projection* — UMAP if the suggested **uwot** is installed, else t-SNE via
+**Rtsne**, else PCA (the axis titles say which). Explore with it; do not measure off it.
+`plotly` is the only hard requirement (it is a suggested package).
 
 # Auditing your scores — `sentiment_diagnostics()`
 
@@ -339,29 +383,32 @@ ag <- sentiment_agreement(scores, labels)
 print(ag)
 #> sentiment.ai agreement statistics  (n = 14640)
 #> -----------------------------------------------
-#>   Spearman r (score vs label)  : 0.721
-#>   Percent agreement (3-class)  : 74.6%
-#>   Weighted kappa (quad, 3-cls) : 0.682
+#>   Spearman r (score vs label)  : 0.561
+#>   Percent agreement (3-class)  : 57.4%
+#>   Weighted kappa (quad, 3-cls) : 0.506
 #>
 #> Human-human ceiling (indicative): weighted kappa ~0.50-0.65 on
 #> GoEmotions / SemEval-2017-4.
-#>   Krippendorff alpha (ordinal) : 0.612
-#>   ICC(2,1)                     : 0.718   95% CI [0.710, 0.726]
+#>   Krippendorff alpha (ordinal) : 0.442
+#>   ICC(2,1)                     : 0.510   95% CI [0.316, 0.639]
 #>
 #> Confusion matrix (rows=true, cols=predicted):
 #>           predicted
 #> true       negative neutral positive
-#>   negative     7673     386      321
-#>   neutral       322     873      248
-#>   positive      260     198     2359
+#>   negative     4698    3752      728
+#>   neutral       435    2023      641
+#>   positive      126     551     1686
 ```
 
-The **weighted kappa of 0.68** exceeds the typical human-human ceiling for 3-class
-sentiment (0.50–0.65), which is the number to quote in a methods section. You can
+The **weighted kappa of 0.51** sits within the typical human-human ceiling for 3-class
+sentiment (0.50–0.65) — respectable agreement against noisy crowd labels, and the number
+to quote in a methods section. (The airline tweets skew heavily negative and terse, which
+is near the hard end for any sentiment model; cleaner review text scores higher.) You can
 also adjust the neutral-zone boundaries:
 
 ```r
-# tighter neutral zone (scores in (-0.2, 0.2) become "neutral")
+# narrower neutral band: only scores in (-0.2, 0.2) count as "neutral"
+# (the default band is (-1/3, 1/3))
 ag2 <- sentiment_agreement(scores, labels,
                            positive_threshold =  0.2,
                            negative_threshold = -0.2)
@@ -377,10 +424,10 @@ target_mx <- embed_text(c("dogs", "cat", "IT", "computer"))
 ref_mx    <- embed_text(c("animals", "technology"))
 cosine_match(target_mx, ref_mx)[rank == 1]   # top match per row
 #>      target  reference similarity rank
-#> 1:     dogs    animals       0.72    1
-#> 2:      cat    animals       0.68    1
-#> 3:       IT technology       0.65    1
-#> 4: computer technology       0.61    1
+#> 1:     dogs    animals       0.93    1
+#> 2:      cat    animals       0.90    1
+#> 3:       IT technology       0.89    1
+#> 4: computer technology       0.92    1
 ```
 
 For large reference sets (thousands of phrases), add `approx = TRUE` for a much faster

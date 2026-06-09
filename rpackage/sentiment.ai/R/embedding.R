@@ -133,7 +133,7 @@ hub_embed <- function(text, batch_size = NULL) {
 #' \dontrun{
 #' init_sentiment.ai(model = "e5-small")
 #' emb <- embed_text(c("I love this", "this is terrible"))
-#' dim(emb)   # 2 x 384 for e5-small; the "query: " prefix is added internally
+#' dim(emb)   # 2 x 384 for e5-small
 #' }
 #' @importFrom data.table data.table
 #' @export
@@ -166,16 +166,7 @@ embed_text <- function(text,
     batch_size <- length(text)
   }
 
-  # Apply the model's embedding prefix R-side (e5 wants "query: "), idempotently, so
-  # the embedder stays a plain encoder and the prefix is consistent across the R and
-  # Python packages -- and testable. Keep the ORIGINAL text for the row names.
   orig_text <- text
-  prefix <- if (!is.null(model) && model[1] %in% names(model_prefix)) model_prefix[[model[1]]]
-            else sentiment.ai::sentiment.env$prefix
-  if (is.null(prefix) || is.na(prefix)) prefix <- ""
-  if (nzchar(prefix))
-    text <- ifelse(startsWith(as.character(text), prefix),
-                   as.character(text), paste0(prefix, text))
 
   # sentence-transformers (v2 default): env$embed returns an (n, dim) matrix
   # directly (already row = text, col = dim) -- no transpose needed.

@@ -8,7 +8,7 @@ sentiment_score(
   x = NULL,
   model = DEFAULT_MODEL,
   scoring = DEFAULT_SCORING,
-  scoring_version = "1.0",
+  scoring_version = c("2.0", "1.0"),
   batch_size = 100,
   head_path = NULL,
   ...
@@ -28,11 +28,14 @@ tensorflow-hub name.}
 TensorFlow at score time). \code{"xgb"}/\code{"glm"} are still accepted for
 legacy heads but are not the default.}
 
-\item{scoring_version}{The scoring version to use, currently only 1.0, but
-other versions might be supported in the future.}
+\item{scoring_version}{Scoring head version: \code{"2.0"} (default, improved
+calibration) or \code{"1.0"} (legacy). Both ship inside the package.}
 
 \item{batch_size}{Size of batches to use. Larger numbers will be faster than
 smaller numbers, but do not exhaust your system memory!}
+
+\item{head_path}{optional path to a custom JSON scoring head, bypassing the bundled
+heads. For advanced use (e.g. scoring with a head you trained yourself).}
 
 \item{...}{Additional arguments passed to \code{\link[reticulate:conda_install]{conda_install()}}
 or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
