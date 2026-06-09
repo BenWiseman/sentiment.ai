@@ -73,27 +73,32 @@ a small, bundled scoring head. The default backend is the on-device multilingual
 **`multilingual-e5-small`** — **no TensorFlow, no API key, no data leaving your machine**.
 
 <div class="new-in-v2">
-**Quite possibly the best on-device sentiment scoring in the R/Python ecosystem.**
+**The most complete on-device sentiment toolkit in the R/Python ecosystem** — tiny by
+default, with hate / mixed / style flags, intent-based profiles, an interactive map, and
+opt-in transformer backends for when you want maximum accuracy.
 
-On a real mixed-domain held-out benchmark (Amazon / IMDB / financial news / tweets,
-n = 1,247), `e5-base` beats a fine-tuned Twitter transformer by **F1 +0.167**
-(95% CI [+0.134, +0.199] — entirely above zero). On a 6-language synthetic benchmark,
-`e5-base` reaches macro-F1 0.827 overall; the Twitter model can't score outside English,
-and VADER collapses to F1 = 0.27 on German. All benchmarks run locally — no API calls,
-no data sent anywhere. See the [Benchmarks](#benchmarks) section for full results and CIs.
+On-device `e5-base` **matches the paid OpenAI embedding** (`text-embedding-3-small`) on our
+benchmarks. On a broad mixed-domain set (Amazon / IMDB / financial news / tweets, n = 1,247) —
+where a Twitter-tuned model is out of its domain — `e5-base` leads. But **in-domain on tweets
+the fine-tuned transformers win** (cardiffnlp Twitter-RoBERTa 0.72 / 0.76 macro-F1 on
+SemEval-2017 / airline; XLM-R 0.70 on multilingual vs our 0.57), so rather than overclaim we
+**ship them as the opt-in `max-english` / `max-multilingual` backends**. All benchmarks run
+locally — no API calls, no data sent anywhere. See [Benchmarks](#benchmarks) for the full,
+honest table and CIs.
 </div>
 
 <div class="new-in-v2">
-**What's new in v2 (1.0.1)**
+**What's new in v2 (1.1.0)**
 
-- **No TensorFlow** — default install is ~120 MB on-device, Apple-Silicon-clean.
-- **Calibrated confidence** — ECE ≈ 0.015; `confidence` actually means what it says.
-- **`sentiment()`** — tidy 3-class output (text, score, prob_neg/neu/pos, class, confidence).
-- **`sentiment_diagnostics()`** — know *when not to trust* a score: entropy, mixed-signal flag, out-of-domain detector.
-- **`sentiment_agreement()`** — validate against human labels; get weighted-κ, Krippendorff's α, ICC.
-- **Automatic dependency fallback** — if a "latest" pip install breaks, `install_sentiment.ai()` snaps to the verified baseline automatically.
-- **Model selection in the setup wizard** — choose e5-small vs e5-base at install time.
+- **Sentiment map** — `plot_sentiment()` embeds your corpus, projects it to 2-D, colours each point by sentiment, and auto-labels the clusters (interactive; hover for the full text).
+- **Safety & style flags** — `sentiment()` adds `hate_speech` / `p_hate` (AUROC ≈ 0.95–0.97), `mixed`, and `style` from the *same* embedding (e5 models; no extra download).
+- **Profiles** — `use_profile()` / `setup()`: pick a backend by intent — `lightest` / `multilingual` / `max-english` / `max-multilingual` — and it persists across sessions.
+- **Transformer backends** — opt-in `model = "twitter-roberta"` / `"xlm-roberta"` for max in-domain accuracy (*if you can't beat 'em, join 'em*).
+- Still: no TensorFlow, calibrated confidence (ECE ≈ 0.015), tidy 3-class `sentiment()`, `sentiment_diagnostics()`, `sentiment_agreement()`.
+- A **Python sibling** (`sentimentai`) shares the same scoring heads, verified bit-for-bit.
 </div>
+
+![A sentiment map: every comment embedded, projected to 2-D, coloured by sentiment, with full text on hover and auto-labelled clusters.](sentiment-map.png)
 
 Compared with lexicon/dictionary methods:
 
@@ -117,14 +122,14 @@ install_sentiment.ai()
 
 # the model loads on first use — no explicit init() needed
 sentiment_score(c("I love this!", "this is terrible"))
-#> [1]  0.9  -0.9
+#> [1]  1.00 -0.99
 
 # full 3-class tidy output
-sentiment(c("I love this!", "it's fine", "this is terrible"))
-#>               text sentiment    class confidence
-#> 1     I love this!      0.95 positive       0.96
-#> 2        it's fine      0.10  neutral       0.74
-#> 3 this is terrible     -0.93 negative       0.95
+sentiment(c("I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"))
+#>                                        text sentiment    class confidence
+#> 1                              I love this!      1.00 positive       1.00
+#> 2 The package arrived on Tuesday afternoon.      0.13  neutral       0.86
+#> 3                          this is terrible     -0.99 negative       0.99
 ```
 
 `init_sentiment.ai()` is optional — only needed for eager loading (e.g. to avoid a
@@ -146,19 +151,21 @@ pip install --pre sentimentai-py
 ```python
 import sentimentai as sa
 
-# simple score
+# simple score: one score per input, in input order
 sa.sentiment_score(["I love this!", "this is terrible"])
-# [-0.9, 0.9]  -- note: Python returns [neg, pos] ordering
+# array([ 1.  , -0.99])   # about +1 = positive, about -1 = negative
 
-# tidy output
-sa.sentiment(["I love this!", "it's fine", "this is terrible"])
-#    text                  sentiment  class     confidence
-# 0  I love this!          0.95       positive  0.96
-# 1  it's fine             0.10       neutral   0.74
-# 2  this is terrible     -0.93       negative  0.95
+# tidy output: a list of dicts (text, prob_neg/neu/pos, class, confidence, + hate/mixed/
+# style flags for e5 models). Wrap in a DataFrame for a table:
+import pandas as pd
+pd.DataFrame(sa.sentiment(["I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"]))[["text", "sentiment", "class", "confidence"]]
+#                                         text  sentiment     class  confidence
+# 0                              I love this!       1.00  positive        1.00
+# 1  The package arrived on Tuesday afternoon.       0.13   neutral        0.86
+# 2                          this is terrible      -0.99  negative        0.99
 
-# same scoring heads as the R package — results are bit-for-bit identical
-sa.sentiment_provenance("e5-small")
+# same scoring heads as the R package — the forward pass is verified bit-for-bit
+sa.resolve("e5-small")   # the backend: hf id, dim, kind, pinned revision
 ```
 
 Install options:
@@ -217,8 +224,7 @@ and scoring is deterministic across machines.
 | Disk / RAM | ~120 MB |
 | Languages | ~100 |
 | Speed | ~310 texts/sec (CPU) |
-| Macro-F1 — shipped MLP head | 0.734 (mixed-domain held-out, n=1,247) |
-| Macro-F1 — training benchmark | 0.854 (XGBoost scorer; see note) |
+| Macro-F1 | 0.860 (mixed-domain held-out, n=1,247) |
 
 **Best for:** scripts and pipelines where throughput matters, laptops with < 8 GB RAM,
 short text (tweets, survey items, review snippets), exploratory work and fast iteration.
@@ -236,8 +242,7 @@ sentiment_score(texts, model="e5-small")  # explicit
 | Disk / RAM | ~280 MB |
 | Languages | ~100 |
 | Speed | ~141 texts/sec (CPU) |
-| Macro-F1 — shipped MLP head | 0.823 (mixed-domain held-out, n=1,247) |
-| Macro-F1 — training benchmark | 0.899 (XGBoost scorer; see note) |
+| Macro-F1 | 0.90 (mixed-domain held-out, n=1,247) |
 
 **Best for:** final datasets for publication, longer/more nuanced text (interview transcripts,
 open-ended verbatims), servers with ample RAM, cases where the ~9 pp F1 gain over e5-small matters.
@@ -259,12 +264,10 @@ options(sentiment.ai.model = "e5-base")
 | Embedding dim | 1536 |
 | Model | `text-embedding-3-small` |
 | Speed | network-dependent |
-| Macro-F1 — training benchmark | 0.886 (XGBoost scorer; see note) |
+| Macro-F1 | 0.903 (mixed-domain held-out, n=1,247) |
 | Cost | per-token API charge |
 
 Text leaves your machine and is sent to OpenAI's servers. Requires an API key.
-On the training benchmark (XGBoost scorer), OpenAI is marginally behind `e5-base` (0.886
-vs 0.899) — suggesting the e5 embedding space suits the scoring head better.
 
 ```{r openai, echo=TRUE, eval=FALSE}
 Sys.setenv(OPENAI_API_KEY = "sk-...")
@@ -290,11 +293,11 @@ Tidy data frame with the full 3-class signal. Use when the neutral mass matters 
 triage low-confidence rows.
 
 ```{r tidy, echo=TRUE, eval=FALSE}
-sentiment(c("I love this!", "it's fine", "this is terrible"))
-#>               text sentiment prob_neg prob_neu prob_pos    class confidence
-#> 1     I love this!      0.95     0.01     0.03     0.96 positive       0.96
-#> 2        it's fine      0.10     0.08     0.74     0.18  neutral       0.74
-#> 3 this is terrible     -0.93     0.95     0.03     0.02 negative       0.95
+sentiment(c("I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"))
+#>                                        text sentiment prob_neg prob_neu prob_pos    class confidence
+#> 1                              I love this!      1.00     0.00     0.00     1.00 positive       1.00
+#> 2 The package arrived on Tuesday afternoon.      0.13     0.00     0.86     0.13  neutral       0.86
+#> 3                          this is terrible     -0.99     0.99     0.01     0.00 negative       0.99
 
 # triage: trust high-confidence rows automatically
 s    <- sentiment(my_reviews)
@@ -327,11 +330,11 @@ See exactly what produced a score.
 sentiment_provenance("e5-small")
 #> sentiment.ai provenance
 #>   model    : e5-small (st, dim 384)
-#>   prefix   : "query: "
+#>   prefix   : ""
 #>   revision : 614241f622f53c4eeff9890bdc4f31cfecc418b3
 #>   license  : MIT
 #>   source   : https://huggingface.co/intfloat/multilingual-e5-small
-#>   scoring  : mlp 1.0 (mlp, T=1.281)
+#>   scoring  : mlp 2.0 (mlp, T=1)
 ```
 
 ---
@@ -343,39 +346,41 @@ sentiment_provenance("e5-small")
 ```python
 import sentimentai as sa
 scores = sa.sentiment_score(["I love this!", "this is terrible"])
-# [0.95, -0.93]
+# array([1.  , -0.99])
 ```
 
 ## `sentiment()`
 
 ```python
-df = sa.sentiment(["I love this!", "it's fine", "this is terrible"])
-print(df[["text", "sentiment", "class", "confidence"]])
-#               text  sentiment     class  confidence
-# 0     I love this!       0.95  positive        0.96
-# 1        it's fine       0.10   neutral        0.74
-# 2 this is terrible      -0.93  negative        0.95
+rows = sa.sentiment(["I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"])
+# a list of dicts (text, sentiment, prob_neg/neu/pos, class, confidence, + hate/mixed/style
+# flags for e5 models). Wrap in pandas.DataFrame(rows) for a table.
+rows[1]
+# {'text': 'The package arrived on Tuesday afternoon.', 'sentiment': 0.13,
+#  'class': 'neutral', 'confidence': 0.86, 'hate_speech': False, 'mixed': False, 'style': 'informal', ...}
 ```
 
 ## `sentiment_match()`
 
 ```python
 poles = {
-    "positive": ["excited", "loving", "content", "happy"],
-    "negative": ["lame",    "lonely", "sad",     "angry"]
+    "positive": ["friendly", "on time", "helpful"],
+    "negative": ["rude",     "delayed", "lost luggage"],
 }
-df = sa.sentiment_match(["Will you marry me?", "Breaking up with me..."],
-                        phrases=poles)
+rows = sa.sentiment_match(["The cabin crew were friendly and helpful",
+                           "My bag was lost and nobody helped"], phrases=poles)
+# [{'text': '...friendly...', 'sentiment': 0.36, 'phrase': 'friendly',
+#   'class': 'positive', 'similarity': 0.88}, ...]
 ```
 
 ## `sentiment_provenance()`
 
 ```python
 sa.sentiment_provenance("e5-small")
-# sentiment.ai provenance
-#   model    : e5-small (st, dim 384)
-#   revision : 614241f622f53c4eeff9890bdc4f31cfecc418b3
-#   scoring  : mlp 1.0
+# {'model': 'e5-small', 'backend': 'sentence-transformers', 'dim': 384,
+#  'prefix': '', 'revision': '614241f622f53c4eeff9890bdc4f31cfecc418b3',
+#  'scoring': 'mlp', 'scoring_version': '2.0', 'head_type': 'mlp',
+#  'temperature': 1.0}
 ```
 
 ---
@@ -449,18 +454,25 @@ ag     <- sentiment_agreement(scores, airline_tweets$airline_sentiment)
 print(ag)
 #> sentiment.ai agreement statistics  (n = 14640)
 #> -----------------------------------------------
-#>   Spearman r (score vs label)  : 0.721
-#>   Percent agreement (3-class)  : 74.6%
-#>   Weighted kappa (quad, 3-cls) : 0.682
+#>   Spearman r (score vs label)  : 0.561
+#>   Percent agreement (3-class)  : 57.4%
+#>   Weighted kappa (quad, 3-cls) : 0.506
 #>
 #> Human-human ceiling (indicative): weighted kappa ~0.50-0.65 on
 #> GoEmotions / SemEval-2017-4.
-#>   Krippendorff alpha (ordinal) : 0.612
-#>   ICC(2,1)                     : 0.718   95% CI [0.710, 0.726]
+#>   Krippendorff alpha (ordinal) : 0.442
+#>   ICC(2,1)                     : 0.510   95% CI [0.316, 0.639]
+#>
+#> Confusion matrix (rows=true, cols=predicted):
+#>           predicted
+#> true       negative neutral positive
+#>   negative     4698    3752      728
+#>   neutral       435    2023      641
+#>   positive      126     551     1686
 ```
 
-A **weighted kappa of 0.68** exceeds the typical human-human ceiling on 3-class sentiment
-(0.50–0.65) — this is the number to quote in a methods section.
+A **weighted kappa of 0.51** is consistent with the typical human-human ceiling on 3-class
+sentiment (0.50–0.65) — this is the number to quote in a methods section.
 
 Adjust the neutral-zone boundaries to match your application:
 ```{r agree-thresh, echo=TRUE, eval=FALSE}
@@ -491,11 +503,10 @@ this roughly 3–4× in practice.
 **Setup:** 1,000 airline tweets (seed 42); macOS aarch64 M-series, 8 CPU cores, no GPU.
 Accuracy = macro-F1 (3-class: neg/neu/pos) against crowd labels. Speed = median of 3 runs.
 
-Three accuracy sources — each labelled clearly:
+Two accuracy sources — each labelled clearly:
 
 - **†** = 1,000 airline tweet sample (cross-domain; models trained on Amazon/IMDB/financial, *not* Twitter)
-- **★** = same mixed-domain held-out set (n = 1,247 real-only; shipped MLP head; bootstrap CIs available)
-- **☆** = training benchmark (XGBoost scorer on full training data — stronger scorer than shipped; for reference)
+- **★** = mixed-domain held-out set (n = 1,247 real-only; shipped MLP head; bootstrap CIs available)
 
 ## R — speed
 
@@ -510,30 +521,24 @@ Three accuracy sources — each labelled clearly:
 
 ## R — accuracy
 
-| method | macro-F1 (†) | macro-F1 (★) | macro-F1 (☆) |
-|:-------|:-----------:|:------------:|:------------:|
-| **sentiment.ai e5-base** | 0.595 | **0.823** | 0.899 |
-| sentiment.ai e5-small | 0.613 | **0.734** | 0.854 |
-| sentiment.ai openai | — | — | 0.886 |
-| twitter-roberta | 0.777 ⚠️ | **0.656** | — |
-| tidytext (bing) | 0.511 | — | — |
-| syuzhet (AFINN) | 0.301 | — | — |
-| sentimentr | 0.293 | — | — |
+| method | macro-F1 (†) | macro-F1 (★) |
+|:-------|:-----------:|:------------:|
+| **sentiment.ai e5-base** | 0.72 | **0.90** |
+| sentiment.ai e5-small | 0.61 | **0.860** |
+| sentiment.ai openai | — | **0.903** |
+| twitter-roberta | 0.777 ⚠️ | **0.656** |
+| tidytext (bing) | 0.511 | — |
+| syuzhet (AFINN) | 0.301 | — |
+| sentimentr | 0.293 | — |
 
 ⚠️ roberta airline-tweet figure is near-in-domain (TweetEval training overlap). Its ★ result
 (0.656) is the fair out-of-sample number.
 
 **Bootstrap CIs on ★ (2,000 resamples):**
 
-- e5-base vs roberta: Δ = **+0.167**, 95% CI [+0.134, +0.199] — entirely above zero
-- e5-small vs roberta: Δ = **+0.078**, 95% CI [+0.048, +0.107] — entirely above zero
-- e5-base vs e5-small: Δ = **+0.089**, 95% CI [+0.061, +0.118]
-
-**Note on ★ vs ☆ numbers:** ★ measures the *shipped MLP head* on the held-out set. ☆ measures
-the *XGBoost scorer* trained on all available data — a stronger scorer that is no longer the
-default. The gap (0.823 vs 0.899 for e5-base) reflects the XGBoost head being stronger, not a
-change in embedding quality. Even with the shipped MLP head, both models beat roberta with
-statistical significance.
+- e5-base vs roberta: Δ = **+0.263** — 95% CI entirely above zero
+- e5-small vs roberta: Δ = **+0.204** — 95% CI entirely above zero
+- e5-base vs e5-small: Δ = **+0.059** — 95% CI entirely above zero
 
 ## Python — speed
 
@@ -589,7 +594,7 @@ ordering across languages and methods is the reliable signal.
 
 | | e5-small | e5-base | twitter-roberta | vaderSentiment |
 |:--|:--:|:--:|:--:|:--:|
-| Cross-domain (★ F1) | 0.734 | **0.823** | 0.656 | — |
+| Cross-domain (★ F1) | 0.860 | **0.90** | 0.656 | — |
 | Multilingual (6 lang) | **✓** | **✓** | ✗ English only | ✗ English only |
 | Calibrated confidence | **✓** | **✓** | ✗ | ✗ |
 | Tunable poles | **✓** | **✓** | ✗ | ✗ |
@@ -647,12 +652,12 @@ import sentimentai as sa
 # first use triggers a ~120 MB model download (one-time)
 sa.sentiment_score(["Hello world"])
 
-# to use the larger, more accurate model:
-sa.init(model="e5-base")
+# to use the larger, more accurate model, just pass model= (no init step needed);
+# sa.ensure_model("e5-base") pre-downloads it if you want to control when:
 sa.sentiment_score(["Hello world"], model="e5-base")
 ```
 
-Requirements: Python 3.8+, PyTorch (CPU or CUDA).
+Requirements: Python 3.9+, PyTorch (CPU or CUDA).
 
 ---
 
@@ -666,10 +671,10 @@ ref_mx    <- embed_text(c("animals", "technology"))
 
 cosine_match(target_mx, ref_mx)[rank == 1]
 #>     target  reference similarity rank
-#> 1:    dogs    animals       0.72    1
-#> 2:     cat    animals       0.68    1
-#> 3: keyboard technology       0.65    1
-#> 4:   mouse technology       0.57    1
+#> 1:    dogs    animals       0.93    1
+#> 2:     cat    animals       0.90    1
+#> 3: keyboard technology       0.87    1
+#> 4:   mouse    animals       0.89    1
 
 # approx=TRUE for large reference sets (requires RANN; much faster)
 cosine_match(target_mx, large_ref_mx, approx = TRUE)
