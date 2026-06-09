@@ -225,10 +225,10 @@ different text (legal, code, heavy sarcasm) with more caution.
 There are two on-device models. Both run with no TensorFlow, no API key, and handle
 ~100 languages.
 
-| model | embedding dim | disk / RAM | relative speed | macro-F1 (real text) |
-|:------|:---:|:---:|:---:|:---:|
-| `e5-small` | 384 | ~120 MB | baseline | 0.854 |
-| `e5-base` (**default**) | 768 | ~280 MB | ~2× slower | 0.899 |
+| model | embedding dim | disk / RAM | macro-F1 (general business text, n = 10,085) |
+|:------|:---:|:---:|:---:|
+| `e5-base` (**default**) | 768 | ~280 MB | 0.888 |
+| `e5-small` (lighter option) | 384 | ~120 MB | 0.836 |
 
 **Use `e5-small` (the lighter option) when:**
 
@@ -264,6 +264,55 @@ good choice; the default is `e5-base` for quality.
 There is also an `openai` backend (`text-embedding-3-small` via the API) that matches
 `e5-base` accuracy but sends text to OpenAI's servers and incurs per-token cost. Use it
 only if you have an API key and are comfortable with data leaving your machine.
+
+# Benchmarks
+
+Most people scoring sentiment are scoring reviews, tickets, and survey text, not tweets,
+so we lead with general business text. All benchmarks run locally on public data, no
+proprietary data.
+
+![macro-F1 on general business text (employee reviews) for every backend, plus a panel showing the fine-tuned transformer's lead appears only on tweets](benchmark.png)
+
+**General business text** (employee reviews, macro-F1, n = 10,085):
+
+| model | macro-F1 |
+|:------|:--------:|
+| `twitter-roberta` (opt-in transformer) | 0.909 |
+| `openai` (paid embedding) | 0.896 |
+| **`e5-base` (default, on-device)** | **0.888** |
+| distilBERT-SST2 | 0.879 |
+| `e5-small` (on-device) | 0.836 |
+| VADER | 0.681 |
+| TextBlob | 0.626 |
+
+On real business text the on-device `e5-base` default lands within about two points of
+both the paid OpenAI embedding and a 125M fine-tuned transformer, clears distilBERT, and
+sits 20 to 30 points above the lexicon tools. On a separate held-out set of general review
+text (n = 19,547) the on-device heads reach macro-F1 0.93 (`e5-base`) and 0.94
+(`e5-small`).
+
+**Where the transformer pulls ahead: tweets.** On Twitter benchmarks the fine-tuned
+`twitter-roberta` opens a real gap because tweets are its training data:
+
+| model | SemEval-2017 tweets | Airline tweets |
+|:------|:-------------------:|:--------------:|
+| `twitter-roberta` (opt-in) | 0.724 | 0.761 |
+| `e5-base` (default) | 0.672 | 0.651 |
+| `e5-small` | 0.587 | 0.581 |
+| VADER | 0.529 | 0.457 |
+
+If your text really is tweets, opt into the `max-english` backend. For everything else the
+gap is small, and `e5-base` is the only option here that also covers ~100 languages,
+carries the hate / mixed / style flags, gives you `sentiment_match()` and `plot_sentiment()`,
+keeps data on the machine, and stays free.
+
+**Transformer CPU speed** (texts/sec, higher is better):
+
+| backend | CPU throughput |
+|:--------|:--------------:|
+| `e5-small` | ~850 |
+| `e5-base` (default) | ~300 |
+| `twitter-roberta` (opt-in) | ~310 |
 
 # Working with real data
 

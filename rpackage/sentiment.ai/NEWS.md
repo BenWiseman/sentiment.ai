@@ -6,61 +6,62 @@ sibling (`sentimentai`), with the flag forward passes verified bit-for-bit again
 
 ## New functions
 
-- **`plot_sentiment()`** — an interactive sentiment map: every text embedded, projected
+- **`plot_sentiment()`** - an interactive sentiment map: every text embedded, projected
   to 2-D (UMAP via *uwot* if installed, else t-SNE via *Rtsne*, else PCA), drawn as a
   point coloured by sentiment, with the full text on hover and **human-readable cluster
   labels**. Labels are deterministic c-TF-IDF by default; `labels = "openai"` spends a
   fraction of a cent on gpt-4o-mini for tidier topics (and silently falls back). Needs the
   suggested `plotly`.
 
-- **`use_profile()`** / **`sentiment_profiles()`** — pick a backend by plain intent
+- **`use_profile()`** / **`sentiment_profiles()`** - pick a backend by plain intent
   (`"lightest"`, `"multilingual"`, `"max-english"`, `"max-multilingual"`) instead of
   memorising model handles. The choice persists across sessions (a small JSON under
   `tools::R_user_dir()`); `SENTIMENTAI_MODEL` or `options(sentiment.ai.model=)` override it.
 
 ## New features
 
-- **Post-processing flags in `sentiment()`** — for models with bundled aux heads
+- **Post-processing flags in `sentiment()`** - for models with bundled aux heads
   (`e5-small` / `e5-base` / `openai`), the tidy output now also carries `hate_speech` +
-  `p_hate` (hate detector, AUROC ≈ 0.95–0.97, tuned to ~0.90 recall with a very low
+  `p_hate` (hate detector, AUROC ≈ 0.95-0.97, tuned to ~0.90 recall with a very low
   false-positive rate on normal text), `mixed` (a neutral row that carries competing
   positive *and* negative signal), and `style` (top of five writing styles). All computed
-  from the **same embedding** — no second model, no extra download. `sentiment_diagnostics()`
+  from the **same embedding** - no second model, no extra download. `sentiment_diagnostics()`
   keeps its own focused signal set and is unchanged.
 
-- **Opt-in transformer backends** (*if you can't beat 'em, join 'em*) — `model =
-  "twitter-roberta"` (English) and `model = "xlm-roberta"` (multilingual) run a fine-tuned
-  transformer end-to-end via the existing reticulate bridge (no new dependency class;
-  `transformers`/`torch` already ship with sentence-transformers). They lead **in-domain**
-  accuracy; the default stays tiny, on-device, multilingual, TF-free, and carries the flags.
+- **Opt-in transformer backends** - `model = "twitter-roberta"` (English) and
+  `model = "xlm-roberta"` (multilingual) run a fine-tuned transformer end-to-end via the
+  existing reticulate bridge (no new dependency class; `transformers`/`torch` already ship
+  with sentence-transformers). They lead in-domain accuracy on tweets; the default stays
+  on-device, multilingual, TF-free, and carries the flags.
 
 - **v2.0 scoring heads** are now the default (`scoring_version = "2.0"`); the `"1.0"` heads
   remain available. The bundled heads match the Python package byte-for-byte.
 
-## Honest benchmarks
+## Benchmarks
 
-Fine-tuned transformers lead accuracy everywhere (RoBERTa 0.72/0.76 SemEval/airline vs
-`e5-base` 0.67/0.65; XLM-R 0.70 multilingual vs 0.57), so we ship them rather than claim to
-beat them. The genuine wins: on-device `e5-base` **matches the paid OpenAI embedding**, beats
-distilBERT on reviews, crushes the lexicon methods, and wins on footprint, speed, privacy,
-and the flags. Full table on the project page.
+On general business text (employee reviews, macro-F1, n = 10,085) the on-device `e5-base`
+default (0.888) lands within about two points of the paid OpenAI embedding (0.896) and a
+125M fine-tuned transformer (0.909), clears distilBERT (0.879), and sits 20 to 30 points
+above VADER and TextBlob. The fine-tuned transformer opens a clear gap only on tweets (its
+training domain): SemEval-2017 0.724 vs 0.672, airline 0.761 vs 0.651. Full table on the
+project page.
 
 
 # sentiment.ai 1.0.1
 
 This release adds the diagnostic, validation, and reliability features that make v2
-production-ready — plus a set of polish fixes found by multi-perspective code review.
+production-ready - plus a set of polish fixes found by multi-perspective code review.
 
 ## New functions
 
-- **`sentiment_diagnostics()`** — augments every scored row with five signals that say
+- **`sentiment_diagnostics()`** - augments every scored row with five signals that say
   *when not to trust the score*: `entropy` (head certainty), `confidence_band`
   (`"low"` / `"moderate"` / `"high"`), `mixed` (competing positive and negative mass),
   `ood_similarity` (cosine to training centroids), and `ood_flag` (out-of-domain detector).
   Use the triage rule `confidence_band >= "moderate" & !mixed & !ood_flag` to auto-accept
   easy rows and route the rest to human review.
 
-- **`sentiment_agreement()`** — compares model scores to a set of human-provided labels
+- **`sentiment_agreement()`** - compares model scores to a set of human-provided labels
   and returns the agreement statistics needed for a methods section: Spearman *r*, percent
   agreement, quadratic-weighted Cohen's κ (pinned 3×3 weight matrix), Krippendorff's α
   (ordinal), and ICC(2,1) with 95% CI. Accepts numeric labels (`-1`/`0`/`1`), string
@@ -68,29 +69,29 @@ production-ready — plus a set of polish fixes found by multi-perspective code 
 
 ## New capabilities on existing functions
 
-- **`cosine_match(approx = TRUE)`** — opt-in approximate nearest-neighbour search via
+- **`cosine_match(approx = TRUE)`** - opt-in approximate nearest-neighbour search via
   `RANN`'s k-d tree for large reference sets. Exact cosine is still the default; the approx
   path returns rank-1 only and falls back gracefully with a message if `RANN` is absent.
   `RANN` added to Suggests.
 
 - **`head_path =` argument** on `sentiment_score()`, `sentiment()`, and
-  `sentiment_diagnostics()` — supply an absolute path to a custom or retrained JSON head
+  `sentiment_diagnostics()` - supply an absolute path to a custom or retrained JSON head
   to bypass the bundled `inst/scoring/` resolution. Unlocks domain-adapted heads without
   monkey-patching the installed package.
 
-- **`pin_versions = NA` argument** on `install_sentiment.ai()` — the default (`NA`) tries
+- **`pin_versions = NA` argument** on `install_sentiment.ai()` - the default (`NA`) tries
   the latest Python packages, then automatically retries with the bundled
   `inst/python/requirements.txt` baseline if `sentence-transformers` does not land
   correctly. Use `pin_versions = TRUE` to always install the known-working baseline; use
   `pin_versions = FALSE` for the old no-check behaviour. The requirements file captures the
   verified-working stack (sentence-transformers 3.3.0, numpy 2.0.2, etc.).
 
-- **Model selection in the setup wizard** — `setup_sentiment.ai()` now offers a second
+- **Model selection in the setup wizard** - `setup_sentiment.ai()` now offers a second
   menu after install to pick a default embedding model (`e5-small` vs `e5-base`). The
   choice is written to `options(sentiment.ai.model)` for the session, with a `.Rprofile`
   hint to make it permanent.
 
-- **`options(sentiment.ai.model)` support** — set `options(sentiment.ai.model = "e5-base")`
+- **`options(sentiment.ai.model)` support** - set `options(sentiment.ai.model = "e5-base")`
   in your `.Rprofile` to override the default model at package load time. `.onLoad`
   honours this option before any function default is evaluated.
 
@@ -127,12 +128,12 @@ production-ready — plus a set of polish fixes found by multi-perspective code 
 change: **TensorFlow is no longer required.** The default sentiment pipeline now runs on a
 no-TensorFlow, on-device embedder (**e5-small**), and the legacy TensorFlow Universal
 Sentence Encoder path is preserved as an explicit opt-in. In development testing the new
-default **matches — and slightly improves on — the old TensorFlow USE default it replaces**
+default **matches - and slightly improves on - the old TensorFlow USE default it replaces**
 on a clean install (0.832 → 0.842 macro-F1), and for users who want top accuracy, an
 on-device **e5-base** option **matches paid OpenAI embeddings on a free, on-device,
 multilingual, zero-TensorFlow model** (0.890 vs 0.897; paired-bootstrap 95% CI on ΔF1
 includes 0). If you only ever called `sentiment_score()` / `sentiment_match()`
-with the defaults, you get a cleaner install and a stronger default — and your existing USE
+with the defaults, you get a cleaner install and a stronger default - and your existing USE
 scripts still work.
 
 > The macro-F1 figures below are from the **full-data** evaluation (full train pool,
@@ -146,12 +147,12 @@ scripts still work.
 
 The original package was built on the TensorFlow Hub Universal Sentence Encoder. It worked,
 and for 2021 it was a good choice. But over three years the TensorFlow backend became, by a
-wide margin, the single biggest source of user pain — and most of that pain had nothing to do
+wide margin, the single biggest source of user pain - and most of that pain had nothing to do
 with sentiment analysis:
 
 - **Pinned-version fragility.** A working install depended on a narrow, ageing set of pins
   (`tensorflow` 2.4.x, `tensorflow_hub` 0.12.0, `tensorflow-text` 2.4.3, `sentencepiece`).
-  Drift in any one of them — or in the surrounding Python/conda environment — broke the
+  Drift in any one of them - or in the surrounding Python/conda environment - broke the
   install, and the failure messages pointed at TensorFlow internals, not at anything a
   sentiment-analysis user could reasonably debug.
 - **The Apple-Silicon `tensorflow-text` gap.** There was no clean prebuilt `tensorflow-text`
@@ -164,7 +165,7 @@ with sentiment analysis:
 
 Honest accounting: **the TensorFlow backend cost users more than it returned.** The accuracy
 it bought (see the table) is now matched or beaten by on-device models that need no TensorFlow
-at all, and TF Hub itself is being deprecated upstream — so keeping it as the *default* would
+at all, and TF Hub itself is being deprecated upstream - so keeping it as the *default* would
 mean carrying escalating maintenance cost for a backend the ecosystem is walking away from.
 This is not a swipe at TensorFlow; it's a statement about the right default for *this* package.
 
@@ -180,15 +181,15 @@ This is not a swipe at TensorFlow; it's a statement about the right default for 
 - **Legacy Universal Sentence Encoder preserved** as an explicit opt-in, so existing USE-based
   scripts keep working unchanged.
 
-## Benchmark — what replaced TensorFlow, and why
+## Benchmark - what replaced TensorFlow, and why
 
 Each candidate embedder was scored with one identical XGBoost recipe (`multi:softprob`, three
-classes — neg / neutral / pos) on the same held-out test set, so the ranking isolates
-**embedding quality**. The data is a public mix — Amazon / IMDB / tweets / financial-news
+classes - neg / neutral / pos) on the same held-out test set, so the ranking isolates
+**embedding quality**. The data is a public mix - Amazon / IMDB / tweets / financial-news
 reviews plus GPT-generated synthetic examples; **no proprietary data**. Because the synthetic
 split is neutral-heavy, we report macro-F1 on both the full test (n = 3,255) and the
 **real-only** slice (n = 1,247), plus **directional accuracy on the 1,187 real, clearly
-positive/negative examples** — the most reliable real-world read. Full-data XGBoost
+positive/negative examples** - the most reliable real-world read. Full-data XGBoost
 (`num_parallel_tree = 24`, no early stopping).
 
 | Model (in `sentiment.ai`)      | Embedder                          | No TF | macro-F1 (full) | macro-F1 (real-only) | real pos/neg acc |
@@ -202,15 +203,15 @@ Read-out (honest):
 
 - **On real text, the best on-device model ties paid OpenAI.** e5-base reaches macro-F1 0.899
   vs OpenAI's 0.886 on the real-only slice, and both get ~94% of real positive/negative reviews'
-  sign right (94.1% vs 94.3%). They are tied within noise on a single split — neither is a clear
-  win. This is the **e5-base** tier — one flag from the default, not the default itself.
-- **The new default matches the old TensorFlow default — the value is dropping TensorFlow, not
+  sign right (94.1% vs 94.3%). They are tied within noise on a single split - neither is a clear
+  win. This is the **e5-base** tier - one flag from the default, not the default itself.
+- **The new default matches the old TensorFlow default - the value is dropping TensorFlow, not
   raw accuracy.** On real text e5-small ties the old USE-large default (0.854 vs 0.850; 89.3% vs
   88.9%). It delivers that same accuracy with **no TensorFlow, on-device, multilingual, and at a
-  fraction of the size** — the TensorFlow tax bought no accuracy. (On the synthetic-inclusive
+  fraction of the size** - the TensorFlow tax bought no accuracy. (On the synthetic-inclusive
   test e5-small edges USE-large 0.842 → 0.832, but on real text they are level.)
 - **The bundled scoring heads are full-data.** The small `mlp` heads we ship get **90.1% /
-  93.8%** real pos/neg accuracy (macro-F1 **0.860 / 0.899**) for e5-small / e5-base — at the
+  93.8%** real pos/neg accuracy (macro-F1 **0.860 / 0.899**) for e5-small / e5-base - at the
   full-data XGBoost ceiling above, and they need neither xgboost nor TensorFlow to run.
 - **Caveat:** real *neutral* examples are scarce (n = 60 in the test set), so the 3-class
   macro-F1 leans on synthetic neutral; the directional accuracy on 1,187 real positive/negative
@@ -234,7 +235,7 @@ Read-out (honest):
 
 ## Legacy TensorFlow: opt-in, still real
 
-The TensorFlow USE backend is **not removed** — it is demoted from the default path to an
+The TensorFlow USE backend is **not removed** - it is demoted from the default path to an
 explicit opt-in, installed only when you ask for it:
 
 ```r
@@ -269,11 +270,11 @@ install_sentiment.ai(legacy = TRUE)   # installs the TensorFlow USE backend
   install the legacy backend (`install_sentiment.ai(legacy = TRUE)`) and name a USE model
   explicitly (e.g. `model = "en.large"`).
 - The default install no longer pulls in TensorFlow, `tensorflow-text`, or the old version pins.
-- **New `sentiment()`** returns the full three-class signal as a tidy data frame — `text`,
-  `sentiment`, `prob_neg`, `prob_neu`, `prob_pos`, `class`, `confidence` — instead of only the
+- **New `sentiment()`** returns the full three-class signal as a tidy data frame - `text`,
+  `sentiment`, `prob_neg`, `prob_neu`, `prob_pos`, `class`, `confidence` - instead of only the
   collapsed scalar from `sentiment_score()` (which is unchanged). The probabilities are the
   head's **calibrated** class probabilities (temperature-scaled; expected calibration error
-  ≈ 0.012–0.017 on the held-out test, see the reliability report). Mirrored in the Python
+  ≈ 0.012-0.017 on the held-out test, see the reliability report). Mirrored in the Python
   package as `sentiment()`.
 - **Legacy scorers shelved.** `xgboost` moved from Imports to Suggests; the default install no
   longer downloads the `xgb`/`glm` scorers (the bundled `mlp`/`logistic` JSON heads need
@@ -287,7 +288,7 @@ install_sentiment.ai(legacy = TRUE)   # installs the TensorFlow USE backend
   explanation. The output columns are `text`, `sentiment`, `phrase`, `class`, `similarity`
   (the old `pole` column is now `class`, and `similarity` is new). It ships a curated, balanced
   40/40 default pole set (shared byte-for-byte with the Python package) and embeds it on-device
-  — no downloaded default-embedding file. It also gains `scoring`/`scoring_version` arguments to
+  - no downloaded default-embedding file. It also gains `scoring`/`scoring_version` arguments to
   match `sentiment_score()`, and works across all backends.
 
 ## Attribution

@@ -18,10 +18,10 @@ opt-in transformer backends for when you want maximum accuracy.
 
 The default model, on-device `e5-base`, **matches the paid OpenAI embedding**
 (`text-embedding-3-small`) on our benchmarks: that quality, free, across **~100 languages**,
-with no API key and no data leaving your machine. When you need the last few points of
-in-domain accuracy, opt into the bundled fine-tuned transformers (`max-english`,
-`max-multilingual`) behind the same one-line API. We publish honest benchmarks, including
-where the big transformers win, on the project page.
+with no API key and no data leaving your machine. When your text is tweets or other short
+social posts and you want the last few points of accuracy, opt into the bundled fine-tuned
+transformers (`max-english`, `max-multilingual`) behind the same one-line API. We publish
+honest benchmarks, including where they win, on the project page.
 
 **See the project page:**
 [https://benwiseman.github.io/sentiment.ai/](https://benwiseman.github.io/sentiment.ai/)
@@ -69,15 +69,15 @@ makes it the default; the choice persists across sessions.
 ```r
 sentiment_profiles()          # see the options
 use_profile("lightest")       # smaller and faster on-device model (e5-small)
-use_profile("max-english")    # best English accuracy, sentiment only (RoBERTa)
+use_profile("max-english")    # strongest on tweets, sentiment only (RoBERTa)
 ```
 
 | profile             | model             | what you get                                              |
 |:--------------------|:------------------|:----------------------------------------------------------|
 | `multilingual` *(default)* | `e5-base`  | best on-device quality, ~100 languages, **+ flags**       |
 | `lightest`          | `e5-small`        | smaller and faster, ~100 languages, on-device, **+ flags** |
-| `max-english`       | `twitter-roberta` | best English accuracy (opt-in ~500 MB transformer)        |
-| `max-multilingual`  | `xlm-roberta`     | best multilingual accuracy (opt-in ~1 GB transformer)     |
+| `max-english`       | `twitter-roberta` | strongest on tweets / short social, English (opt-in ~500 MB) |
+| `max-multilingual`  | `xlm-roberta`     | strongest on tweets / short social, multilingual (opt-in ~1 GB) |
 
 # Safety & style flags
 
@@ -127,39 +127,56 @@ sentiment_score("le service etait incroyable",   model = "xlm-roberta")       # 
 They are a different tool, with real costs. They **produce sentiment only**: the
 hate/mixed/style flags, `sentiment_match()`, `plot_sentiment()`, and `cosine_match()` all
 need the e5 embedding space, and the transformers do not give you one. They also download a
-full model (500 MB to 1 GB) on first use. On CPU they run at roughly `e5-base` speed and
-about 2.7x slower than the lighter `e5-small` (see the speed panel below). Reach for them
-when in-domain accuracy is the priority and a label is all you need.
+full model (500 MB to 1 GB) on first use, and on CPU they are far slower than the light
+`e5-small` (about the same speed as `e5-base`):
+
+| backend | CPU throughput (texts/sec, higher is better) |
+|:--------|:--------------------------------------------:|
+| `e5-small` | ~850 |
+| `e5-base` (default) | ~300 |
+| `twitter-roberta` (opt-in) | ~310 |
+
+Reach for them when tweet-style accuracy is the priority and a label is all you need.
 
 # Benchmarks
 
-![sentiment.ai benchmarks: accuracy across SemEval and airline tweets, and CPU throughput, comparing e5-small, e5-base, the transformer backends, and lexicon baselines.](docs/benchmark.png)
+Most people scoring sentiment are scoring reviews, tickets, and survey text, not tweets, so
+we lead with general business text. All benchmarks run locally on public data, no
+proprietary data.
 
-3-class macro-F1 (negative / neutral / positive). All benchmarks run locally on public
-data, no proprietary data:
+![sentiment.ai benchmarks: macro-F1 on general business text (employee reviews) for every backend, plus a panel showing the fine-tuned transformer's lead appears only on tweets.](docs/benchmark.png)
 
-| model | SemEval-2017 | Airline tweets | Multilingual (8 lang) |
-|:------|:------------:|:--------------:|:---------------------:|
-| `twitter-roberta` (opt-in) | **0.724** | **0.761** | English only |
-| `xlm-roberta` (opt-in) | n/a | n/a | **0.701** |
-| **`e5-base` (default)** | 0.672 | 0.651 | 0.574 |
-| `openai` (paid) | 0.622 | 0.634 | n/a |
-| `e5-small` | 0.587 | 0.581 | 0.466 |
-| VADER | 0.529 | 0.457 | collapses off English |
-| distilBERT-SST2 | 0.383 | 0.509 | English only |
+**General business text** (employee reviews, macro-F1, n = 10,085):
 
-**The honest read.** A frozen embedding plus a tiny scoring head does not out-accuracy a
-125M-parameter fine-tuned transformer, and we do not claim it does: that is exactly why the
-transformers ship as the opt-in `max-english` / `max-multilingual` backends. What the e5
-heads win on is everything else: on-device `e5-base` **matches the paid OpenAI embedding**,
-beats distilBERT on reviews, crushes the lexicon tools, covers ~100 languages with no heavy
-download, runs far faster on CPU, keeps your data on the machine, and carries the
-hate/mixed/style flags. Pick the trade-off you need with one `model =` or `use_profile()`
-call.
+| model | macro-F1 |
+|:------|:--------:|
+| `twitter-roberta` (opt-in transformer) | 0.909 |
+| `openai` (paid embedding) | 0.896 |
+| **`e5-base` (default, on-device)** | **0.888** |
+| distilBERT-SST2 | 0.879 |
+| `e5-small` (on-device) | 0.836 |
+| VADER | 0.681 |
+| TextBlob | 0.626 |
 
-(On a separate broad mixed-domain held-out set of Amazon / IMDB / financial-news / tweet
-reviews, n = 1,247, `e5-base` reaches macro-F1 0.90 and `e5-small` 0.86, where a
-Twitter-tuned model is out of its domain. See `NEWS.md` for the full tables.)
+On real business text the on-device `e5-base` default lands within about two points of both
+the paid OpenAI embedding and a 125M fine-tuned transformer, clears distilBERT, and sits 20
+to 30 points above the lexicon tools. On a separate held-out set of general review text
+(n = 19,547) the on-device heads reach macro-F1 0.93 (`e5-base`) and 0.94 (`e5-small`).
+
+**Where the transformer pulls ahead: tweets.** On Twitter benchmarks the fine-tuned
+`twitter-roberta` opens a real gap, because tweets are its training data:
+
+| model | SemEval-2017 tweets | Airline tweets |
+|:------|:-------------------:|:--------------:|
+| `twitter-roberta` (opt-in) | **0.724** | **0.761** |
+| `e5-base` (default) | 0.672 | 0.651 |
+| `e5-small` | 0.587 | 0.581 |
+| VADER | 0.529 | 0.457 |
+
+If your text really is tweets, opt into the `max-english` backend. For everything else the
+gap is small, and `e5-base` is the only option here that also covers ~100 languages, carries
+the hate / mixed / style flags, gives you `sentiment_match()` and `plot_sentiment()`, keeps
+your data on the machine, and stays free.
 
 # Why not just use tidytext / vader / sentimentr?
 

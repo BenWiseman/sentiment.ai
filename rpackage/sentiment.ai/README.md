@@ -259,16 +259,31 @@ text <- c(
 sentiment_score(text)
 ```
 
-> **Benchmark.** On a public test mix (Amazon / IMDB / tweets / financial-news reviews
-> plus GPT synthetic; **no proprietary data**), scored with one identical XGBoost recipe
-> per embedder, on the **real-only** slice (n = 1,247): `e5-base` reaches macro-F1
-> **0.899** and **94%** directional accuracy on real positive/negative reviews, tied
-> with paid OpenAI (0.886 / 94%); the lighter `e5-small` is **0.854 / 89%**, level with
-> the old TensorFlow USE default it replaces. So the TensorFlow-free default *matches*
-> the old one on accuracy while dropping all of TensorFlow. The bundled `mlp` heads **are**
-> those full-data heads (e5-small **0.860 / 90%**, e5-base **0.899 / 94%** on the real-only
-> slice, at the embedder ceiling). Real *neutral* text is scarce in the benchmark, so pos/neg
-> accuracy is the most reliable read; see `NEWS.md` for the full table.
+> **Benchmarks.** Most people scoring sentiment are scoring reviews, tickets, and survey
+> text, not tweets, so we lead with general business text. All benchmarks run locally on
+> public data, no proprietary data.
+>
+> **General business text** (employee reviews, macro-F1, n = 10,085):
+>
+> | model | macro-F1 |
+> |:------|:--------:|
+> | `twitter-roberta` (opt-in transformer) | 0.909 |
+> | `openai` (paid embedding) | 0.896 |
+> | **`e5-base` (default, on-device)** | **0.888** |
+> | distilBERT-SST2 | 0.879 |
+> | `e5-small` (on-device) | 0.836 |
+> | VADER | 0.681 |
+> | TextBlob | 0.626 |
+>
+> On real business text the on-device `e5-base` default lands within about two points of
+> both the paid OpenAI embedding and a 125M fine-tuned transformer, clears distilBERT, and
+> sits 20 to 30 points above the lexicon tools. On a separate held-out set of general review
+> text (n = 19,547) the on-device heads reach macro-F1 0.93 (`e5-base`) and 0.94
+> (`e5-small`).
+>
+> The fine-tuned `twitter-roberta` opens a larger gap on tweet benchmarks (its training
+> domain): SemEval-2017 0.724 vs 0.672 (`e5-base`); airline 0.761 vs 0.651. If your text
+> really is tweets, opt into the `max-english` backend. Full table on the project page.
 
 # Contribute a scoring head
 

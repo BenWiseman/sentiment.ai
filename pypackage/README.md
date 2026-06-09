@@ -9,8 +9,9 @@ artifacts** and the **same public API**.
 > `score_json_head` (max diff `4.4e-16`). **v2** adds **hate / mixed / style flags**,
 > **intent-based profiles** (`setup()` / `use_profile()`), **opt-in transformer backends**
 > (RoBERTa / XLM-R), and an interactive
-> **`plot_sentiment()`** map. Shipped e5 heads: e5-small **0.86** / e5-base **0.90**
-> real-only macro-F1.
+> **`plot_sentiment()`** map. On general business text (employee reviews, macro-F1,
+> n = 10,085) the on-device `e5-base` default reaches **0.888**, within two points of
+> both the paid OpenAI embedding (0.896) and a 125M fine-tuned transformer (0.909).
 
 ![A sentiment map: every comment embedded, projected to 2-D, coloured by sentiment, with auto-labelled clusters.](https://raw.githubusercontent.com/BenWiseman/sentiment.ai/main/docs/sentiment-map.png)
 
@@ -75,22 +76,54 @@ Why a Python package: the v2 engine is already Python (sentence-transformers + a
 numpy scoring head). The R package reaches it through `reticulate`; Python calls it
 directly. Strictly less machinery, no bridge, **no TensorFlow, and no xgboost at serve**.
 
-## Models (real-only macro-F1, n = 1,247)
+## Benchmarks
 
-| `model=` | macro-F1 | dim | notes |
-|---|---|---|---|
-| `e5-small` | 0.86 | 384 | tiny, fast, ~100 languages, no TF, **+ flags** |
-| `e5-base` *(default)* | 0.90 | 768 | best on-device, ~100 languages, no TF, **+ flags** |
-| `openai` | 0.89 | 1536 | paid API (needs a key), **+ flags** |
-| `twitter-roberta` | - | - | opt-in end-to-end English RoBERTa; **leads in-domain** (~500 MB) |
-| `xlm-roberta` | - | - | opt-in end-to-end multilingual XLM-R; leads multilingual (~1 GB) |
-| `en` / `en.large` / `multi` / `multi.large` | legacy | 512 | opt-in, **requires TensorFlow** |
+Most people scoring sentiment are scoring reviews, tickets, and survey text, not tweets,
+so we lead with general business text.
 
-Honest picture: on *in-domain* tweet benchmarks the fine-tuned transformers win (RoBERTa
-0.72/0.76 SemEval/airline vs e5-base 0.67/0.65; XLM-R 0.70 multilingual vs 0.57), so we
-**ship them as opt-in backends** rather than overclaim. On-device `e5-base` matches the
-paid OpenAI embedding. Full method + the synthetic-vs-real breakdown are in the R
-package's `NEWS.md` / `planning/benchmark-v2.md`.
+**General business text** (employee reviews, macro-F1, n = 10,085):
+
+| `model=` | macro-F1 |
+|:---------|:--------:|
+| `twitter-roberta` (opt-in transformer) | 0.909 |
+| `openai` (paid embedding) | 0.896 |
+| **`e5-base` (default, on-device)** | **0.888** |
+| distilBERT-SST2 | 0.879 |
+| `e5-small` (on-device) | 0.836 |
+| VADER | 0.681 |
+| TextBlob | 0.626 |
+
+On real business text the on-device `e5-base` default lands within about two points of
+both the paid OpenAI embedding and a 125M fine-tuned transformer, clears distilBERT, and
+sits 20 to 30 points above the lexicon tools. On a separate held-out set of general review
+text (n = 19,547) the on-device heads reach macro-F1 0.93 (`e5-base`) and 0.94
+(`e5-small`).
+
+**Where the transformer pulls ahead: tweets.** The fine-tuned `twitter-roberta` opens a
+real gap on Twitter benchmarks because tweets are its training data:
+
+| model | SemEval-2017 tweets | Airline tweets |
+|:------|:-------------------:|:--------------:|
+| `twitter-roberta` (opt-in) | 0.724 | 0.761 |
+| `e5-base` (default) | 0.672 | 0.651 |
+| `e5-small` | 0.587 | 0.581 |
+| VADER | 0.529 | 0.457 |
+
+If your text really is tweets, opt into the `max-english` backend. For everything else the
+gap is small, and `e5-base` is the only option here that also covers ~100 languages,
+carries the hate / mixed / style flags, gives you `sentiment_match()` and
+`plot_sentiment()`, keeps data on the machine, and stays free.
+
+## Models
+
+| `model=` | dim | notes |
+|:---------|:---:|:------|
+| `e5-base` *(default)* | 768 | best on-device, ~100 languages, no TF, **+ flags** |
+| `e5-small` | 384 | lighter/faster option, ~100 languages, no TF, **+ flags** |
+| `openai` | 1536 | paid API (needs a key), **+ flags** |
+| `twitter-roberta` | - | opt-in end-to-end English RoBERTa; leads on tweets (~500 MB) |
+| `xlm-roberta` | - | opt-in end-to-end multilingual XLM-R; leads on multilingual tweets (~1 GB) |
+| `en` / `en.large` / `multi` / `multi.large` | 512 | legacy, **requires TensorFlow** |
 
 ## R ↔ Python parity map
 
