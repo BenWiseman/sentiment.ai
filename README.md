@@ -12,21 +12,19 @@
 
 # sentiment.ai
 
-**The most complete on-device sentiment toolkit in the R/Python ecosystem** — tiny by
-default, with hate-speech / mixed / style flags, intent-based profiles, an interactive
-sentiment map, and opt-in transformer backends for when you want maximum accuracy.
+**The most complete on-device sentiment toolkit in the R/Python ecosystem.** It ships
+hate-speech / mixed / style flags, intent-based profiles, an interactive sentiment map, and
+opt-in transformer backends for when you want maximum accuracy.
 
-On-device `e5-base` **matches the paid OpenAI embedding** (`text-embedding-3-small`) on
-our benchmarks — that quality, free, across **~100 languages**, with no API key and no
-data leaving your machine. When you need the last few points of *in-domain* accuracy,
-opt into the bundled fine-tuned transformers (`max-english` / `max-multilingual`) behind
-the same one-line API. We publish **honest benchmarks — including where the big
-transformers win** — on the project page.
+The default model, on-device `e5-base`, **matches the paid OpenAI embedding**
+(`text-embedding-3-small`) on our benchmarks: that quality, free, across **~100 languages**,
+with no API key and no data leaving your machine. When you need the last few points of
+in-domain accuracy, opt into the bundled fine-tuned transformers (`max-english`,
+`max-multilingual`) behind the same one-line API. We publish honest benchmarks, including
+where the big transformers win, on the project page.
 
 **See the project page:**
 [https://benwiseman.github.io/sentiment.ai/](https://benwiseman.github.io/sentiment.ai/)
-
-![A sentiment map: every comment embedded, projected to 2-D, coloured by sentiment, with auto-labelled clusters.](docs/sentiment-map.png)
 
 ## Contributors
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=BenWiseman/sentiment.ai)
@@ -34,9 +32,8 @@ transformers win** — on the project page.
 > **v2.** TensorFlow-free by default. Calibrated confidence and a tidy 3-class output.
 > **Hate-speech / mixed / style flags** from the same embedding. **Intent-based profiles**
 > (`use_profile()`, plus an interactive `setup()` in Python) so you never learn the model
-> zoo. **Opt-in transformer
-> backends** (RoBERTa / XLM-R) for max accuracy — *if you can't beat 'em, join 'em*.
-> An interactive **`plot_sentiment()`** map. Diagnostic signals for when *not* to trust a
+> zoo. **Opt-in transformer backends** (RoBERTa, XLM-R) for maximum in-domain accuracy.
+> An interactive **`plot_sentiment()`** map. Diagnostic signals for when not to trust a
 > score, and agreement statistics for methods sections. A Python sibling
 > ([`sentimentai-py`](https://pypi.org/project/sentimentai-py/)) shares the same scoring
 > heads, verified bit-for-bit.
@@ -47,179 +44,169 @@ transformers win** — on the project page.
 install.packages("sentiment.ai")        # from CRAN
 library(sentiment.ai)
 
-# one-time setup — TensorFlow-free, runs on your machine
+# one-time setup, TensorFlow-free, runs on your machine
 install_sentiment.ai()   # interactive wizard walks you through it
 
-# model loads on first use — no explicit init() needed
+# model loads on first use, no explicit init() needed
 sentiment_score(c("I love this!", "this is terrible"))
-#> [1]  1.00 -0.99   (about 1 = positive, about -1 = negative)
+#> [1]  1.00 -1.00   (about 1 = positive, about -1 = negative)
 
 # tidy output with class probabilities and calibrated confidence
 sentiment(c("I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"))
 #>                                        text sentiment    class confidence
 #> 1                              I love this!      1.00 positive       1.00
-#> 2 The package arrived on Tuesday afternoon.      0.13  neutral       0.86
-#> 3                          this is terrible     -0.99 negative       0.99
+#> 2 The package arrived on Tuesday afternoon.      0.00  neutral       0.99
+#> 3                          this is terrible     -1.00 negative       1.00
 ```
 
 No TensorFlow, no API key, and the model runs on your machine.
 
-# Pick a profile (or just go with the default)
+# Pick a profile (or just use the default)
 
-You don't have to learn the model zoo. A **profile** maps a plain intent to a backend and
+You do not have to learn the model zoo. A **profile** maps a plain intent to a backend and
 makes it the default; the choice persists across sessions.
 
 ```r
 sentiment_profiles()          # see the options
-use_profile("multilingual")   # best on-device multilingual, WITH flags  (e5-base)
-use_profile("max-english")    # best English accuracy, sentiment only     (RoBERTa)
+use_profile("lightest")       # smaller and faster on-device model (e5-small)
+use_profile("max-english")    # best English accuracy, sentiment only (RoBERTa)
 ```
 
 | profile             | model             | what you get                                              |
 |:--------------------|:------------------|:----------------------------------------------------------|
-| `lightest` *(default)* | `e5-small`     | tiny, instant, ~100 languages, on-device, **+ flags**     |
-| `multilingual`      | `e5-base`         | stronger on-device multilingual, **+ flags**              |
+| `multilingual` *(default)* | `e5-base`  | best on-device quality, ~100 languages, **+ flags**       |
+| `lightest`          | `e5-small`        | smaller and faster, ~100 languages, on-device, **+ flags** |
 | `max-english`       | `twitter-roberta` | best English accuracy (opt-in ~500 MB transformer)        |
 | `max-multilingual`  | `xlm-roberta`     | best multilingual accuracy (opt-in ~1 GB transformer)     |
 
 # Safety & style flags
 
 For the on-device e5 models, `sentiment()` adds three post-processing flags computed from
-the **same embedding** — no second model, no extra download:
+the **same embedding**: no second model, no extra download.
 
 ```r
 sentiment("go back to your country, you filth, nobody wants you")
-#>  ... class = negative ... hate_speech = TRUE  p_hate = 0.79
+#>  ... class = negative ... hate_speech = TRUE  p_hate = 0.85
 ```
 
-- **`hate_speech`** / **`p_hate`** — hate-speech detector (AUROC ≈ 0.95–0.97; tuned to
-  ~0.90 recall with a very low false-positive rate on normal text).
-- **`mixed`** — flags neutral-looking rows that carry competing positive *and* negative signal.
-- **`style`** — top writing style (analytical / descriptive / formal / informal / inquisitive).
+- **`hate_speech`** / **`p_hate`**: a hate-speech detector (AUROC 0.95 to 0.97; tuned to
+  about 0.90 recall with a very low false-positive rate on normal text).
+- **`mixed`**: flags neutral-looking rows that carry competing positive and negative signal.
+- **`style`**: top writing style (analytical, descriptive, formal, informal, inquisitive).
 
-These ship for `e5-small` / `e5-base` / `openai`. (Honest limits: the `mixed` head is
+These ship for `e5-small`, `e5-base`, and `openai`. (Honest limits: the `mixed` head is
 trained on explicit mixed text and can miss terse contrastive phrasing; slur-free
-dehumanising hate can fall just under threshold — lower it if you need higher recall.)
+dehumanising hate can fall just under threshold, so lower it if you need higher recall.)
 
-# If you can't beat 'em, join 'em — transformer backends
+# Map your whole corpus: `plot_sentiment()`
 
-Fine-tuned transformers still lead **in-domain** accuracy, so rather than overclaim, we
-ship them as **opt-in backends** behind the same API:
-
-```r
-sentiment_score("the gate agent was incredible", model = "twitter-roberta")  # English
-sentiment_score("le service était incroyable",   model = "xlm-roberta")       # multilingual
-```
-
-They download a full transformer on first use and produce **sentiment only** (no flags —
-those need the e5 embedding space). The default stays tiny, on-device, and TF-free.
-
-# Map your whole corpus — `plot_sentiment()`
-
-One picture: every comment embedded, projected to 2-D, coloured by sentiment, with the
-full text on hover and **human-readable cluster labels** (deterministic c-TF-IDF, or pass
+One picture: every comment embedded, projected to 2-D, coloured by sentiment, with the full
+text on hover and **human-readable cluster labels** (deterministic c-TF-IDF, or pass
 `labels = "openai"` to spend a fraction of a cent on tidier topics).
+
+![A sentiment map of customer reviews: each point is one comment, positioned by a 2-D projection of its embedding, coloured from red (negative) to green (positive), grouped into auto-labelled clusters.](docs/sentiment-map.png)
 
 ```r
 p <- plot_sentiment(reviews$text)          # interactive plotly widget
 htmlwidgets::saveWidget(p, "map.html")
 ```
 
-(Plotting uses `plotly`; `uwot` / `Rtsne` give nicer projections if installed, otherwise
-it falls back to PCA. In Python: `pip install "sentimentai-py[plot]"`.)
+Plotting uses `plotly`; `uwot` or `Rtsne` give nicer projections if installed, otherwise it
+falls back to PCA. In Python: `pip install "sentimentai-py[plot]"`.
 
-# Overview
+# Transformer backends (opt-in)
 
-`sentiment.ai` turns text into a sentiment score by (1) embedding it with a
-sentence-embedding model and (2) running a small, bundled scoring head over that
-embedding. Compared with lexicon/dictionary methods this:
+Fine-tuned transformers lead in-domain accuracy, so rather than overclaim we ship them as
+opt-in backends behind the same API:
 
-1. **Is more robust** — tolerates spelling mistakes and mixed case, and the default
-   model handles **~100 languages**.
-2. **Doesn't need a rigid lexicon** — text becomes an embedding vector, so you get
-   sensible scores for words and phrasings no dictionary lists.
-3. **Lets you choose the context** — with `sentiment_match()` you define what
-   *positive* and *negative* mean for your domain.
-4. **Is auditable** — scoring is deterministic, and `sentiment_provenance()` reports
-   exactly which model and scoring head produced a score.
+```r
+sentiment_score("the gate agent was incredible", model = "twitter-roberta")  # English
+sentiment_score("le service etait incroyable",   model = "xlm-roberta")       # multilingual
+```
 
-# Models
+They are a different tool, with real costs. They **produce sentiment only**: the
+hate/mixed/style flags, `sentiment_match()`, `plot_sentiment()`, and `cosine_match()` all
+need the e5 embedding space, and the transformers do not give you one. They also download a
+full model (500 MB to 1 GB) on first use. On CPU they run at roughly `e5-base` speed and
+about 2.7x slower than the lighter `e5-small` (see the speed panel below). Reach for them
+when in-domain accuracy is the priority and a label is all you need.
 
-| `model`        | dim  | notes                                                            |
-|:---------------|:----:|:-----------------------------------------------------------------|
-| `e5-small`     | 384  | **default** — tiny, fast, ~100 languages, on-device, no TensorFlow |
-| `e5-base`      | 768  | best on-device quality, ~100 languages, no TensorFlow            |
-| `openai`       | 1536 | `text-embedding-3-small` — paid API, text leaves your machine    |
-| `twitter-roberta` | —  | opt-in end-to-end English RoBERTa — max in-domain accuracy (~500 MB) |
-| `xlm-roberta`  |  —   | opt-in end-to-end multilingual XLM-R — max accuracy (~1 GB)       |
-| `en` / `en.large` / `multi` / `multi.large` | 512 | legacy Universal Sentence Encoder — **opt-in, requires TensorFlow** |
+# Benchmarks
 
-Scoring head: `"mlp"` (default) or `"logistic"` — small pure-R JSON heads, **no
-xgboost and no TensorFlow at score time**.
+![sentiment.ai benchmarks: accuracy across SemEval and airline tweets, and CPU throughput, comparing e5-small, e5-base, the transformer backends, and lexicon baselines.](docs/benchmark.png)
 
-# Benchmark
+3-class macro-F1 (negative / neutral / positive). All benchmarks run locally on public
+data, no proprietary data:
 
-On a public test mix (Amazon / IMDB / tweets / financial-news reviews + GPT synthetic;
-**no proprietary data**), on the **real-only** slice (n = 1,247): `e5-base` reaches
-macro-F1 **0.90** and **94%** directional accuracy on real positive/negative reviews;
-`oai_3_small` is close behind (0.903 / 94%); the default `e5-small` is **0.860 / 90%**,
-comfortably above the old TensorFlow USE default it replaces. (Real *neutral* text is
-scarce in the benchmark, so pos/neg accuracy is the most reliable read; see `NEWS.md`
-for the full table.)
+| model | SemEval-2017 | Airline tweets | Multilingual (8 lang) |
+|:------|:------------:|:--------------:|:---------------------:|
+| `twitter-roberta` (opt-in) | **0.724** | **0.761** | English only |
+| `xlm-roberta` (opt-in) | n/a | n/a | **0.701** |
+| **`e5-base` (default)** | 0.672 | 0.651 | 0.574 |
+| `openai` (paid) | 0.622 | 0.634 | n/a |
+| `e5-small` | 0.587 | 0.581 | 0.466 |
+| VADER | 0.529 | 0.457 | collapses off English |
+| distilBERT-SST2 | 0.383 | 0.509 | English only |
 
-**Where the big transformers win — and why we ship them.** On *in-domain* tweet
-benchmarks the fine-tuned transformers lead: cardiffnlp Twitter-RoBERTa scores macro-F1
-0.72 / 0.76 on SemEval-2017 / airline vs `e5-base` 0.67 / 0.65, and XLM-R leads
-multilingual (0.70 vs 0.57). A frozen-embedding + tiny-MLP head doesn't out-accuracy a
-125M end-to-end fine-tuned model, and we don't claim it does — instead we ship those
-transformers as the opt-in `max-english` / `max-multilingual` backends. Our heads win on
-**footprint, speed, privacy, multilingual coverage without a heavy download, and the
-hate / mixed / style flags**; on-device `e5-base` also **matches the paid OpenAI
-embedding**. Pick the trade-off you need with one `model=` / `use_profile()` call.
+**The honest read.** A frozen embedding plus a tiny scoring head does not out-accuracy a
+125M-parameter fine-tuned transformer, and we do not claim it does: that is exactly why the
+transformers ship as the opt-in `max-english` / `max-multilingual` backends. What the e5
+heads win on is everything else: on-device `e5-base` **matches the paid OpenAI embedding**,
+beats distilBERT on reviews, crushes the lexicon tools, covers ~100 languages with no heavy
+download, runs far faster on CPU, keeps your data on the machine, and carries the
+hate/mixed/style flags. Pick the trade-off you need with one `model =` or `use_profile()`
+call.
+
+(On a separate broad mixed-domain held-out set of Amazon / IMDB / financial-news / tweet
+reviews, n = 1,247, `e5-base` reaches macro-F1 0.90 and `e5-small` 0.86, where a
+Twitter-tuned model is out of its domain. See `NEWS.md` for the full tables.)
 
 # Why not just use tidytext / vader / sentimentr?
 
-Lexicon-based tools are fast and easy to inspect, but they have a hard ceiling: they
-score **words in a fixed dictionary**, so out-of-vocabulary terms, misspellings, and
-new phrasings get missed; negation and context are handled only by hand-written rules;
-and most convenient lexicons are **English-only**. `sentiment.ai` avoids those limits
-because it never looks at individual words — it maps the whole sentence to an embedding
-vector and then classifies that vector:
+Lexicon tools are fast and easy to inspect, but they have a hard ceiling: they score **words
+in a fixed dictionary**, so out-of-vocabulary terms, misspellings, and new phrasings get
+missed; negation and context are handled only by hand-written rules; and most convenient
+lexicons are **English only**. `sentiment.ai` avoids those limits because it never looks at
+individual words. It maps the whole sentence to an embedding vector and classifies that
+vector:
 
 - **Handles ~100 languages** from a single model (no separate multilingual lexicons).
-- **Scores phrases a dictionary has never seen** — slang, domain jargon, product names.
-- **Explicitly models neutral** as a third class (not just "not positive, not negative").
-- **Calibrated confidence** — the `confidence` value from `sentiment()` matches
-  empirical accuracy (ECE ≈ 0.015), so you can triage on it.
-- **Tunable context** — `sentiment_match()` lets you define what *positive* and
-  *negative* mean for your domain instead of accepting a generic polarity scale.
+- **Scores phrases a dictionary has never seen**: slang, domain jargon, product names.
+- **Explicitly models neutral** as a third class, not just "not positive, not negative".
+- **Calibrated confidence**: the `confidence` value from `sentiment()` tracks empirical
+  accuracy (ECE about 0.015), so you can triage on it.
+- **Tunable context**: `sentiment_match()` lets you define what *positive* and *negative*
+  mean for your domain instead of accepting a generic polarity scale.
 
-The tradeoff is setup: lexicon tools install with no Python dependency; `sentiment.ai`
-needs a one-time `install_sentiment.ai()` to download a ~120 MB on-device model. After
-that there is no API key, no internet connection, and scoring is deterministic across
-machines.
+The trade-off is setup. Lexicon tools install with no Python dependency; `sentiment.ai`
+needs a one-time `install_sentiment.ai()` to download an on-device model (about 280 MB for
+the default `e5-base`, about 120 MB for `e5-small`). After that there is no API key, no
+internet connection, and scoring is deterministic across machines.
 
 # Sentiment analysis
 
 `sentiment_score()` returns one score per input in `[-1, 1]`. `sentiment_match()` returns
 that **same calibrated score** plus a nearest-phrase explanation against **tunable poles**
-(`phrase` / `class` / `similarity`) — the poles only shape the explanation, never the score.
+(`phrase`, `class`, `similarity`). The poles only shape the explanation, never the score.
 Omit `phrases` to use the bundled, balanced 40/40 default poles:
 
 ```r
-sentiment_match(c("great service", "lost my bag"),
-                phrases = list(positive = c("on time", "friendly"),
-                               negative = c("delayed", "rude")))
+sentiment_match(c("The cabin crew were friendly and helpful", "My bag was lost and nobody helped"),
+                phrases = list(positive = c("friendly", "on time", "helpful"),
+                               negative = c("rude", "delayed", "lost luggage")))
+#>                                       text sentiment       phrase    class similarity
+#> 1 The cabin crew were friendly and helpful      0.30     friendly positive       0.84
+#> 2        My bag was lost and nobody helped     -0.91 lost luggage negative       0.88
 ```
 
-`sentiment_provenance("e5-small")` prints the exact model, license, source, prefix, and
+`sentiment_provenance("e5-base")` reports the exact model, license, source, prefix, and
 scoring head behind a score.
 
 # Python sibling
 
 The same engine is on PyPI as
-[`sentimentai-py`](https://pypi.org/project/sentimentai-py/) — same scoring heads, a
-forward pass verified bit-for-bit against this package:
+[`sentimentai-py`](https://pypi.org/project/sentimentai-py/): the same scoring heads, with a
+forward pass verified bit-for-bit against this package.
 
 ```bash
 pip install --pre sentimentai-py
@@ -227,11 +214,11 @@ pip install --pre sentimentai-py
 
 # Contribute a scoring head
 
-Scoring heads turn an embedding into a sentiment score; you can train and contribute
-your own under `scoring/<type>/<version>/<model>.json` (e.g.
-`scoring/mlp/1.0/e5-small.json`). A head is a small JSON describing the forward pass,
-read by a pure-R scorer — no xgboost or TensorFlow at score time.
+Scoring heads turn an embedding into a sentiment score; you can train and contribute your
+own under `scoring/<type>/<version>/<model>.json` (for example
+`scoring/mlp/2.0/e5-base.json`). A head is a small JSON describing the forward pass, read by
+a pure-R scorer, with no xgboost or TensorFlow at score time.
 
 ---
 
-Originally created by the Korn Ferry Institute AITMI team.
+Originally created by the Korn Ferry Institute AITMI team. Now maintained by Linnet Labs.
