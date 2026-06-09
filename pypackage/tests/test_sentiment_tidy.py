@@ -31,10 +31,15 @@ def _fake_embed(x, model="e5-small", batch_size=100, **kwargs):
 @pytest.fixture
 def fake_embed(monkeypatch):
     monkeypatch.setattr(_sent, "embed_text", _fake_embed)
+    monkeypatch.setattr(_sent, "get_default_model", lambda: "e5-small")  # deterministic default
 
 
-_COLS = {"text", "sentiment", "prob_neg", "prob_neu", "prob_pos", "class", "confidence"}
+_COLS_CORE = {"text", "sentiment", "prob_neg", "prob_neu", "prob_pos", "class", "confidence"}
+# v2 post-processing flags: present when aux heads ship for the model (e5-small default does)
+_COLS_AUX = {"mixed", "hate_speech", "p_hate", "style"}
+_COLS = _COLS_CORE | _COLS_AUX
 _CLASSES = ("negative", "neutral", "positive")
+_STYLES = {"analytical", "descriptive", "formal", "informal", "inquisitive"}
 
 
 def test_tidy_shape_and_invariants(fake_embed):
@@ -48,6 +53,10 @@ def test_tidy_shape_and_invariants(fake_embed):
         assert row["sentiment"] == pytest.approx(row["prob_pos"] - row["prob_neg"])
         assert row["confidence"] == pytest.approx(max(probs))
         assert _CLASSES.index(row["class"]) == probs.index(max(probs))   # class == argmax
+        # v2 flag invariants
+        assert isinstance(row["hate_speech"], bool) and 0.0 <= row["p_hate"] <= 1.0
+        assert isinstance(row["mixed"], bool)
+        assert row["style"] in _STYLES
 
 
 def test_scalar_matches_sentiment_score(fake_embed):
@@ -63,3 +72,19 @@ def test_missing_rows_blanked(fake_embed):
         assert rows[i]["class"] is None
         assert np.isnan(rows[i]["sentiment"]) and np.isnan(rows[i]["prob_pos"])
     assert rows[1]["text"] is None and rows[2]["text"] == ""
+
+
+def test_hf_classifier_backend(monkeypatch):
+    """The opt-in transformer backend (RoBERTa) returns core columns and NO e5-only flags."""
+    def fake_classify(texts, model_id, batch_size=64):
+        return np.tile([0.1, 0.2, 0.7], (len(texts), 1))   # deterministic 'positive'
+    monkeypatch.setattr(_sent._hf_classifier, "classify_probs", fake_classify)
+
+    rows = sentimentai.sentiment(["a", "b"], model="twitter-roberta")
+    assert len(rows) == 2
+    for row in rows:
+        assert set(row) == _COLS_CORE          # flags omitted on the transformer path
+        assert row["class"] == "positive"
+        assert row["sentiment"] == pytest.approx(0.6)
+    scores = sentimentai.sentiment_score(["a"], model="twitter-roberta")
+    assert scores[0] == pytest.approx(0.6)

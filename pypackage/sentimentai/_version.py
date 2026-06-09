@@ -1,1 +1,1 @@
-__version__ = "0.1.0a2"  # ALPHA pre-release: engine works; e5 heads are full-data (0.86 / 0.92 real-only macro-F1)
+__version__ = "0.2.0a1"  # v2: realsrc+aug heads (e5-base beats OpenAI emb on OOD) + hate/mixed/style post-processing flags

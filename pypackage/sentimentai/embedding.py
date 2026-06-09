@@ -2,9 +2,8 @@
 
 Backends come from the registry (_models.py): sentence-transformers (on-device,
 default, TensorFlow-free), OpenAI (paid API), or legacy USE (TensorFlow — NOT
-supported in the Python sibling; use the R package for those). e5 models require a
-``"query: "`` prefix and are used with L2-normalised embeddings, matching the space the
-scoring heads were trained in (R inst/get_embedder.py does the same).
+supported in the Python sibling; use the R package for those). e5 models are used
+with L2-normalised embeddings, matching the space the scoring heads were trained in.
 """
 from __future__ import annotations
 
@@ -74,12 +73,8 @@ def embed_text(
 
     if backend.kind == "sentence-transformers":
         st = _load_st(backend.hf_id, backend.revision)
-        prefix = backend.prefix                                  # e5 expects "query: "
-        # idempotent, like R: don't double-prefix text that already carries it
-        prefixed = [t if (not prefix or t.startswith(prefix)) else prefix + t
-                    for t in texts]
         emb = st.encode(
-            prefixed, batch_size=batch_size, normalize_embeddings=True,
+            texts, batch_size=batch_size, normalize_embeddings=True,
             convert_to_numpy=True, show_progress_bar=False,
         )
         return np.asarray(emb, dtype=np.float64)

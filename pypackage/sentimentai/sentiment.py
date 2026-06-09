@@ -13,8 +13,9 @@ from typing import Mapping, Sequence
 
 import numpy as np
 
-from . import _scoring
-from ._models import DEFAULT_MODEL
+from . import _scoring, _hf_classifier
+from ._models import resolve
+from ._profiles import get_default_model
 from .embedding import embed_text
 
 # placeholder embedded in place of missing inputs; its score is overwritten with NaN, so
@@ -60,10 +61,10 @@ def _missing_mask(texts: list, include_empty: bool) -> list[bool]:
 
 def sentiment_score(
     x: "str | Sequence[str]",
-    model: str = DEFAULT_MODEL,
+    model: "str | None" = None,
     scoring: str = "mlp",
     batch_size: int = 100,
-    scoring_version: str = "1.0",
+    scoring_version: str = "2.0",
     **kwargs,
 ) -> "np.ndarray | None":
     """Return sentiment scores rescaled to ``[-1, 1]`` (negative .. positive).
@@ -80,8 +81,13 @@ def sentiment_score(
     miss = _missing_mask(texts, include_empty=False)
     safe = [_PLACEHOLDER if m else t for t, m in zip(texts, miss)]
 
-    emb = embed_text(safe, model=model, batch_size=batch_size, **kwargs)
-    scores = _scoring.score(emb, model=model, scoring=scoring, version=scoring_version)
+    model = model or get_default_model()
+    if resolve(model).kind == "hf-classifier":   # opt-in end-to-end transformer (RoBERTa)
+        p = _hf_classifier.classify_probs(safe, resolve(model).hf_id, batch_size)
+        scores = p[:, 2] - p[:, 0]
+    else:
+        emb = embed_text(safe, model=model, batch_size=batch_size, **kwargs)
+        scores = _scoring.score(emb, model=model, scoring=scoring, version=scoring_version)
     if any(miss):
         scores = scores.astype(float)
         scores[np.asarray(miss)] = np.nan
@@ -90,10 +96,10 @@ def sentiment_score(
 
 def sentiment(
     x: "str | Sequence[str]",
-    model: str = DEFAULT_MODEL,
+    model: "str | None" = None,
     scoring: str = "mlp",
     batch_size: int = 100,
-    scoring_version: str = "1.0",
+    scoring_version: str = "2.0",
     **kwargs,
 ) -> list[dict]:
     """Tidy three-class sentiment: the whole picture the head computes, not just a scalar.
@@ -113,36 +119,67 @@ def sentiment(
     miss = _missing_mask(texts, include_empty=True)
     safe = [_PLACEHOLDER if m else t for t, m in zip(texts, miss)]
 
-    emb = embed_text(safe, model=model, batch_size=batch_size, **kwargs)
-    p = _scoring.probs(emb, model=model, scoring=scoring, version=scoring_version)   # (n, 3)
+    model = model or get_default_model()
+    backend = resolve(model)
+    if backend.kind == "hf-classifier":          # opt-in end-to-end transformer (RoBERTa)
+        p = _hf_classifier.classify_probs(safe, backend.hf_id, batch_size)   # (n, 3)
+        hate_h = mixed_h = style_h = None         # flags need the e5 embedding space
+        p_hate = p_mixed = style_p = None
+    else:
+        emb = embed_text(safe, model=model, batch_size=batch_size, **kwargs)
+        p = _scoring.probs(emb, model=model, scoring=scoring, version=scoring_version)   # (n, 3)
+        # Post-processing flags from the SAME embedding — only when aux heads ship for this model.
+        # hate_speech: P(hate) >= recall>=0.90 threshold; mixed: True when neutral yet matches the
+        # mixed-vs-neutral classifier; style: top writing style.
+        emb_arr = np.asarray(emb, dtype=np.float64)
+        hate_h  = _scoring.load_aux("hate", model)
+        mixed_h = _scoring.load_aux("mixed", model)
+        style_h = _scoring.load_aux("style", model)
+        p_hate  = _scoring.logistic_binary_prob(emb_arr, hate_h)  if hate_h  else None
+        p_mixed = _scoring.logistic_binary_prob(emb_arr, mixed_h) if mixed_h else None
+        style_p = _scoring.multilabel_probs(emb_arr, style_h)     if style_h else None
     classes = ("negative", "neutral", "positive")
 
     out: list[dict] = []
     for r, text in enumerate(texts):
         if miss[r]:
-            out.append({"text": text, "sentiment": np.nan,
-                        "prob_neg": np.nan, "prob_neu": np.nan, "prob_pos": np.nan,
-                        "class": None, "confidence": np.nan})
+            row = {"text": text, "sentiment": np.nan,
+                   "prob_neg": np.nan, "prob_neu": np.nan, "prob_pos": np.nan,
+                   "class": None, "confidence": np.nan}
+            if hate_h is not None:  row["hate_speech"], row["p_hate"] = None, np.nan
+            if mixed_h is not None: row["mixed"] = None
+            if style_h is not None: row["style"] = None
+            out.append(row)
             continue
         pn, pu, pp = float(p[r, 0]), float(p[r, 1]), float(p[r, 2])
         j = int(np.argmax(p[r]))
-        out.append({
+        row = {
             "text": text,
             "sentiment": pp - pn,
             "prob_neg": pn, "prob_neu": pu, "prob_pos": pp,
             "class": classes[j],
             "confidence": float(p[r, j]),
-        })
+        }
+        if hate_h is not None:
+            ph = float(p_hate[r])
+            row["hate_speech"] = bool(ph >= hate_h["recommended_threshold"])
+            row["p_hate"] = ph
+        if mixed_h is not None:
+            row["mixed"] = bool(classes[j] == "neutral"
+                                and float(p_mixed[r]) >= mixed_h["recommended_threshold"])
+        if style_h is not None:
+            row["style"] = style_h["classes"][int(np.argmax(style_p[r]))]
+        out.append(row)
     return out
 
 
 def sentiment_match(
     x: "str | Sequence[str]",
     phrases: "Mapping[str, Sequence[str]] | None" = None,
-    model: str = DEFAULT_MODEL,
+    model: "str | None" = None,
     scoring: str = "mlp",
     batch_size: int = 100,
-    scoring_version: str = "1.0",
+    scoring_version: str = "2.0",
     **kwargs,
 ) -> list[dict]:
     """Calibrated sentiment plus a nearest-phrase explanation of *why*.
@@ -170,6 +207,11 @@ def sentiment_match(
     miss = _missing_mask(texts, include_empty=True)
     safe = [_PLACEHOLDER if m else t for t, m in zip(texts, miss)]
 
+    model = model or get_default_model()
+    if resolve(model).kind == "hf-classifier":
+        raise ValueError(
+            f"sentiment_match needs an embedding model for the pole comparison; {model!r} is an "
+            f"end-to-end classifier. Use an e5/openai model (e.g. model='e5-base').")
     x_emb = embed_text(safe, model=model, batch_size=batch_size, **kwargs)          # (n, dim)
     sentiments = _scoring.score(x_emb, model=model, scoring=scoring,
                                 version=scoring_version)                            # (n,) head
@@ -194,4 +236,31 @@ def sentiment_match(
             "class": flat_phrases[j][0],
             "similarity": float(sims[r, j]),
         })
+    return out
+
+
+def sentiment_provenance(
+    model: "str | None" = None,
+    scoring: str = "mlp",
+    scoring_version: str = "2.0",
+) -> dict:
+    """Provenance for a model + scoring head -- the Python twin of R ``sentiment_provenance()``.
+
+    Returns a dict describing exactly what produces a score: the encoder backend and its
+    ``dim`` / ``prefix`` / pinned ``revision``, plus the scoring ``head_type`` and
+    ``temperature``. Useful for auditing and reproducibility.
+    """
+    model = model or get_default_model()
+    b = resolve(model)
+    out = {
+        "model": model, "backend": b.kind, "dim": b.dim, "prefix": b.prefix,
+        "revision": b.revision, "scoring": scoring, "scoring_version": scoring_version,
+        "head_type": None, "temperature": None,
+    }
+    try:
+        h = _scoring.load_packaged_head(model, scoring, scoring_version)
+        out["head_type"] = h.get("type")
+        out["temperature"] = h.get("T")
+    except Exception:
+        pass
     return out

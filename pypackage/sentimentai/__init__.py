@@ -8,15 +8,24 @@ construction. e5 runs on-device with no TensorFlow and no xgboost at serve.
 from ._version import __version__
 from ._models import BACKENDS, DEFAULT_MODEL, Backend, resolve
 from .embedding import embed_text
-from .sentiment import sentiment_score, sentiment_match, sentiment
-from .install import ensure_model
+from .sentiment import sentiment_score, sentiment_match, sentiment, sentiment_provenance
+from .install import ensure_model, setup
+from ._profiles import PROFILES, get_default_model, set_default_model, use_profile
+from .plot import plot_sentiment
 
 __all__ = [
     "embed_text",
     "sentiment_score",
     "sentiment",
     "sentiment_match",
+    "sentiment_provenance",
+    "plot_sentiment",
     "ensure_model",
+    "setup",
+    "use_profile",
+    "set_default_model",
+    "get_default_model",
+    "PROFILES",
     "BACKENDS",
     "DEFAULT_MODEL",
     "Backend",

@@ -20,6 +20,34 @@
 
 ---
 
+## v2.1 additions (toolkit layer) — parity status
+
+These shipped after the original spec below; both packages implement them with matching
+contracts. The load-bearing forward passes (flags) are verified bit-for-bit (max abs diff
+R vs Python ≈ 5e-16 on shared random embeddings).
+
+| capability | R (`sentiment.ai`) | Python (`sentimentai`) | parity notes |
+|---|---|---|---|
+| hate / mixed / style flags | `sentiment()` cols `hate_speech`/`p_hate`/`mixed`/`style` | same keys | same aux heads (`scoring/aux/<kind>_<model>.json`), same thresholds; `logistic_binary` + `mlp_multilabel` forward passes verified identical |
+| flags omitted off-embedding | classifier path / legacy USE → no flag cols | `hf-classifier` path → no flag keys | flags need the e5 embedding space |
+| intent profiles | `use_profile()`, `sentiment_profiles()` | `use_profile()`, `PROFILES` | same 4 names → same models; persisted (R: `tools::R_user_dir`; Py: XDG `~/.config`) |
+| default-model precedence | `SENTIMENTAI_MODEL` > `options(sentiment.ai.model)` > config | `SENTIMENTAI_MODEL` > config | env var name shared |
+| interactive setup | `setup_sentiment.ai()` | `setup()` | profile picker + provision |
+| transformer backends | `model="twitter-roberta"`/`"xlm-roberta"` (reticulate→transformers) | same handles (`_hf_classifier`) | same HF ids; `id2label`→`[neg,neu,pos]` map identical; `sentiment_match` raises on these |
+| sentiment map | `plot_sentiment()` (plotly) | `plot_sentiment()` (plotly) | same args/labels; reducer auto = UMAP→t-SNE→PCA; c-TF-IDF default, `labels="openai"` opt-in |
+| default scoring version | `"2.0"` (1.0 still resolvable) | `"2.0"` | same bundled heads, byte-identical |
+
+---
+
+> **Note (v2.1 — read first).** The sections below are the original v2 *migration spec*,
+> written while the Python side was still a scaffold. Where they differ from the **v2.1
+> additions table above** or the current code, the table and code are authoritative.
+> Specifically, now resolved: the e5 models are served **prefix-free** (`""`, not
+> `"query: "`); the scoring defaults are `scoring="mlp"` / `scoring_version="2.0"` (not
+> `xgb` / `1.0`); the R hardcoded-512 passthrough now uses `model_dims`; and Python has
+> `scoring_version`. (Still open: Python `openai` accepts only `text-embedding-3-small`,
+> where R also lists `-3-large` / `ada-002`.)
+
 ## 0. Parity tiers — what "1:1" means here
 
 Every behaviour below is tagged with one of three tiers:
@@ -87,8 +115,8 @@ each one's backend kind, and the default.** [MATCH]
 
 | user name | kind | embedder id | dim | prefix | needs TF | tier |
 |---|---|---|---|---|---|---|
-| `e5-small` **(DEFAULT)** | sentence-transformers | `intfloat/multilingual-e5-small` | 384 | `query: ` | no | [MATCH] |
-| `e5-base` | sentence-transformers | `intfloat/multilingual-e5-base` | 768 | `query: ` | no | [MATCH] |
+| `e5-small` **(DEFAULT)** | sentence-transformers | `intfloat/multilingual-e5-small` | 384 | `""` | no | [MATCH] |
+| `e5-base` | sentence-transformers | `intfloat/multilingual-e5-base` | 768 | `""` | no | [MATCH] |
 | `openai` | openai (API) | `text-embedding-3-small` | 1536 | `` | no | [MATCH] |
 | `text-embedding-3-large` | openai (API) | same | 3072 | `` | no | [MATCH] |
 | `text-embedding-ada-002` | openai (API) | same | 1536 | `` | no | [MATCH] |

@@ -19,7 +19,7 @@ class Backend:
     name: str
     hf_id: str | None      # HuggingFace id (on-device); None for API backends
     dim: int
-    kind: str              # "sentence-transformers" | "openai" | "tfhub-legacy"
+    kind: str              # "sentence-transformers" | "openai" | "hf-classifier" | "tfhub-legacy"
     needs_tf: bool         # True => legacy, opt-in (install_sentiment.ai(legacy=TRUE))
     prefix: str            # text prefix the embedder expects (e5 wants "query: ")
     revision: str | None   # pinned HF commit SHA (on-device); None for API/legacy
@@ -29,18 +29,28 @@ class Backend:
 BACKENDS: dict[str, Backend] = {
     "e5-small": Backend(
         "e5-small", "intfloat/multilingual-e5-small", 384,
-        "sentence-transformers", False, "query: ",
+        "sentence-transformers", False, "",
         "614241f622f53c4eeff9890bdc4f31cfecc418b3",
         "DEFAULT — tiny, fast, ~100 languages, no TensorFlow"),
     "e5-base": Backend(
         "e5-base", "intfloat/multilingual-e5-base", 768,
-        "sentence-transformers", False, "query: ",
+        "sentence-transformers", False, "",
         "d128750597153bb5987e10b1c3493a34e5a4502a",
         "best on-device — ties OpenAI, ~100 languages, no TensorFlow"),
     "openai": Backend(
         "openai", None, 1536,
         "openai", False, "", None,
         "text-embedding-3-small — best overall, paid API, text leaves device"),
+    # --- opt-in end-to-end transformer classifiers ("if you can't beat 'em, join 'em").
+    # Bypass the embed->head pipeline; ~500MB-1GB download; no hate/mixed/style flags. ---
+    "twitter-roberta": Backend(
+        "twitter-roberta", "cardiffnlp/twitter-roberta-base-sentiment-latest", 3,
+        "hf-classifier", False, "", None,
+        "English RoBERTa sentiment — opt-in max-accuracy backend (~500MB, English-only)"),
+    "xlm-roberta": Backend(
+        "xlm-roberta", "cardiffnlp/twitter-xlm-roberta-base-sentiment", 3,
+        "hf-classifier", False, "", None,
+        "Multilingual XLM-R sentiment — opt-in heavy backend (~1GB, ~8 languages)"),
     # --- legacy: opt-in, requires TensorFlow. install_sentiment.ai(legacy=TRUE). ---
     # Each has a strictly-better TF-free migration target (see note).
     "en.large": Backend(
