@@ -33,7 +33,7 @@
                     "~1GB download."))
 )
 
-DEFAULT_PROFILE <- "lightest"
+DEFAULT_PROFILE <- "multilingual"
 
 #' Available sentiment.ai profiles
 #'

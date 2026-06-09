@@ -45,7 +45,7 @@ model_dims <- c(`e5-small` = 384L, `e5-base` = 768L,
 model_prefix <- c(`e5-small` = "", `e5-base` = "")
 
 # Default model when none is supplied.
-DEFAULT_MODEL <- "e5-small"
+DEFAULT_MODEL <- "e5-base"
 
 # Default scoring head when none is supplied.
 # Overridable via options(sentiment.ai.scoring = "xgb") -- picked up in .onLoad.

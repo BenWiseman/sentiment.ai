@@ -6,7 +6,7 @@
 
 test_that("the e5 default path is reachable with TF absent (routing contract)", {
   # not skipped: this MUST hold on the no-TF CI leg
-  expect_true(sentiment.ai:::DEFAULT_MODEL == "e5-small")
+  expect_true(sentiment.ai:::DEFAULT_MODEL == "e5-base")
   expect_identical(sentiment.ai:::model_class(sentiment.ai:::DEFAULT_MODEL), "st")
   # the default must never resolve into the legacy (TF) class
   expect_false(identical(sentiment.ai:::model_class(sentiment.ai:::DEFAULT_MODEL), "legacy"))

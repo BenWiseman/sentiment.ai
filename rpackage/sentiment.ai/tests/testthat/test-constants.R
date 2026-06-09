@@ -10,8 +10,8 @@ test_that("default_models is exactly the two e5 handles -> intfloat ids", {
   )
 })
 
-test_that("DEFAULT_MODEL is e5-small and is a registered default model", {
-  expect_identical(sentiment.ai:::DEFAULT_MODEL, "e5-small")
+test_that("DEFAULT_MODEL is e5-base and is a registered default model", {
+  expect_identical(sentiment.ai:::DEFAULT_MODEL, "e5-base")
   expect_true(sentiment.ai:::DEFAULT_MODEL %in% names(sentiment.ai:::default_models))
 })
 

@@ -18,18 +18,18 @@ knitr::opts_chunk$set(
 suppressPackageStartupMessages(library(sentiment.ai))
 ```
 
-**The most complete on-device sentiment toolkit in the R/Python ecosystem** — tiny by
+**The most complete on-device sentiment toolkit in the R/Python ecosystem,** tiny by
 default, with hate / mixed / style flags, intent-based profiles, an interactive map, and
 opt-in transformer backends for maximum accuracy. On-device `e5-base` **matches the paid
 OpenAI embedding** and scores across **~100 languages**, free and on-device. When you need
 the last few points of *in-domain* accuracy, opt into the bundled fine-tuned transformers
-(`max-english` / `max-multilingual`). Honest benchmarks — including where the big
-transformers win — are on the project page.
+(`max-english` / `max-multilingual`). Honest benchmarks (including where the big
+transformers win) are on the project page.
 
 `sentiment.ai` maps text to a sentiment score by embedding it with a multilingual
 sentence-transformer and running a small bundled scoring head. The default backend
-is `multilingual-e5-small` — **no TensorFlow, no API key, no data leaving your
-machine**.
+is `multilingual-e5-base` (**no TensorFlow, no API key, no data leaving your
+machine**).
 
 **Project page:**
 [https://benwiseman.github.io/sentiment.ai/](https://benwiseman.github.io/sentiment.ai/)
@@ -40,12 +40,12 @@ machine**.
 # one-time setup of the (TensorFlow-free) Python backend
 install_sentiment.ai()
 
-# the model loads automatically on first use — no explicit init needed
+# the model loads automatically on first use - no explicit init needed
 sentiment_score(c("I love this!", "this is terrible"))
-#> [1]  1.00 -0.99
+#> [1]  1.00 -1.00
 ```
 
-Scores are rescaled to `[-1, 1]` — about `1` is positive, about `-1` is negative.
+Scores are rescaled to `[-1, 1]`: about `1` is positive, about `-1` is negative.
 `init_sentiment.ai()` is optional; use it only for eager loading (e.g. at the top
 of a benchmark script so the load time doesn't skew your first timing).
 
@@ -53,13 +53,13 @@ of a benchmark script so the load time doesn't skew your first timing).
 
 Compared with lexicon/dictionary sentiment methods, this approach:
 
-1. **Is more robust** — tolerates spelling mistakes and mixed case, and the default
+1. **Is more robust:** tolerates spelling mistakes and mixed case, and the default
    model handles ~100 languages.
-2. **Doesn't need a rigid lexicon** — text is reduced to an embedding vector, so you
+2. **Doesn't need a rigid lexicon:** text is reduced to an embedding vector, so you
    get sensible scores for words and phrasings no dictionary lists.
-3. **Lets you choose the context** — `sentiment_match()` lets you define what
+3. **Lets you choose the context:** `sentiment_match()` lets you define what
    *positive* and *negative* mean for your domain.
-4. **Is auditable** — scoring is deterministic, and `sentiment_provenance()` reports
+4. **Is auditable:** scoring is deterministic, and `sentiment_provenance()` reports
    exactly which model and head produced a score.
 
 # Installation & setup
@@ -67,17 +67,17 @@ Compared with lexicon/dictionary sentiment methods, this approach:
 After installing from CRAN, set up the Python backend once with
 `install_sentiment.ai()`. The default install is TensorFlow-free. Useful arguments:
 
-* `envname` — name of the Python environment (default `"r-sentiment-ai"`).
-* `method` — `"auto"` (default), `"virtualenv"`, or `"conda"`.
-* `gpu` — `FALSE` (default) installs the smaller **CPU-only** PyTorch; `TRUE` installs the
+* `envname`: name of the Python environment (default `"r-sentiment-ai"`).
+* `method`: `"auto"` (default), `"virtualenv"`, or `"conda"`.
+* `gpu`: `FALSE` (default) installs the smaller **CPU-only** PyTorch; `TRUE` installs the
   CUDA build (Linux/Windows with an NVIDIA GPU). macOS is always CPU/MPS. The setup
   walkthrough offers this as a menu choice.
-* `fast` — use `uv` (if installed) for a much faster install; falls back to pip safely.
-* `pin_versions` — `NA` (default) tries the latest packages, then automatically retries
+* `fast`: use `uv` (if installed) for a much faster install; falls back to pip safely.
+* `pin_versions`: `NA` (default) tries the latest packages, then automatically retries
   with the bundled verified-working baseline if something doesn't land correctly. Set
   `TRUE` to always use the pinned baseline (useful after a future breaking release of
   `sentence-transformers`); set `FALSE` to skip the check entirely.
-* `legacy` — set `TRUE` to also install TensorFlow / TF-Hub for the opt-in legacy
+* `legacy`: set `TRUE` to also install TensorFlow / TF-Hub for the opt-in legacy
   Universal Sentence Encoder models.
 
 ```r
@@ -87,11 +87,11 @@ install_sentiment.ai()                 # TensorFlow-free default
 
 Even simpler for newcomers: you can skip this step entirely. The first time you score
 text in an interactive session, sentiment.ai offers a short setup walkthrough
-(`setup_sentiment.ai()`) and — when [uv](https://docs.astral.sh/uv/) is installed — uses it
+(`setup_sentiment.ai()`), and when [uv](https://docs.astral.sh/uv/) is installed it uses it
 for a much faster install. In scripts / non-interactive sessions nothing is auto-installed;
 you get a clear message to run `install_sentiment.ai()`.
 
-Once the backend is set up you don't need to call `init_sentiment.ai()` yourself — the
+Once the backend is set up you don't need to call `init_sentiment.ai()` yourself. The
 model loads automatically on the first `sentiment_score()` / `sentiment()` /
 `sentiment_match()` call. To load it eagerly the moment you attach the package (e.g. from
 your `.Rprofile`), set `options(sentiment.ai.autoinit = TRUE)`.
@@ -100,30 +100,30 @@ your `.Rprofile`), set `options(sentiment.ai.autoinit = TRUE)`.
 
 `init_sentiment.ai(model = ...)` loads a model into memory:
 
-* `"e5-small"` — default, 384-d, multilingual, on-device, no TensorFlow.
-* `"e5-base"` — 768-d, best on-device quality.
-* `"openai"` — `text-embedding-3-small` (paid API; text leaves your machine).
-* `"twitter-roberta"` / `"xlm-roberta"` — opt-in **end-to-end transformer** classifiers
+* `"e5-small"`: lighter/faster option, 384-d, multilingual, on-device, no TensorFlow.
+* `"e5-base"`: **default**, 768-d, best on-device quality.
+* `"openai"`: `text-embedding-3-small` (paid API; text leaves your machine).
+* `"twitter-roberta"` / `"xlm-roberta"`: opt-in **end-to-end transformer** classifiers
   (English / multilingual) for maximum *in-domain* accuracy; sentiment only, no flags, and
-  a ~500 MB–1 GB download on first use. The easy way in is a profile:
+  a ~500 MB-1 GB download on first use. The easy way in is a profile:
   `use_profile("max-english")` or `use_profile("max-multilingual")`.
-* `"en"` / `"en.large"` / `"multi"` / `"multi.large"` — legacy USE models, require
+* `"en"` / `"en.large"` / `"multi"` / `"multi.large"`: legacy USE models, require
   `install_sentiment.ai(legacy = TRUE)`.
 
-Rather than memorise handles, pick a backend by intent with `use_profile()` — see
+Rather than memorise handles, pick a backend by intent with `use_profile()`. See
 `sentiment_profiles()` for the options (`lightest`, `multilingual`, `max-english`,
 `max-multilingual`); the choice persists across sessions.
 
 ```r
-init_sentiment.ai()                    # e5-small
-init_sentiment.ai(model = "e5-base")   # larger on-device model
+init_sentiment.ai()                    # e5-base (default)
+init_sentiment.ai(model = "e5-small")  # lighter/faster option
 ```
 
 # Sentiment analysis
 
 ## `sentiment_score()`
 
-The main function — one score per input. The scoring head is `"mlp"` (default) or
+The main function, one score per input. The scoring head is `"mlp"` (default) or
 `"logistic"`; both are small pure-R JSON heads (no xgboost, no TensorFlow at score
 time).
 
@@ -133,19 +133,19 @@ sentiment_score(c("Will you marry me?", "Oh, you're breaking up with me..."))
 
 ## `sentiment()`
 
-When you need the whole picture rather than one number — the per-class probabilities, a
-label, and a confidence — use `sentiment()`. It returns a tidy data frame.
+When you need the whole picture rather than one number (the per-class probabilities, a
+label, and a confidence), use `sentiment()`. It returns a tidy data frame.
 
 ```r
 sentiment(c("I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"))
 #>                                        text sentiment prob_neg prob_neu prob_pos    class confidence
 #> 1                              I love this!      1.00     0.00     0.00     1.00 positive       1.00
-#> 2 The package arrived on Tuesday afternoon.      0.13     0.00     0.86     0.13  neutral       0.86
-#> 3                          this is terrible     -0.99     0.99     0.01     0.00 negative       0.99
+#> 2 The package arrived on Tuesday afternoon.      0.00     0.00     0.99     0.00  neutral       0.99
+#> 3                          this is terrible     -1.00     1.00     0.00     0.00 negative       1.00
 ```
 
 For the e5 models, `sentiment()` also appends the post-processing flag columns
-`hate_speech` / `p_hate` / `mixed` / `style` (omitted above for width) — see the flags
+`hate_speech` / `p_hate` / `mixed` / `style` (omitted above for width); see the flags
 section below.
 
 `sentiment` is `prob_pos - prob_neg`; `class` is the most probable class; `confidence` is
@@ -166,8 +166,8 @@ sentiment_match(c("The cabin crew were friendly and helpful",
                   "My bag was lost and nobody helped"),
                 phrases = poles)
 #>                                       text sentiment       phrase    class similarity
-#> 1 The cabin crew were friendly and helpful      0.36     friendly positive       0.88
-#> 2        My bag was lost and nobody helped     -0.96 lost luggage negative       0.88
+#> 1 The cabin crew were friendly and helpful      0.30     friendly positive       0.84
+#> 2        My bag was lost and nobody helped     -0.91 lost luggage negative       0.88
 ```
 
 Pass any set of poles, not just positive/negative, for arbitrary category matching, or
@@ -189,16 +189,16 @@ sentiment_provenance("e5-small")
 #>   scoring  : mlp 2.0 (mlp, T=1)
 ```
 
-# Calibration — how much to trust a score
+# Calibration: how much to trust a score
 
-`sentiment.ai` doesn't just pick a class — its probabilities are **calibrated**, so the
+`sentiment.ai` doesn't just pick a class. Its probabilities are **calibrated**, so the
 `confidence` returned by `sentiment()` means what it says: among the rows it scores at 0.8
 confidence, about 80% really are that class. That makes `confidence` a number you can act
-on — auto-accept the easy rows, send the unsure ones to a human.
+on: auto-accept the easy rows, send the unsure ones to a human.
 
 On the held-out test set the **expected calibration error (ECE) is about 0.015** for
-`e5-small` and **0.017** for `e5-base` — well-calibrated (an uncalibrated model is typically
-0.05–0.15) — and it holds on real, non-synthetic text:
+`e5-small` and **0.017** for `e5-base`, well-calibrated (an uncalibrated model is typically
+0.05-0.15), and it holds on real, non-synthetic text:
 
 | stated confidence (e5-small) | actually correct |
 |---:|---:|
@@ -218,7 +218,7 @@ review <- s[s$confidence <  0.85, ]   # route these to a human
 
 Full method, per-class ECE, and Brier scores are in the reliability report. Calibration is
 measured **in-domain** (reviews / short verbatims) on a single split, so treat very
-different text — legal, code, heavy sarcasm — with more caution.
+different text (legal, code, heavy sarcasm) with more caution.
 
 # Picking a model
 
@@ -227,18 +227,18 @@ There are two on-device models. Both run with no TensorFlow, no API key, and han
 
 | model | embedding dim | disk / RAM | relative speed | macro-F1 (real text) |
 |:------|:---:|:---:|:---:|:---:|
-| `e5-small` (**default**) | 384 | ~120 MB | baseline | 0.854 |
-| `e5-base` | 768 | ~280 MB | ~2× slower | 0.899 |
+| `e5-small` | 384 | ~120 MB | baseline | 0.854 |
+| `e5-base` (**default**) | 768 | ~280 MB | ~2× slower | 0.899 |
 
-**Use `e5-small` (the default) when:**
+**Use `e5-small` (the lighter option) when:**
 
 - You are scoring in a script or pipeline and throughput matters.
 - You're on a laptop with limited RAM (< 8 GB).
-- Your text is short — tweets, survey items, review snippets — where the smaller
+- Your text is short (tweets, survey items, review snippets) where the smaller
   model loses little accuracy.
 - You're exploring and want fast iteration.
 
-**Upgrade to `e5-base` when:**
+**Stick with `e5-base` (the default) when:**
 
 - You need the best possible accuracy and can afford the extra time/memory.
 - Your text is longer or more nuanced (interview transcripts, open-ended verbatims,
@@ -257,9 +257,9 @@ sentiment_score("Surprisingly good for the price.")
 # The interactive setup wizard also lets you choose during install.
 ```
 
-`e5-base` is not *always* better — on very short, simple text the gains are marginal,
-and the slower throughput is a real cost. For most exploratory work `e5-small` is the
-right choice; upgrade when you have a reason.
+`e5-base` is not *always* better. On very short, simple text the gains are marginal,
+and the slower throughput is a real cost. For throughput-sensitive work `e5-small` is a
+good choice; the default is `e5-base` for quality.
 
 There is also an `openai` backend (`text-embedding-3-small` via the API) that matches
 `e5-base` accuracy but sends text to OpenAI's servers and incurs per-token cost. Use it
@@ -267,7 +267,7 @@ only if you have an API key and are comfortable with data leaving your machine.
 
 # Working with real data
 
-The package ships `airline_tweets` — 14,640 tweets labelled negative / neutral /
+The package ships `airline_tweets`: 14,640 tweets labelled negative / neutral /
 positive. Here is a realistic end-to-end workflow.
 
 ```r
@@ -301,12 +301,12 @@ cat(sprintf("%.0f%% auto-accepted, %.0f%% queued for review\n",
 ```
 
 The `sentiment` column runs from −1 (negative) to +1 (positive); `confidence` is the
-probability of the predicted class. Both are calibrated — see the Calibration section.
+probability of the predicted class. Both are calibrated; see the Calibration section.
 
-# Mapping a corpus — `plot_sentiment()`
+# Mapping a corpus: `plot_sentiment()`
 
 To *see* a whole corpus at once, `plot_sentiment()` embeds every comment, projects it to
-2-D, and draws each as a point coloured by its sentiment — with the full text on hover and
+2-D, and draws each as a point coloured by its sentiment, with the full text on hover and
 **human-readable cluster labels**. It is the fastest way to spot what your data is about
 and where the sentiment sits.
 
@@ -321,17 +321,17 @@ htmlwidgets::saveWidget(p, "map.html")       # or just print `p` in the viewer /
 
 ![A sentiment map of a mixed set of product and service reviews: each point is one comment, positioned by a 2-D projection of its embedding, coloured from red (negative) to green (positive), with full text on hover and auto-labelled clusters.](sentiment-map.png)
 
-Cluster labels are **deterministic** by default (class-based TF-IDF — computed, not
+Cluster labels are **deterministic** by default (class-based TF-IDF, computed not
 generated, so they are reproducible and auditable). Pass `labels = "openai"` to spend a
-fraction of a cent on `gpt-4o-mini` for tidier 2–4 word topics (it silently falls back to
+fraction of a cent on `gpt-4o-mini` for tidier 2-4 word topics (it silently falls back to
 TF-IDF if no key is set). Recolour with `color_by = "class"` / `"style"` / `"hate"`, fix the
 cluster count with `n_clusters =`, or get the underlying data frame with `return_data = TRUE`.
 
-The geometry is a *projection* — UMAP if the suggested **uwot** is installed, else t-SNE via
-**Rtsne**, else PCA (the axis titles say which). Explore with it; do not measure off it.
+The geometry is a *projection* (UMAP if the suggested **uwot** is installed, else t-SNE via
+**Rtsne**, else PCA; the axis titles say which). Explore with it; do not measure off it.
 `plotly` is the only hard requirement (it is a suggested package).
 
-# Auditing your scores — `sentiment_diagnostics()`
+# Auditing your scores: `sentiment_diagnostics()`
 
 `sentiment_diagnostics()` augments every row with five signals that tell you *when
 not to trust the score*:
@@ -340,9 +340,9 @@ not to trust the score*:
 |:---|:---|
 | `entropy` | How spread is the probability mass? High = uncertain. |
 | `confidence_band` | `"high"` / `"moderate"` / `"low"` calibrated from ECE data. |
-| `mixed` | Both pos and neg mass > 0.25 — the text has competing signals. |
+| `mixed` | Both pos and neg mass > 0.25 (the text has competing signals). |
 | `ood_similarity` | Cosine to the training-data centroid. Low = unlike training text. |
-| `ood_flag` | `TRUE` when `ood_similarity < 0.20` — probably out-of-domain. |
+| `ood_flag` | `TRUE` when `ood_similarity < 0.20` (probably out-of-domain). |
 
 ```r
 d <- sentiment_diagnostics(c(
@@ -368,7 +368,7 @@ auto_accept <- d$confidence_band >= "moderate" & !d$mixed & !is.na(d$ood_flag) &
 `confidence_band` is an ordered factor (`low < moderate < high`), so `>=` comparisons work
 naturally. Route rows where `auto_accept == FALSE` to a human reviewer.
 
-# Validating against human labels — `sentiment_agreement()`
+# Validating against human labels: `sentiment_agreement()`
 
 When you need a number you can quote in a methods section, use `sentiment_agreement()`.
 It compares the model's scores to a set of human-provided reference labels and returns
@@ -401,7 +401,7 @@ print(ag)
 ```
 
 The **weighted kappa of 0.51** sits within the typical human-human ceiling for 3-class
-sentiment (0.50–0.65) — respectable agreement against noisy crowd labels, and the number
+sentiment (0.50-0.65), respectable agreement against noisy crowd labels and the number
 to quote in a methods section. (The airline tweets skew heavily negative and terse, which
 is near the hard end for any sentiment model; cleaner review text scores higher.) You can
 also adjust the neutral-zone boundaries:
@@ -424,10 +424,10 @@ target_mx <- embed_text(c("dogs", "cat", "IT", "computer"))
 ref_mx    <- embed_text(c("animals", "technology"))
 cosine_match(target_mx, ref_mx)[rank == 1]   # top match per row
 #>      target  reference similarity rank
-#> 1:     dogs    animals       0.93    1
+#> 1:     dogs    animals       0.94    1
 #> 2:      cat    animals       0.90    1
-#> 3:       IT technology       0.89    1
-#> 4: computer technology       0.92    1
+#> 3:       IT technology       0.86    1
+#> 4: computer technology       0.93    1
 ```
 
 For large reference sets (thousands of phrases), add `approx = TRUE` for a much faster
@@ -451,7 +451,7 @@ pip install --pre sentimentai-py
 This bridges R and Python via `reticulate`, so environment activation is the usual
 snag.
 
-**Most common fix — `RETICULATE_PYTHON` is set:**
+**Most common fix: `RETICULATE_PYTHON` is set.**
 
 ```r
 # 1. Check whether the variable is pointing at the wrong interpreter:
@@ -463,14 +463,14 @@ Sys.unsetenv("RETICULATE_PYTHON")
 ```
 
 In RStudio, the most reliable fix is *Tools > Global Options > Python > Select
-Interpreter* — point it at the `r-sentiment-ai` virtualenv. This writes the path
+Interpreter* and point it at the `r-sentiment-ai` virtualenv. This writes the path
 to your user profile so it survives restarts.
 
 **Other common causes:**
 
 - *Wrong working directory or an `.Rprofile`/`.Renviron` in the project root* setting
-  `RETICULATE_PYTHON` — check with `readLines(".Renviron")`.
-- *Running inside a Docker container or CI* with a system Python active — pass
+  `RETICULATE_PYTHON`; check with `readLines(".Renviron")`.
+- *Running inside a Docker container or CI* with a system Python active: pass
   `envname = "r-sentiment-ai"` explicitly to `init_sentiment.ai()`.
 - *Legacy TensorFlow models* need `install_sentiment.ai(legacy = TRUE)`; the default
   e5 path avoids TensorFlow entirely.

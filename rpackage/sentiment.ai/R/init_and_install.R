@@ -30,8 +30,9 @@
 #'        fails to land; \code{TRUE} always uses the pinned baseline; \code{FALSE} skips
 #'        the post-install version check entirely.
 #' @param model character; embedding model handle for \code{init_sentiment.ai}:
-#'        \code{"e5-small"} (default, 384-d, multilingual, on-device, no TensorFlow),
-#'        \code{"e5-base"} (768-d), \code{"openai"} (text-embedding-3-small, paid API),
+#'        \code{"e5-base"} (default, 768-d, best on-device quality, multilingual, no
+#'        TensorFlow), \code{"e5-small"} (384-d, faster and lighter),
+#'        \code{"openai"} (text-embedding-3-small, paid API),
 #'        or a legacy Universal Sentence Encoder model (\code{"en"}, \code{"en.large"},
 #'        \code{"multi"}, \code{"multi.large"}) which requires
 #'        \code{install_sentiment.ai(legacy = TRUE)}.
@@ -707,9 +708,9 @@ configure_sentiment.ai <- function(){
 
   model_choice <- utils::menu(
     choices = c(
-      paste0("e5-small  (default, fast ~310 t/s CPU; current: ",
+      paste0("e5-small  (faster and lighter ~310 t/s CPU; current: ",
              if(current_model=="e5-small") "ACTIVE" else "inactive", ")"),
-      paste0("e5-base   (best accuracy ~141 t/s CPU; current: ",
+      paste0("e5-base   (default, best accuracy ~141 t/s CPU; current: ",
              if(current_model=="e5-base")  "ACTIVE" else "inactive", ")")),
     title   = "Which embedding model would you like to use by default?")
 

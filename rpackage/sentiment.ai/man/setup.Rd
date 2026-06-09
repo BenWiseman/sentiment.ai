@@ -85,8 +85,9 @@ the post-install version check entirely.}
 or \code{\link[reticulate:virtualenv_install]{virtualenv_install()}}.}
 
 \item{model}{character; embedding model handle for \code{init_sentiment.ai}:
-\code{"e5-small"} (default, 384-d, multilingual, on-device, no TensorFlow),
-\code{"e5-base"} (768-d), \code{"openai"} (text-embedding-3-small, paid API),
+\code{"e5-base"} (default, 768-d, best on-device quality, multilingual, no
+TensorFlow), \code{"e5-small"} (384-d, faster and lighter),
+\code{"openai"} (text-embedding-3-small, paid API),
 or a legacy Universal Sentence Encoder model (\code{"en"}, \code{"en.large"},
 \code{"multi"}, \code{"multi.large"}) which requires
 \code{install_sentiment.ai(legacy = TRUE)}.}

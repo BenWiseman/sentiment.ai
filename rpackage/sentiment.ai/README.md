@@ -1,13 +1,13 @@
 # sentiment.ai
 
-Sentiment analysis from sentence embeddings — multilingual, on-device, and
+Sentiment analysis from sentence embeddings: multilingual, on-device, and
 **TensorFlow-free** by default.
 
 **Project page:**
 [https://benwiseman.github.io/sentiment.ai/](https://benwiseman.github.io/sentiment.ai/)
 
 > **v2 note.** The default backend is now the on-device multilingual model
-> `multilingual-e5-small` (no TensorFlow, no API key). The legacy Universal
+> `multilingual-e5-base` (no TensorFlow, no API key). The legacy Universal
 > Sentence Encoder models still work but are opt-in (`install_sentiment.ai(legacy = TRUE)`).
 > A Python sibling, [`sentimentai-py`](https://pypi.org/project/sentimentai-py/),
 > shares the same scoring heads.
@@ -21,19 +21,19 @@ library(sentiment.ai)
 # one-time setup of the (TensorFlow-free) Python backend
 install_sentiment.ai()
 
-# load the default model (multilingual e5-small), then score some text
-init_sentiment.ai(model = "e5-small")
+# load the default model (multilingual e5-base), then score some text
+init_sentiment.ai(model = "e5-base")
 sentiment_score(c("I love this!", "this is terrible"))
-#> [1]  1.00 -0.99   (about 1 = positive, about -1 = negative)
+#> [1]  1.00 -1.00   (about 1 = positive, about -1 = negative)
 ```
 
-That's it — no TensorFlow, no API key, and the model runs on your machine.
+That's it: no TensorFlow, no API key, and the model runs on your machine.
 
 # New in v2
 
 ![A sentiment map: every comment embedded, projected to 2-D, coloured by sentiment, with auto-labelled clusters.](man/figures/sentiment-map.png)
 
-**Map a whole corpus** with `plot_sentiment()` — every comment embedded, projected to
+**Map a whole corpus** with `plot_sentiment()`: every comment embedded, projected to
 2-D, coloured by sentiment, full text on hover, and **human-readable cluster labels**
 (deterministic c-TF-IDF, or `labels = "openai"` for tidier topics at ~a cent):
 
@@ -43,11 +43,11 @@ htmlwidgets::saveWidget(p, "map.html")
 ```
 
 **Safety & style flags.** For the on-device e5 models, `sentiment()` adds
-`hate_speech` / `p_hate` (hate detector, AUROC ≈ 0.95–0.97), `mixed` (competing
-pos/neg signal), and `style` (analytical / descriptive / formal / informal / inquisitive)
-— all from the same embedding, no extra download.
+`hate_speech` / `p_hate` (hate detector, AUROC ≈ 0.95-0.97), `mixed` (competing
+pos/neg signal), and `style` (analytical / descriptive / formal / informal / inquisitive),
+all from the same embedding, no extra download.
 
-**Profiles** — pick a backend by intent instead of memorising model names; the choice
+**Profiles.** Pick a backend by intent instead of memorising model names; the choice
 persists across sessions:
 
 ```r
@@ -56,8 +56,7 @@ use_profile("multilingual")    # e5-base, with flags
 use_profile("max-english")     # opt-in RoBERTa (sentiment only)
 ```
 
-**If you can't beat 'em, join 'em.** Fine-tuned transformers lead *in-domain* accuracy,
-so they ship as opt-in end-to-end backends behind the same API — `model = "twitter-roberta"`
+Fine-tuned transformers lead *in-domain* accuracy, so rather than overclaim we ship them as opt-in end-to-end backends behind the same API: `model = "twitter-roberta"`
 (English) and `model = "xlm-roberta"` (multilingual). The default stays tiny, on-device,
 and TF-free.
 
@@ -67,17 +66,17 @@ and TF-free.
 sentence-embedding model and (2) running a small, bundled scoring head over that
 embedding. Compared with traditional lexicon/dictionary methods this:
 
-1. **Is more robust** — it tolerates spelling mistakes and mixed case, and the
+1. **Is more robust:** it tolerates spelling mistakes and mixed case, and the
    default model handles **~100 languages**.
 
-2. **Doesn't need a rigid lexicon** — text is reduced to an embedding vector, so you
+2. **Doesn't need a rigid lexicon:** text is reduced to an embedding vector, so you
    get sensible scores for words and phrasings that aren't in any dictionary.
 
-3. **Lets you choose the context** — with `sentiment_match()` you define what
+3. **Lets you choose the context:** with `sentiment_match()` you define what
    *positive* and *negative* mean for your domain (e.g. `"high quality"` vs
    `"low quality"` for product reviews).
 
-4. **Is auditable** — scoring is deterministic, and `sentiment_provenance()` reports
+4. **Is auditable:** scoring is deterministic, and `sentiment_provenance()` reports
    exactly which model, scoring head, and settings produced a score.
 
 # Models
@@ -86,16 +85,16 @@ Pick a model with `init_sentiment.ai(model = ...)` (and `sentiment_score(model =
 
 | `model`        | dim  | notes                                                            |
 |:---------------|:----:|:-----------------------------------------------------------------|
-| `e5-small`     | 384  | **default** — tiny, fast, ~100 languages, on-device, no TensorFlow |
-| `e5-base`      | 768  | best on-device quality, ~100 languages, no TensorFlow            |
-| `openai`       | 1536 | `text-embedding-3-small` — paid API, text leaves your machine    |
-| `twitter-roberta` | — | opt-in end-to-end English RoBERTa — max in-domain accuracy (~500 MB) |
-| `xlm-roberta`  |  —   | opt-in end-to-end multilingual XLM-R — max accuracy (~1 GB)       |
-| `en` / `en.large` / `multi` / `multi.large` | 512 | legacy Universal Sentence Encoder — **opt-in, requires TensorFlow** (`install_sentiment.ai(legacy = TRUE)`) |
+| `e5-small`     | 384  | lighter/faster option, ~100 languages, on-device, no TensorFlow  |
+| `e5-base`      | 768  | **default**, best on-device quality, ~100 languages, no TensorFlow |
+| `openai`       | 1536 | `text-embedding-3-small` (paid API, text leaves your machine)    |
+| `twitter-roberta` | - | opt-in end-to-end English RoBERTa, max in-domain accuracy (~500 MB) |
+| `xlm-roberta`  |  -   | opt-in end-to-end multilingual XLM-R, max accuracy (~1 GB)       |
+| `en` / `en.large` / `multi` / `multi.large` | 512 | legacy Universal Sentence Encoder (**opt-in, requires TensorFlow**) (`install_sentiment.ai(legacy = TRUE)`) |
 
 The scoring head is chosen with `scoring`: `"mlp"` (default) or `"logistic"`. Both are
-small, pure-R JSON heads bundled with the package — **no xgboost and no TensorFlow at
-score time**.
+small, pure-R JSON heads bundled with the package (**no xgboost and no TensorFlow at
+score time**).
 
 # Installation & setup
 
@@ -108,11 +107,11 @@ install_sentiment.ai()           # TensorFlow-free default (sentence-transformer
 This creates a Python virtual/conda environment (default name `"r-sentiment-ai"`) and
 installs the on-device embedder. Useful arguments:
 
-* `envname` — name of the Python environment.
-* `method` — `"auto"` (default), `"virtualenv"`, or `"conda"`.
-* `legacy` — `FALSE` (default) installs the TensorFlow-free stack. Set `TRUE` to also
+* `envname`: name of the Python environment.
+* `method`: `"auto"` (default), `"virtualenv"`, or `"conda"`.
+* `legacy`: `FALSE` (default) installs the TensorFlow-free stack. Set `TRUE` to also
   install TensorFlow / TF-Hub for the legacy Universal Sentence Encoder models.
-* `gpu` — only relevant when `legacy = TRUE` (the default e5 backend uses PyTorch,
+* `gpu`: only relevant when `legacy = TRUE` (the default e5 backend uses PyTorch,
   which picks its own device).
 
 ```r
@@ -126,12 +125,12 @@ the environment is hard to activate.
 # Initialize
 
 `init_sentiment.ai()` loads the embedding model into memory so repeated scoring is
-fast. It is optional — `sentiment_score()` will call it for you — but pre-initializing
+fast. It is optional (`sentiment_score()` will call it for you), but pre-initializing
 avoids re-loading the model on every call.
 
 ```r
-init_sentiment.ai()                       # default model: e5-small
-init_sentiment.ai(model = "e5-base")      # larger on-device model
+init_sentiment.ai()                       # default model: e5-base
+init_sentiment.ai(model = "e5-small")     # lighter/faster option
 # init_sentiment.ai(model = "en.large")   # legacy USE (needs legacy install)
 ```
 
@@ -145,12 +144,12 @@ positive, about `-1` = negative).
 ```r
 reviews <- c("The cabin crew were friendly and helpful",
              "My bag was lost and nobody helped")
-sentiment_score(reviews)                # default: e5-small + mlp head
-#> [1]  0.36 -0.96
+sentiment_score(reviews)                # default: e5-base + mlp head
+#> [1]  0.30 -0.91
 ```
 
 Key arguments: `x` (text or a pre-computed embedding matrix), `model` (default
-`"e5-small"`), `scoring` (`"mlp"` default, or `"logistic"`), and `batch_size`.
+`"e5-base"`), `scoring` (`"mlp"` default, or `"logistic"`), and `batch_size`.
 
 ## `sentiment()`
 
@@ -162,8 +161,8 @@ matters, or to triage rows for review.
 sentiment(c("I love this!", "The package arrived on Tuesday afternoon.", "this is terrible"))
 #>                                        text sentiment prob_neg prob_neu prob_pos    class confidence
 #> 1                              I love this!      1.00     0.00     0.00     1.00 positive       1.00
-#> 2 The package arrived on Tuesday afternoon.      0.13     0.00     0.86     0.13  neutral       0.86
-#> 3                          this is terrible     -0.99     0.99     0.01     0.00 negative       0.99
+#> 2 The package arrived on Tuesday afternoon.      0.00     0.00     0.99     0.00  neutral       0.99
+#> 3                          this is terrible     -1.00     1.00     0.00     0.00 negative       1.00
 ```
 
 For the e5 models, `sentiment()` also appends the post-processing flag columns
@@ -172,13 +171,13 @@ For the e5 models, `sentiment()` also appends the post-processing flag columns
 `sentiment` is `prob_pos - prob_neg`; `class` is the most probable of negative / neutral /
 positive; `confidence` is that class's probability. The probabilities are **calibrated**
 (temperature-scaled): on the held-out test set the expected calibration error is ≈ 0.015,
-so a stated confidence means roughly what it says — see
+so a stated confidence means roughly what it says. See
 [`planning/reliability-report.md`](planning/reliability-report.md).
 
 ## `sentiment_match()`
 
 The **same `sentiment` score** as `sentiment_score()`, plus a nearest-phrase
-explanation against **tunable poles** — you define what the poles mean for your domain.
+explanation against **tunable poles** (you define what the poles mean for your domain).
 The poles only shape the explanation (`phrase` / `class` / `similarity`), never the score:
 
 ```r
@@ -188,8 +187,8 @@ poles <- list(positive = c("friendly", "on time", "helpful"),
 result <- sentiment_match(reviews, phrases = poles)
 print(result)
 #>                                       text sentiment       phrase    class similarity
-#> 1 The cabin crew were friendly and helpful      0.36     friendly positive       0.88
-#> 2        My bag was lost and nobody helped     -0.96 lost luggage negative       0.88
+#> 1 The cabin crew were friendly and helpful      0.30     friendly positive       0.84
+#> 2        My bag was lost and nobody helped     -0.91 lost luggage negative       0.88
 ```
 
 Pass any set of poles (not just positive/negative) for arbitrary category matching, or
@@ -198,8 +197,8 @@ relative, so longer text tends to match any single phrase less strongly.
 
 ## `sentiment_provenance()`
 
-See exactly what produced a score — the encoder, its license/source/revision, the
-embedding prefix, and the scoring head — plus a train/serve prefix-skew check:
+See exactly what produced a score: the encoder, its license/source/revision, the
+embedding prefix, and the scoring head, plus a train/serve prefix-skew check:
 
 ```r
 sentiment_provenance("e5-small")
@@ -223,17 +222,17 @@ ref_mx    <- embed_text(c("animals", "technology"))
 
 cosine_match(target_mx, ref_mx)[rank == 1]   # top match per row
 #>      target  reference similarity rank
-#> 1:     dogs    animals       0.93    1
+#> 1:     dogs    animals       0.94    1
 #> 2:      cat    animals       0.90    1
-#> 3:       IT technology       0.89    1
-#> 4: computer technology       0.92    1
+#> 3:       IT technology       0.86    1
+#> 4: computer technology       0.93    1
 ```
 
 # Python sibling
 
 The same engine is available in Python as
-[`sentimentai-py`](https://pypi.org/project/sentimentai-py/) — it ships the **same**
-scoring heads and its forward pass is verified bit-for-bit against the R one:
+[`sentimentai-py`](https://pypi.org/project/sentimentai-py/), shipping the **same**
+scoring heads with a forward pass verified bit-for-bit against the R one:
 
 ```bash
 pip install --pre sentimentai-py
@@ -263,12 +262,12 @@ sentiment_score(text)
 > **Benchmark.** On a public test mix (Amazon / IMDB / tweets / financial-news reviews
 > plus GPT synthetic; **no proprietary data**), scored with one identical XGBoost recipe
 > per embedder, on the **real-only** slice (n = 1,247): `e5-base` reaches macro-F1
-> **0.899** and **94%** directional accuracy on real positive/negative reviews — tied
-> with paid OpenAI (0.886 / 94%); the default `e5-small` is **0.854 / 89%**, level with
+> **0.899** and **94%** directional accuracy on real positive/negative reviews, tied
+> with paid OpenAI (0.886 / 94%); the lighter `e5-small` is **0.854 / 89%**, level with
 > the old TensorFlow USE default it replaces. So the TensorFlow-free default *matches*
 > the old one on accuracy while dropping all of TensorFlow. The bundled `mlp` heads **are**
-> those full-data heads — e5-small **0.860 / 90%**, e5-base **0.899 / 94%** on the real-only
-> slice, at the embedder ceiling. Real *neutral* text is scarce in the benchmark, so pos/neg
+> those full-data heads (e5-small **0.860 / 90%**, e5-base **0.899 / 94%** on the real-only
+> slice, at the embedder ceiling). Real *neutral* text is scarce in the benchmark, so pos/neg
 > accuracy is the most reliable read; see `NEWS.md` for the full table.
 
 # Contribute a scoring head
@@ -295,14 +294,14 @@ Because this bridges R and Python via `reticulate`, environment activation is th
 common snag:
 
 * **`reticulate` won't switch environments** (often in RStudio, projects, or
-  containers) — this usually means `RETICULATE_PYTHON` is set. Restart R, or set the
+  containers): this usually means `RETICULATE_PYTHON` is set. Restart R, or set the
   interpreter under *Tools > Global Options > Python*, or install into the base
   `r-reticulate` environment.
-* **Missing Python module errors** — either `install_sentiment.ai()` didn't complete,
+* **Missing Python module errors:** either `install_sentiment.ai()` didn't complete,
   or reticulate isn't using the `r-sentiment-ai` environment (see above).
-* **TLS/SSL errors during `pip` install** — see
+* **TLS/SSL errors during `pip` install:** see
   [this guide](https://stackoverflow.com/questions/45954528/pip-is-configured-with-locations-that-require-tls-ssl-however-the-ssl-module-in).
-* **Legacy TensorFlow models** — `en`/`multi`/etc. require `install_sentiment.ai(legacy = TRUE)`
+* **Legacy TensorFlow models:** `en`/`multi`/etc. require `install_sentiment.ai(legacy = TRUE)`
   and a compatible TensorFlow setup; the default e5 path avoids all of this.
 
 # Roadmap

@@ -64,7 +64,7 @@
   }
 
   packageStartupMessage(
-    "sentiment.ai: default model 'e5-small' (on-device, multilingual, no TensorFlow).\n",
+    "sentiment.ai: default model 'e5-base' (best on-device quality, multilingual, no TensorFlow).\n",
     "  The model loads automatically on first use; run install_sentiment.ai() if you\n",
     "  haven't set up the backend (legacy USE: install_sentiment.ai(legacy = TRUE)).\n",
     "  Tip: options(sentiment.ai.autoinit = TRUE) loads it when you attach the package."
