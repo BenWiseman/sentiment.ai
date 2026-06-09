@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sentimentai-py"
-version = "0.2.0a1"  # v2 heads: realsrc+aug (e5-base 0.91 in-domain, beats OpenAI emb on OOD); + hate/mixed/style flags
+version = "2.0.0"
 description = "Simple, tunable sentiment analysis from sentence embeddings — TensorFlow-free. Python sibling of the R package sentiment.ai."
 readme = "README.md"
 requires-python = ">=3.9"
