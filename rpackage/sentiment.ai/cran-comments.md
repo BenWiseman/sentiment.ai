@@ -1,4 +1,4 @@
-## Submission — sentiment.ai 2.0.0
+## Submission: sentiment.ai 2.0.0
 
 This is a feature release on top of the TensorFlow-free v2 backend. It adds:
 
@@ -17,7 +17,7 @@ forward pass is verified bit-for-bit against it.
 
 ## Test environments
 
-* local: macOS (aarch64), R 4.4 — `R CMD check`: 0 errors | 0 warnings | 4 notes
+* local: macOS (aarch64), R 4.4: `R CMD check` 0 errors | 0 warnings | 4 notes
 
 (Maintainer note: please also run win-builder (devel + release) and a Linux check via
 R-hub / GitHub Actions before submitting, as is standard.)
@@ -28,11 +28,11 @@ R-hub / GitHub Actions before submitting, as is standard.)
 
 * **installed size is ~32 Mb** (`inst/scoring` ~30 Mb). The package deliberately bundles
   its small JSON scoring heads and class centroids so that scoring runs entirely
-  on-device — no model download and no network access at score time. This on-device data
+  on-device (no model download and no network access at score time). This on-device data
   is the core value of the package; only the optional embedder is fetched on first use.
 
 * **found 836 marked UTF-8 strings.** These are in the bundled `airline_tweets` example
-  dataset — real tweets that contain accented characters and emoji. `Encoding: UTF-8` is
+  dataset (real tweets with accented characters and emoji). `Encoding: UTF-8` is
   declared in DESCRIPTION.
 
 * **Suggests packages 'uwot' and 'Rtsne' not available for checking** (in a minimal
